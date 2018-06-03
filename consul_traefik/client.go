@@ -1,4 +1,4 @@
-package zookeeperTraefik
+package consulTraefik
 
 import (
 	"encoding/json"

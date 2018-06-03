@@ -1,9 +1,6 @@
 version: "3"
 
 services:
-    #zookeeper:
-    #    image: zookeeper
-    #    restart: always
     consul:
         image: consul
         command: consul agent -server -dev -client=0.0.0.0 -ui -bootstrap -log-level warn
@@ -15,8 +12,10 @@ services:
     traefik:
         restart: always
         image: traefik:alpine
+        environment:
+            - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+            - CLOUDFLARE_API_KEY=${CLOUDFLARE_API_KEY}
         depends_on: 
-            # - zookeeper
             - consul
         links:
             - modoki # --traefikAddr of modoki
@@ -28,10 +27,6 @@ services:
         command:
             - --configfile=/usr/local/traefik/traefik.toml
             - --web
-            #- --zookeeper
-            #- --zookeeper.endpoint=zookeeper:2181
-            #- --zookeeper.prefix=traefik
-            #- --zookeeper.watch=true
             - --consul
             - --consul.endpoint=consul:8500
             - --debug
@@ -43,13 +38,11 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./cred:/usr/local/modoki/cred
         depends_on:
-            - mysql
-            # - zookeeper
             - consul
         command:
             - --addr=modoki.example.com
             - --db=root:${DB_PASSWORD}@tcp(mysql:3306)/modoki?charset=utf8mb4&parseTime=True
-            - --zookeeper=consul:2181
+            - --consul=consul:8500
             - --docker-api=v1.37
             - --traefikAddr=http://modoki
             - --jwtkey=/usr/local/modoki/cred/jwt.example.key

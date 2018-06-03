@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/cs3238-tsuzu/modoki/consul_traefik"
 
-	"github.com/cs3238-tsuzu/modoki/zookeeper_traefik"
+	"github.com/pkg/errors"
 
 	"github.com/docker/docker/api/types"
 
@@ -58,16 +58,16 @@ type ContainerController struct {
 	*goa.Controller
 	dockerClient *client.Client
 	db           *sqlx.DB
-	zk           *zookeeperTraefik.Client
+	consul       *consulTraefik.Client
 }
 
 // NewContainerController creates a container controller.
-func NewContainerController(service *goa.Service, dockerClient *client.Client, db *sqlx.DB, zk *zookeeperTraefik.Client) *ContainerController {
+func NewContainerController(service *goa.Service, dockerClient *client.Client, db *sqlx.DB, consul *consulTraefik.Client) *ContainerController {
 	return &ContainerController{
 		Controller:   service.NewController("ContainerController"),
 		dockerClient: dockerClient,
 		db:           db,
-		zk:           zk,
+		consul:       consul,
 	}
 }
 
@@ -190,18 +190,18 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 
 		frontendName := fmt.Sprintf(FrontendFormat, id)
 		backendName := fmt.Sprintf(BackendFormat, id)
-		if err := c.zk.NewFrontend(frontendName, "Host: "+ctx.Name+"."+*publicAddr); err != nil {
+		if err := c.consul.NewFrontend(frontendName, "Host: "+ctx.Name+"."+*publicAddr); err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), uid))
 
 			return
 		}
-		if err := c.zk.AddValueForFrontend(frontendName, "passHostHeader", true); err != nil {
+		if err := c.consul.AddValueForFrontend(frontendName, "passHostHeader", true); err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("UUpdate traefik error: %v", err), uid))
 
 			return
 		}
 
-		if err := c.zk.AddValueForFrontend(frontendName, "backend", backendName); err != nil {
+		if err := c.consul.AddValueForFrontend(frontendName, "backend", backendName); err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), uid))
 
 			return
@@ -266,11 +266,11 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 	frontendName := fmt.Sprintf(FrontendFormat, id)
 	backendName := fmt.Sprintf(BackendFormat, id)
 
-	if err := c.zk.DeleteBackend(backendName); err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Zookeeper Error"))
+	if err := c.consul.DeleteBackend(backendName); err != nil {
+		return ctx.InternalServerError(errors.Wrap(err, "consul Error"))
 	}
-	if err := c.zk.DeleteFrontend(frontendName); err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Zookeeper Error"))
+	if err := c.consul.DeleteFrontend(frontendName); err != nil {
+		return ctx.InternalServerError(errors.Wrap(err, "consul Error"))
 	}
 
 	return ctx.OK(nil)
@@ -395,11 +395,11 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, id int,
 	backendName := fmt.Sprintf(BackendFormat, id)
 
 	if addr == "" {
-		if err := c.zk.DeleteBackend(backendName); err != nil {
+		if err := c.consul.DeleteBackend(backendName); err != nil {
 			return errors.Wrap(err, "Traefik Unregisteration Error")
 		}
 	} else {
-		if err := c.zk.NewBackend(backendName, ServerName, addr); err != nil {
+		if err := c.consul.NewBackend(backendName, ServerName, addr); err != nil {
 			return errors.Wrap(err, "Traefik Registeration Error")
 		}
 	}

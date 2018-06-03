@@ -3,6 +3,7 @@
 package main
 
 import (
+	"github.com/cs3238-tsuzu/modoki/consul_traefik"
 	_ "github.com/go-sql-driver/mysql"
 
 	"flag"
@@ -12,7 +13,6 @@ import (
 	"path/filepath"
 
 	"github.com/cs3238-tsuzu/modoki/app"
-	"github.com/cs3238-tsuzu/modoki/zookeeper_traefik"
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/docker/docker/client"
 	"github.com/docker/libkv/store"
@@ -29,7 +29,7 @@ var (
 	docker           = flag.String("docker", "unix:///var/run/docker.sock", "Docker path")
 	dockerAPIVersion = flag.String("docker-api", "v1.37", "Docker API version")
 	sqlHost          = flag.String("db", "root:password@tcp(localhost:3306)/modoki?charset=utf8mb4&parseTime=True", "SQL")
-	zookeeperHost    = flag.String("zookeeper", "localhost:2181", "Zookeeper(KV)")
+	consulHost       = flag.String("consul", "localhost:8500", "Consul(KV)")
 	traefikAddr      = flag.String("traefikAddr", "http://modoki", "Address to register on traefik")
 	publicAddr       = flag.String("addr", "modoki.example.com", "API ep: modoki.example.com Service ep: *.modoki.example.com")
 	help             = flag.Bool("help", false, "Show this")
@@ -55,35 +55,35 @@ func main() {
 		log.Fatal("error: Connecting to SQL server error: ", err)
 	}
 
-	zk, err := zookeeperTraefik.NewClient("traefik", *zookeeperHost)
+	consul, err := consulTraefik.NewClient("traefik", *consulHost)
 
 	if err != nil {
 		log.Fatal("error: Connecting to Zookeeper server error", err)
 	}
 
-	zk.Client.AtomicPut("/traefik/acme/account", []byte{}, nil, &store.WriteOptions{})
+	consul.Client.AtomicPut("/traefik/acme/account", []byte{}, nil, &store.WriteOptions{})
 
-	if ok, err := zk.HasFrontend(TraefikFrontendName); err != nil {
+	if ok, err := consul.HasFrontend(TraefikFrontendName); err != nil {
 		log.Fatal("error: zookeeper.HasFrontend error", err)
 	} else if !ok {
-		if err := zk.NewFrontend(TraefikFrontendName, "Host:"+*publicAddr); err != nil {
+		if err := consul.NewFrontend(TraefikFrontendName, "Host:"+*publicAddr); err != nil {
 			log.Fatal("error: zookeeper.NewFrontend error", err)
 		}
 
-		if err := zk.AddValueForFrontend(TraefikFrontendName, "passHostHeader", true); err != nil {
+		if err := consul.AddValueForFrontend(TraefikFrontendName, "passHostHeader", true); err != nil {
 			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
 		}
 
-		if err := zk.AddValueForFrontend(TraefikFrontendName, "backend", TraefikBackendName); err != nil {
+		if err := consul.AddValueForFrontend(TraefikFrontendName, "backend", TraefikBackendName); err != nil {
 			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
 		}
 	}
 
-	if err := zk.NewBackend(TraefikBackendName, ServerName, *traefikAddr); err != nil {
+	if err := consul.NewBackend(TraefikBackendName, ServerName, *traefikAddr); err != nil {
 		log.Fatal("error: zookeeper.NewBackend error", err)
 	}
 
-	defer zk.DeleteBackend(TraefikBackendName)
+	defer consul.DeleteBackend(TraefikBackendName)
 
 	keys, err := LoadJWTPublicKeys(*jwtPub)
 
@@ -118,7 +118,7 @@ func main() {
 	}
 
 	// Mount "container" controller
-	c := NewContainerController(service, dockerClient, db, zk)
+	c := NewContainerController(service, dockerClient, db, consul)
 	app.MountContainerController(service, c)
 	// Mount "viron" controller
 	c2 := NewVironController(service, privKey)
