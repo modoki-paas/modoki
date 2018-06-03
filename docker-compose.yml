@@ -14,6 +14,10 @@ services:
     traefik:
         restart: always
         image: traefik:alpine
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+            - 8.8.4.4
         environment:
             - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
             - CLOUDFLARE_API_KEY=${CLOUDFLARE_API_KEY}
