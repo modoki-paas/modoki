@@ -64,7 +64,7 @@ services:
             - --traefikAddr=http://modoki
             - --jwtkey=/usr/local/modoki/cred/jwt.example.key
             - --jwtpub=/usr/local/modoki/cred/jwt.example.key.pub
-            - --net="modoki_paas-bridge"
+            - --net=modoki_paas-bridge
 
     mysql:
         restart: always
