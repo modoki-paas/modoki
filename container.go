@@ -93,7 +93,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		return ctx.BadRequest(err)
 	}
 
-	res, err := c.db.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (1, ?, "Waiting")`, ctx.Name, uid)
+	res, err := c.db.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (?, ?, "Waiting")`, ctx.Name, uid)
 
 	if err != nil {
 		return ctx.InternalServerError(err)
