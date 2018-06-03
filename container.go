@@ -301,7 +301,7 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 		return ctx.NotFound()
 	}
 
-	resp, err := c.dockerClient.HTTPClient().Post("/container/"+cid.String+"/start", "text/plain", nil)
+	resp, err := c.dockerClient.HTTPClient().Post("http://"+*dockerAPIVersion+"/containers/"+cid.String+"/start", "", nil)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Docker API error"))
