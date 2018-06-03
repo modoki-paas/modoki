@@ -8,7 +8,7 @@ WORKDIR /go/src/github.com/cs3238-tsuzu/modoki
 
 COPY . /go/src/github.com/cs3238-tsuzu/modoki
 RUN go get -v .
-RUN go build -o /bin/modoki
+RUN CGO_ENABLED=0 go build -o /bin/modoki
 
 FROM scratch
 COPY --from=build /bin/modoki /bin/modoki
