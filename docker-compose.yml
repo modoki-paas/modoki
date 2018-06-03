@@ -24,15 +24,22 @@ services:
         ports: 
             - 80:80
             - 443:443
-        volumes:
-            - "./traefik:/usr/local/traefik"
         command:
-            - --configfile=/usr/local/traefik/traefik.template.toml
+            - --entryPoints=Name:http Address::80
+            - --entryPoints=Name:https Address::443 TLS
+            - --defaultentrypoints=http,https
             - --web
             - --consul
             - --consul.endpoint=consul:8500
             - --debug
-            - --acme.domains='*.${PUBLIC_ADDR},${PUBLIC_ADDR}'
+            - --acme
+            - --acme.storage=traefik/acme/account
+            - --acme.acmelogging=true
+            - --acme.entryPoint=https
+            - --acme.dnschallenge=true
+            - --acme.dnschallenge.provider=cloudflare
+            - --acme.dnschallenge.delaybeforecheck=0s
+            - --acme.domains=*.${PUBLIC_ADDR},${PUBLIC_ADDR}
             - --acme.email=${EMAIL_ADDRESS}
 
     modoki:

@@ -11,7 +11,7 @@ defaultEntryPoints = ["http", "https"]
 
 [acme]
 acmeLogging = true
-storage = "/traefik/acme/account"
+storage = "traefik/acme/account"
 entryPoint = "https"
 [acme.dnsChallenge]
   provider = "cloudflare"

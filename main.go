@@ -54,6 +54,10 @@ func main() {
 		log.Fatal("error: Connecting to SQL server error: ", err)
 	}
 
+	if _, err := db.Exec(containerSchema); err != nil {
+		log.Fatal("error: Failed to create container table: ", err)
+	}
+
 	consul, err := consulTraefik.NewClient("traefik", *consulHost)
 
 	if err != nil {
