@@ -28,7 +28,7 @@ import (
 const containerSchema = `
 CREATE TABLE IF NOT EXISTS containers (
 	id INT NOT NULL AUTO_INCREMENT,
-	cid VARCHAR(32) UNIQUE,
+	cid VARCHAR(128) UNIQUE,
 	name VARCHAR(64) NOT NULL UNIQUE,
 	uid INT NOT NULL,
 	status VARCHAR(32),
@@ -326,7 +326,7 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 		var msg message
 		json.NewDecoder(resp.Body).Decode(&msg)
 
-		return ctx.InternalServerError(fmt.Errorf("Container starting error: %v", err))
+		return ctx.InternalServerError(fmt.Errorf("Container starting error: %s", msg.Message))
 	}
 
 	if err := c.updateContainerStatus(context.Background(), id, cid.String); err != nil {
