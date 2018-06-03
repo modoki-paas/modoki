@@ -168,6 +168,10 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 
 		networkingConfig := &network.NetworkingConfig{}
 
+		if networkName != nil {
+			networkingConfig.EndpointsConfig[*networkName] = &network.EndpointSettings{}
+		}
+
 		body, err := c.dockerClient.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, "")
 
 		if err != nil {
@@ -386,7 +390,13 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, id int,
 		return errors.Wrap(err, "Container Inspect Error")
 	}
 
-	addr := j.NetworkSettings.Networks["bridge"].IPAddress
+	n := "bridge"
+
+	if networkName != nil {
+		n = *networkName
+	}
+
+	addr := j.NetworkSettings.Networks[n].IPAddress
 
 	backendName := fmt.Sprintf(BackendFormat, id)
 

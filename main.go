@@ -31,6 +31,7 @@ var (
 	consulHost       = flag.String("consul", "localhost:8500", "Consul(KV)")
 	traefikAddr      = flag.String("traefikAddr", "http://modoki", "Address to register on traefik")
 	publicAddr       = flag.String("addr", "modoki.example.com", "API ep: modoki.example.com Service ep: *.modoki.example.com")
+	networkName      = flag.String("net", "", "network for containers to join")
 	help             = flag.Bool("help", false, "Show this")
 )
 

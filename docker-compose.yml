@@ -14,6 +14,8 @@ services:
     traefik:
         restart: always
         image: traefik:alpine
+        networks:
+            - paas-bridge
         dns:
             - 1.1.1.1
             - 8.8.8.8
@@ -45,6 +47,8 @@ services:
             - --acme.dnschallenge.delaybeforecheck=0s
             - --acme.domains=*.${PUBLIC_ADDR},${PUBLIC_ADDR}
             - --acme.email=${EMAIL_ADDRESS}
+        networks:
+            - paas-network
 
     modoki:
         restart: always
@@ -62,6 +66,7 @@ services:
             - --traefikAddr=http://modoki
             - --jwtkey=/usr/local/modoki/cred/jwt.example.key
             - --jwtpub=/usr/local/modoki/cred/jwt.example.key.pub
+            - --net="modoki_paas-bridge"
 
     mysql:
         restart: always
@@ -82,3 +87,7 @@ volumes:
         driver: local
     consul-volume:
         driver: local
+
+networks:
+    paas-bridge:
+        driver: bridge
