@@ -1,0 +1,24 @@
+defaultEntryPoints = ["http", "https"]
+
+[entryPoints]
+  [entryPoints.http]
+  address = ":80"
+    [entryPoints.http.redirect]
+      entryPoint = "https"
+  [entryPoints.https]
+  address = ":443"
+    [entryPoints.https.tls]
+
+[acme]
+acmeLogging = true
+email = "your@emailaddress.com"
+storage = "/usr/local/traefik/acme.json"
+entryPoint = "https"
+[acme.dnsChallenge]
+  provider = "cloudflare"
+  delayBeforeCheck = 0
+
+[[acme.domains]]
+   main="*.modoki.example.com"
+   sans = ["modoki.example.com"]
+

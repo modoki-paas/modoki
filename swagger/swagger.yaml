@@ -1,0 +1,711 @@
+basePath: /api/v1
+consumes:
+- application/json
+definitions:
+  GoaContainerCreateResults:
+    description: The results of container creation (default view)
+    example:
+      id: 3.022233892411311e+18
+      warnings:
+      - Voluptas veniam.
+    properties:
+      id:
+        description: container id
+        example: 3.022233892411311e+18
+        format: int64
+        type: integer
+      warnings:
+        example:
+        - Voluptas veniam.
+        items:
+          example: Voluptas veniam.
+          type: string
+        type: array
+    required:
+    - id
+    title: 'Mediatype identifier: vnd.application/goa.container.create.results+json;
+      view=default'
+    type: object
+  Query:
+    description: viron query (default view)
+    example:
+      key: Delectus fugiat qui nulla ipsa.
+      type: Quo aut facere consequatur dolor.
+    properties:
+      key:
+        description: key
+        example: Delectus fugiat qui nulla ipsa.
+        type: string
+      type:
+        description: type
+        example: Quo aut facere consequatur dolor.
+        type: string
+    required:
+    - key
+    - type
+    title: 'Mediatype identifier: application/vnd.query+json; view=default'
+    type: object
+  SigninPayload:
+    example:
+      id: identify key
+      password: 3zvdvz59a3
+    properties:
+      id:
+        description: ID or Email
+        example: identify key
+        type: string
+      password:
+        description: Password
+        example: 3zvdvz59a3
+        maxLength: 256
+        type: string
+    required:
+    - id
+    - password
+    title: SigninPayload
+    type: object
+  Vironapi:
+    description: viron api (default view)
+    example:
+      method: Sunt facilis.
+      path: Quam assumenda voluptatem autem nisi autem numquam.
+    properties:
+      method:
+        description: name
+        example: Sunt facilis.
+        type: string
+      path:
+        description: path
+        example: Quam assumenda voluptatem autem nisi autem numquam.
+        type: string
+    required:
+    - method
+    - path
+    title: 'Mediatype identifier: application/vnd.vironapi+json; view=default'
+    type: object
+  Vironauthtype:
+    description: viron authtype media (default view)
+    example:
+      method: POST
+      provider: ""
+      type: signin
+      url: /signin
+    properties:
+      method:
+        description: method
+        example: POST
+        type: string
+      provider:
+        description: auth provider
+        example: ""
+        type: string
+      type:
+        description: auth type
+        example: signin
+        type: string
+      url:
+        description: url
+        example: /signin
+        type: string
+    required:
+    - type
+    - provider
+    - url
+    - method
+    title: 'Mediatype identifier: application/vnd.vironauthtype+json; view=default'
+    type: object
+  VironauthtypeCollection:
+    description: VironauthtypeCollection is the media type for an array of Vironauthtype
+      (default view)
+    example:
+    - method: POST
+      provider: ""
+      type: signin
+      url: /signin
+    items:
+      $ref: '#/definitions/Vironauthtype'
+    title: 'Mediatype identifier: application/vnd.vironauthtype+json; type=collection;
+      view=default'
+    type: array
+  Vironcomponent:
+    description: viron component (default view)
+    example:
+      api:
+        method: Sunt facilis.
+        path: Quam assumenda voluptatem autem nisi autem numquam.
+      name: Et similique veniam odio.
+      pagination: false
+      primary: Reprehenderit quis.
+      query:
+      - key: Delectus fugiat qui nulla ipsa.
+        type: Quo aut facere consequatur dolor.
+      - key: Delectus fugiat qui nulla ipsa.
+        type: Quo aut facere consequatur dolor.
+      style: Qui tempore omnis quae aut quis blanditiis.
+      table_labels:
+      - Magni aut dolore similique.
+      - Magni aut dolore similique.
+      - Magni aut dolore similique.
+    properties:
+      api:
+        $ref: '#/definitions/Vironapi'
+      name:
+        description: name
+        example: Et similique veniam odio.
+        type: string
+      pagination:
+        description: pagination
+        example: false
+        type: boolean
+      primary:
+        description: primary key
+        example: Reprehenderit quis.
+        type: string
+      query:
+        description: query
+        example:
+        - key: Delectus fugiat qui nulla ipsa.
+          type: Quo aut facere consequatur dolor.
+        - key: Delectus fugiat qui nulla ipsa.
+          type: Quo aut facere consequatur dolor.
+        items:
+          $ref: '#/definitions/Query'
+        type: array
+      style:
+        description: style
+        example: Qui tempore omnis quae aut quis blanditiis.
+        type: string
+      table_labels:
+        description: table label
+        example:
+        - Magni aut dolore similique.
+        - Magni aut dolore similique.
+        - Magni aut dolore similique.
+        items:
+          example: Magni aut dolore similique.
+          type: string
+        type: array
+    required:
+    - name
+    - style
+    - api
+    title: 'Mediatype identifier: application/vnd.vironcomponent+json; view=default'
+    type: object
+  Vironpage:
+    description: viron page (default view)
+    example:
+      components:
+      - api:
+          method: Sunt facilis.
+          path: Quam assumenda voluptatem autem nisi autem numquam.
+        name: Et similique veniam odio.
+        pagination: false
+        primary: Reprehenderit quis.
+        query:
+        - key: Delectus fugiat qui nulla ipsa.
+          type: Quo aut facere consequatur dolor.
+        - key: Delectus fugiat qui nulla ipsa.
+          type: Quo aut facere consequatur dolor.
+        style: Qui tempore omnis quae aut quis blanditiis.
+        table_labels:
+        - Magni aut dolore similique.
+        - Magni aut dolore similique.
+        - Magni aut dolore similique.
+      group: Quibusdam natus.
+      id: Doloremque laudantium velit iure eum doloribus laudantium.
+      name: Qui id sint et.
+      section: Qui voluptatem quo.
+    properties:
+      components:
+        description: pages
+        example:
+        - api:
+            method: Sunt facilis.
+            path: Quam assumenda voluptatem autem nisi autem numquam.
+          name: Et similique veniam odio.
+          pagination: false
+          primary: Reprehenderit quis.
+          query:
+          - key: Delectus fugiat qui nulla ipsa.
+            type: Quo aut facere consequatur dolor.
+          - key: Delectus fugiat qui nulla ipsa.
+            type: Quo aut facere consequatur dolor.
+          style: Qui tempore omnis quae aut quis blanditiis.
+          table_labels:
+          - Magni aut dolore similique.
+          - Magni aut dolore similique.
+          - Magni aut dolore similique.
+        items:
+          $ref: '#/definitions/Vironcomponent'
+        type: array
+      group:
+        description: group
+        example: Quibusdam natus.
+        type: string
+      id:
+        description: id
+        example: Doloremque laudantium velit iure eum doloribus laudantium.
+        type: string
+      name:
+        description: name
+        example: Qui id sint et.
+        type: string
+      section:
+        description: section
+        example: Qui voluptatem quo.
+        type: string
+    required:
+    - id
+    - name
+    - section
+    - group
+    - components
+    title: 'Mediatype identifier: application/vnd.vironpage+json; view=default'
+    type: object
+  Vironsetting:
+    description: viron setting (default view)
+    example:
+      color: Excepturi sapiente debitis quia alias ipsum.
+      name: Et doloremque reiciendis ducimus minima labore odio.
+      pages:
+      - components:
+        - api:
+            method: Sunt facilis.
+            path: Quam assumenda voluptatem autem nisi autem numquam.
+          name: Et similique veniam odio.
+          pagination: false
+          primary: Reprehenderit quis.
+          query:
+          - key: Delectus fugiat qui nulla ipsa.
+            type: Quo aut facere consequatur dolor.
+          - key: Delectus fugiat qui nulla ipsa.
+            type: Quo aut facere consequatur dolor.
+          style: Qui tempore omnis quae aut quis blanditiis.
+          table_labels:
+          - Magni aut dolore similique.
+          - Magni aut dolore similique.
+          - Magni aut dolore similique.
+        group: Quibusdam natus.
+        id: Doloremque laudantium velit iure eum doloribus laudantium.
+        name: Qui id sint et.
+        section: Qui voluptatem quo.
+      - components:
+        - api:
+            method: Sunt facilis.
+            path: Quam assumenda voluptatem autem nisi autem numquam.
+          name: Et similique veniam odio.
+          pagination: false
+          primary: Reprehenderit quis.
+          query:
+          - key: Delectus fugiat qui nulla ipsa.
+            type: Quo aut facere consequatur dolor.
+          - key: Delectus fugiat qui nulla ipsa.
+            type: Quo aut facere consequatur dolor.
+          style: Qui tempore omnis quae aut quis blanditiis.
+          table_labels:
+          - Magni aut dolore similique.
+          - Magni aut dolore similique.
+          - Magni aut dolore similique.
+        group: Quibusdam natus.
+        id: Doloremque laudantium velit iure eum doloribus laudantium.
+        name: Qui id sint et.
+        section: Qui voluptatem quo.
+      tags:
+      - Aut sunt minus aut quia omnis.
+      - Aut sunt minus aut quia omnis.
+      theme: Illum assumenda omnis tempora.
+      thumbnail: Debitis non illo et ut et cumque.
+    properties:
+      color:
+        description: color
+        example: Excepturi sapiente debitis quia alias ipsum.
+        type: string
+      name:
+        description: name
+        example: Et doloremque reiciendis ducimus minima labore odio.
+        type: string
+      pages:
+        description: pages
+        example:
+        - components:
+          - api:
+              method: Sunt facilis.
+              path: Quam assumenda voluptatem autem nisi autem numquam.
+            name: Et similique veniam odio.
+            pagination: false
+            primary: Reprehenderit quis.
+            query:
+            - key: Delectus fugiat qui nulla ipsa.
+              type: Quo aut facere consequatur dolor.
+            - key: Delectus fugiat qui nulla ipsa.
+              type: Quo aut facere consequatur dolor.
+            style: Qui tempore omnis quae aut quis blanditiis.
+            table_labels:
+            - Magni aut dolore similique.
+            - Magni aut dolore similique.
+            - Magni aut dolore similique.
+          group: Quibusdam natus.
+          id: Doloremque laudantium velit iure eum doloribus laudantium.
+          name: Qui id sint et.
+          section: Qui voluptatem quo.
+        - components:
+          - api:
+              method: Sunt facilis.
+              path: Quam assumenda voluptatem autem nisi autem numquam.
+            name: Et similique veniam odio.
+            pagination: false
+            primary: Reprehenderit quis.
+            query:
+            - key: Delectus fugiat qui nulla ipsa.
+              type: Quo aut facere consequatur dolor.
+            - key: Delectus fugiat qui nulla ipsa.
+              type: Quo aut facere consequatur dolor.
+            style: Qui tempore omnis quae aut quis blanditiis.
+            table_labels:
+            - Magni aut dolore similique.
+            - Magni aut dolore similique.
+            - Magni aut dolore similique.
+          group: Quibusdam natus.
+          id: Doloremque laudantium velit iure eum doloribus laudantium.
+          name: Qui id sint et.
+          section: Qui voluptatem quo.
+        items:
+          $ref: '#/definitions/Vironpage'
+        type: array
+      tags:
+        description: tags
+        example:
+        - Aut sunt minus aut quia omnis.
+        - Aut sunt minus aut quia omnis.
+        items:
+          example: Aut sunt minus aut quia omnis.
+          type: string
+        type: array
+      theme:
+        description: theme
+        example: Illum assumenda omnis tempora.
+        type: string
+      thumbnail:
+        description: thumbnail
+        example: Debitis non illo et ut et cumque.
+        type: string
+    required:
+    - name
+    - color
+    - theme
+    - pages
+    - tags
+    - thumbnail
+    title: 'Mediatype identifier: application/vnd.vironsetting+json; view=default'
+    type: object
+  error:
+    description: Error response media type (default view)
+    example:
+      code: invalid_value
+      detail: Value of ID must be an integer
+      id: 3F1FKVRR
+      meta:
+        timestamp: 1.458609066e+09
+      status: "400"
+    properties:
+      code:
+        description: an application-specific error code, expressed as a string value.
+        example: invalid_value
+        type: string
+      detail:
+        description: a human-readable explanation specific to this occurrence of the
+          problem.
+        example: Value of ID must be an integer
+        type: string
+      id:
+        description: a unique identifier for this particular occurrence of the problem.
+        example: 3F1FKVRR
+        type: string
+      meta:
+        additionalProperties: true
+        description: a meta object containing non-standard meta-information about
+          the error.
+        example:
+          timestamp: 1.458609066e+09
+        type: object
+      status:
+        description: the HTTP status code applicable to this problem, expressed as
+          a string value.
+        example: "400"
+        type: string
+    title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+    type: object
+host: localhost:4434
+info:
+  title: Modoki API Documentation
+  version: ""
+paths:
+  /container/create:
+    get:
+      description: create a new container
+      operationId: container#create
+      parameters:
+      - collectionFormat: multi
+        description: Command to run specified as a string or an array of strings.
+        in: query
+        items:
+          type: string
+        name: cmd
+        required: true
+        type: array
+      - collectionFormat: multi
+        description: The entry point for the container as a string or an array of
+          strings
+        in: query
+        items:
+          type: string
+        name: entrypoint
+        required: true
+        type: array
+      - collectionFormat: multi
+        description: Environment variables
+        in: query
+        items:
+          type: string
+        name: env
+        required: true
+        type: array
+      - description: Name of image
+        in: query
+        name: image
+        required: true
+        type: string
+      - description: Name of container
+        in: query
+        maxLength: 64
+        name: name
+        pattern: ^[a-zA-Z0-9_]+$
+        required: true
+        type: string
+      - collectionFormat: multi
+        description: Path to volumes in a container
+        in: query
+        items:
+          type: string
+        name: volumes
+        required: true
+        type: array
+      - description: Current directory (PWD) in the command will be launched
+        in: query
+        name: workingDir
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - vnd.application/goa.container.create.results+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaContainerCreateResults'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: create container
+      tags:
+      - container
+  /container/remove:
+    get:
+      description: remove a container
+      operationId: container#remove
+      parameters:
+      - default: false
+        description: If the container is running, kill it before removing it.
+        in: query
+        name: force
+        required: true
+        type: boolean
+      - description: id or name
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+        "409":
+          description: You cannot remove a running container
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: remove container
+      tags:
+      - container
+  /container/start:
+    get:
+      description: start a container
+      operationId: container#start
+      parameters:
+      - description: id or name
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: start container
+      tags:
+      - container
+  /container/stop:
+    get:
+      description: stop a container
+      operationId: container#stop
+      parameters:
+      - description: id or name
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - text/plain
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: stop container
+      tags:
+      - container
+  /signin:
+    post:
+      description: Creates a valid JWT
+      operationId: viron#signin
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/SigninPayload'
+      responses:
+        "204":
+          description: No Content
+          headers:
+            Authorization:
+              description: Generated JWT
+              type: string
+        "401":
+          description: Unauthorized
+        "500":
+          description: Internal Server Error
+      schemes:
+      - http
+      - https
+      summary: signin viron
+      tags:
+      - viron
+  /viron:
+    get:
+      description: Get viron menu
+      operationId: viron#get
+      produces:
+      - application/vnd.vironsetting+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Vironsetting'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: get viron
+      tags:
+      - viron
+  /viron_authtype:
+    get:
+      description: Get viron authtype
+      operationId: viron#authtype
+      produces:
+      - application/vnd.vironauthtype+json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/VironauthtypeCollection'
+      schemes:
+      - http
+      - https
+      summary: authtype viron
+      tags:
+      - viron
+produces:
+- application/json
+responses:
+  InternalServerError:
+    description: Internal Server Error
+  NotFound:
+    description: Not Found
+  OK:
+    description: OK
+  Unauthorized:
+    description: Unauthorized
+schemes:
+- http
+- https
+securityDefinitions:
+  jwt:
+    description: |2-
+
+
+      **Security Scopes**:
+        * `api:access`: API access
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
