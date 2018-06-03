@@ -303,8 +303,7 @@ func (c *Client) DecodeVironsetting(resp *http.Response) (*Vironsetting, error) 
 // Identifier: vnd.application/goa.container.create.results+json; view=default
 type GoaContainerCreateResults struct {
 	// container id
-	ID       int      `form:"id" json:"id" xml:"id"`
-	Warnings []string `form:"warnings,omitempty" json:"warnings,omitempty" xml:"warnings,omitempty"`
+	ID int `form:"id" json:"id" xml:"id"`
 }
 
 // DecodeGoaContainerCreateResults decodes the GoaContainerCreateResults instance encoded in resp body.

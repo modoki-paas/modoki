@@ -6,21 +6,12 @@ definitions:
     description: The results of container creation (default view)
     example:
       id: 3.022233892411311e+18
-      warnings:
-      - Voluptas veniam.
     properties:
       id:
         description: container id
         example: 3.022233892411311e+18
         format: int64
         type: integer
-      warnings:
-        example:
-        - Voluptas veniam.
-        items:
-          example: Voluptas veniam.
-          type: string
-        type: array
     required:
     - id
     title: 'Mediatype identifier: vnd.application/goa.container.create.results+json;
@@ -48,7 +39,7 @@ definitions:
   SigninPayload:
     example:
       id: identify key
-      password: 3zvdvz59a3
+      password: ro7u3zvdvz
     properties:
       id:
         description: ID or Email
@@ -56,7 +47,7 @@ definitions:
         type: string
       password:
         description: Password
-        example: 3zvdvz59a3
+        example: ro7u3zvdvz
         maxLength: 256
         type: string
     required:
@@ -118,6 +109,14 @@ definitions:
     description: VironauthtypeCollection is the media type for an array of Vironauthtype
       (default view)
     example:
+    - method: POST
+      provider: ""
+      type: signin
+      url: /signin
+    - method: POST
+      provider: ""
+      type: signin
+      url: /signin
     - method: POST
       provider: ""
       type: signin

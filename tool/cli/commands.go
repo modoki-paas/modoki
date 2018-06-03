@@ -160,7 +160,7 @@ Payload example:
 
 {
    "id": "identify key",
-   "password": "3zvdvz59a3"
+   "password": "ro7u3zvdvz"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}

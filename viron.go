@@ -70,14 +70,15 @@ func (c *VironController) Signin(ctx *app.SigninVironContext) error {
 	token := jwtgo.New(jwtgo.SigningMethodRS512)
 	deadline := time.Now().AddDate(1, 0, 0).Unix()
 	token.Claims = jwtgo.MapClaims{
-		"iss":    "modoki",                         // who creates the token and signs it
-		"aud":    "modoki",                         // to whom the token is intended to be sent
-		"exp":    deadline,                         // time when the token will expire (10 minutes from now)
-		"jti":    uuid.Must(uuid.NewV4()).String(), // a unique identifier for the token
-		"iat":    time.Now().Unix(),                // when the token was issued/created (now)
-		"nbf":    2,                                // time before which the token is not yet valid (2 minutes ago)
-		"sub":    "subject",                        // the subject/principal is whom the token is about
-		"scopes": "api:access",                     // token scope - not a standard claim
+		jwtKeyUID: 1,
+		"iss":     "modoki",                         // who creates the token and signs it
+		"aud":     "modoki",                         // to whom the token is intended to be sent
+		"exp":     deadline,                         // time when the token will expire (10 minutes from now)
+		"jti":     uuid.Must(uuid.NewV4()).String(), // a unique identifier for the token
+		"iat":     time.Now().Unix(),                // when the token was issued/created (now)
+		"nbf":     2,                                // time before which the token is not yet valid (2 minutes ago)
+		"sub":     "subject",                        // the subject/principal is whom the token is about
+		"scopes":  "api:access",                     // token scope - not a standard claim
 	}
 	signedToken, err := token.SignedString(c.privateKey)
 	if err != nil {
