@@ -169,7 +169,9 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		networkingConfig := &network.NetworkingConfig{}
 
 		if networkName != nil {
-			networkingConfig.EndpointsConfig[*networkName] = &network.EndpointSettings{}
+			networkingConfig.EndpointsConfig = map[string]*network.EndpointSettings{
+				*networkName: &network.EndpointSettings{},
+			}
 		}
 
 		body, err := c.dockerClient.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, "")
