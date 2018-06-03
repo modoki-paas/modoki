@@ -16,6 +16,7 @@ services:
         image: traefik:alpine
         networks:
             - paas-bridge
+            - default
         dns:
             - 1.1.1.1
             - 8.8.8.8
