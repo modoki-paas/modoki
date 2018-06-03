@@ -11,7 +11,6 @@ defaultEntryPoints = ["http", "https"]
 
 [acme]
 acmeLogging = true
-email = "your@emailaddress.com"
 storage = "/traefik/acme/account"
 entryPoint = "https"
 [acme.dnsChallenge]
