@@ -42,23 +42,17 @@ func NewCreateContainerContext(ctx context.Context, r *http.Request, service *go
 	req.Request = r
 	rctx := CreateContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramCmd := req.Params["cmd"]
-	if len(paramCmd) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("cmd"))
-	} else {
+	if len(paramCmd) > 0 {
 		params := paramCmd
 		rctx.Cmd = params
 	}
 	paramEntrypoint := req.Params["entrypoint"]
-	if len(paramEntrypoint) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("entrypoint"))
-	} else {
+	if len(paramEntrypoint) > 0 {
 		params := paramEntrypoint
 		rctx.Entrypoint = params
 	}
 	paramEnv := req.Params["env"]
-	if len(paramEnv) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("env"))
-	} else {
+	if len(paramEnv) > 0 {
 		params := paramEnv
 		rctx.Env = params
 	}
@@ -83,9 +77,7 @@ func NewCreateContainerContext(ctx context.Context, r *http.Request, service *go
 		}
 	}
 	paramVolumes := req.Params["volumes"]
-	if len(paramVolumes) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("volumes"))
-	} else {
+	if len(paramVolumes) > 0 {
 		params := paramVolumes
 		rctx.Volumes = params
 	}

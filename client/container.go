@@ -25,8 +25,8 @@ func CreateContainerPath() string {
 }
 
 // create a new container
-func (c *Client) CreateContainer(ctx context.Context, path string, cmd []string, entrypoint []string, env []string, image string, name string, volumes []string, workingDir *string) (*http.Response, error) {
-	req, err := c.NewCreateContainerRequest(ctx, path, cmd, entrypoint, env, image, name, volumes, workingDir)
+func (c *Client) CreateContainer(ctx context.Context, path string, image string, name string, cmd []string, entrypoint []string, env []string, volumes []string, workingDir *string) (*http.Response, error) {
+	req, err := c.NewCreateContainerRequest(ctx, path, image, name, cmd, entrypoint, env, volumes, workingDir)
 	if err != nil {
 		return nil, err
 	}
@@ -34,13 +34,15 @@ func (c *Client) CreateContainer(ctx context.Context, path string, cmd []string,
 }
 
 // NewCreateContainerRequest create the request corresponding to the create action endpoint of the container resource.
-func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, cmd []string, entrypoint []string, env []string, image string, name string, volumes []string, workingDir *string) (*http.Request, error) {
+func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, image string, name string, cmd []string, entrypoint []string, env []string, volumes []string, workingDir *string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
+	values.Set("image", image)
+	values.Set("name", name)
 	for _, p := range cmd {
 		tmp9 := p
 		values.Add("cmd", tmp9)
@@ -53,8 +55,6 @@ func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, cmd
 		tmp11 := p
 		values.Add("env", tmp11)
 	}
-	values.Set("image", image)
-	values.Set("name", name)
 	for _, p := range volumes {
 		tmp12 := p
 		values.Add("volumes", tmp12)

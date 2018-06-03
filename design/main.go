@@ -41,7 +41,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 			Param("volumes", ArrayOf(String), "Path to volumes in a container")
 			Param("workingDir", String, "Current directory (PWD) in the command will be launched")
 
-			Required("name", "image", "cmd", "entrypoint", "env", "volumes")
+			Required("name", "image")
 		})
 		Response(OK, func() {
 			Status(200)

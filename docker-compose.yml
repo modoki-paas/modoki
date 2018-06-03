@@ -47,6 +47,7 @@ services:
             # - zookeeper
             - consul
         command:
+            - --addr=modoki.example.com
             - --db=root:${DB_PASSWORD}@tcp(mysql:3306)/modoki?charset=utf8mb4&parseTime=True
             - --zookeeper=consul:2181
             - --docker-api=v1.37

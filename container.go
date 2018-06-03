@@ -164,6 +164,10 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			Volumes:    volumesMap,
 		}
 
+		if ctx.WorkingDir != nil {
+			config.WorkingDir = *ctx.WorkingDir
+		}
+
 		hostConfig := &container.HostConfig{}
 
 		networkingConfig := &network.NetworkingConfig{}

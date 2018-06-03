@@ -450,7 +450,7 @@ paths:
         items:
           type: string
         name: cmd
-        required: true
+        required: false
         type: array
       - collectionFormat: multi
         description: The entry point for the container as a string or an array of
@@ -459,7 +459,7 @@ paths:
         items:
           type: string
         name: entrypoint
-        required: true
+        required: false
         type: array
       - collectionFormat: multi
         description: Environment variables
@@ -467,7 +467,7 @@ paths:
         items:
           type: string
         name: env
-        required: true
+        required: false
         type: array
       - description: Name of image
         in: query
@@ -487,7 +487,7 @@ paths:
         items:
           type: string
         name: volumes
-        required: true
+        required: false
         type: array
       - description: Current directory (PWD) in the command will be launched
         in: query

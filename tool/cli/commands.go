@@ -361,7 +361,7 @@ func (cmd *CreateContainerCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreateContainer(ctx, path, cmd.Cmd, cmd.Entrypoint, cmd.Env, cmd.Image, cmd.Name, cmd.Volumes, stringFlagVal("workingDir", cmd.WorkingDir))
+	resp, err := c.CreateContainer(ctx, path, cmd.Image, cmd.Name, cmd.Cmd, cmd.Entrypoint, cmd.Env, cmd.Volumes, stringFlagVal("workingDir", cmd.WorkingDir))
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
