@@ -12,7 +12,7 @@ defaultEntryPoints = ["http", "https"]
 [acme]
 acmeLogging = true
 email = "your@emailaddress.com"
-storage = "/usr/local/traefik/acme.json"
+storage = "/traefik/acme/account"
 entryPoint = "https"
 [acme.dnsChallenge]
   provider = "cloudflare"

@@ -15,6 +15,7 @@ import (
 	"github.com/cs3238-tsuzu/modoki/zookeeper_traefik"
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/docker/docker/client"
+	"github.com/docker/libkv/store"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	"github.com/goadesign/goa/middleware/security/jwt"
@@ -51,7 +52,7 @@ func main() {
 	db, err := sqlx.Connect(*sqlDriver, *sqlHost)
 
 	if err != nil {
-		log.Fatal("error: Connecting to SQL server error", err)
+		log.Fatal("error: Connecting to SQL server error: ", err)
 	}
 
 	zk, err := zookeeperTraefik.NewClient("traefik", *zookeeperHost)
@@ -59,6 +60,8 @@ func main() {
 	if err != nil {
 		log.Fatal("error: Connecting to Zookeeper server error", err)
 	}
+
+	zk.Client.AtomicPut("/traefik/acme/account", []byte{}, nil, &store.WriteOptions{})
 
 	if ok, err := zk.HasFrontend(TraefikFrontendName); err != nil {
 		log.Fatal("error: zookeeper.HasFrontend error", err)
