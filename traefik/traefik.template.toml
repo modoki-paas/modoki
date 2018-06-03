@@ -17,8 +17,3 @@ entryPoint = "https"
 [acme.dnsChallenge]
   provider = "cloudflare"
   delayBeforeCheck = 0
-
-[[acme.domains]]
-   main="*.modoki.example.com"
-   sans = ["modoki.example.com"]
-

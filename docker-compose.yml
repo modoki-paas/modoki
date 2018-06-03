@@ -32,6 +32,7 @@ services:
             - --consul
             - --consul.endpoint=consul:8500
             - --debug
+            - --acme.domains='*.${PUBLIC_ADDR},${PUBLIC_ADDR}'
 
     modoki:
         restart: always
@@ -42,7 +43,7 @@ services:
         depends_on:
             - consul
         command:
-            - --addr=modoki.example.com
+            - --addr=$(PUBLIC_ADDR)
             - --db=root:${DB_PASSWORD}@tcp(mysql:3306)/modoki?charset=utf8mb4&parseTime=True
             - --consul=consul:8500
             - --docker-api=v1.37
