@@ -93,7 +93,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		return ctx.BadRequest(err)
 	}
 
-	res, err := c.db.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (?, ?, "Waiting")`, ctx.Name, uid)
+	res, err := c.db.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (1, ?, "Waiting")`, ctx.Name, uid)
 
 	if err != nil {
 		return ctx.InternalServerError(err)
@@ -120,7 +120,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		}
 
 		if rc, err := c.dockerClient.ImagePull(context.Background(), ctx.Image, types.ImagePullOptions{}); err != nil {
-			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Image downloading error: %v", err), uid))
+			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Image downloading error: %v", err), id))
 
 			return
 		} else {
@@ -140,7 +140,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			}
 
 			if !(strings.Contains(status, "Downloaded") || strings.Contains(status, "up to date")) {
-				c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Image downloading error: %v", status), uid))
+				c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Image downloading error: %v", status), id))
 
 				return
 			}
@@ -171,7 +171,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		body, err := c.dockerClient.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, "")
 
 		if err != nil {
-			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Failed to create a container: %v", err), uid))
+			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Failed to create a container: %v", err), id))
 
 			return
 		}
@@ -179,7 +179,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		_, err = c.db.Exec("UPDATE containers SET cid=? where id=?", body.ID, id)
 
 		if err != nil {
-			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update containers table error: %v", err), uid))
+			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update containers table error: %v", err), id))
 
 			return
 		}
@@ -187,23 +187,23 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		frontendName := fmt.Sprintf(FrontendFormat, id)
 		backendName := fmt.Sprintf(BackendFormat, id)
 		if err := c.consul.NewFrontend(frontendName, "Host: "+ctx.Name+"."+*publicAddr); err != nil {
-			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), uid))
+			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
 
 			return
 		}
 		if err := c.consul.AddValueForFrontend(frontendName, "passHostHeader", true); err != nil {
-			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("UUpdate traefik error: %v", err), uid))
+			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("UUpdate traefik error: %v", err), id))
 
 			return
 		}
 
 		if err := c.consul.AddValueForFrontend(frontendName, "backend", backendName); err != nil {
-			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), uid))
+			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
 
 			return
 		}
 
-		c.must(c.updateStatus(context.Background(), "Created", "", uid))
+		c.must(c.updateStatus(context.Background(), "Created", "", id))
 	}()
 	cres := &app.GoaContainerCreateResults{
 		ID: id,
