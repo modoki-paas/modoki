@@ -3,6 +3,8 @@ version: "3"
 services:
     consul:
         image: consul
+        volumes:
+            - consul-volume:/consul/data
         command: consul agent -server -dev -client=0.0.0.0 -ui -bootstrap -log-level warn
         ports:
             - "8400:8400"
@@ -65,4 +67,6 @@ services:
 
 volumes:
     mysql-volume:
+        driver: local
+    consul-data:
         driver: local

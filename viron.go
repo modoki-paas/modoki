@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/rsa"
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/cs3238-tsuzu/modoki/app"
@@ -70,7 +71,7 @@ func (c *VironController) Signin(ctx *app.SigninVironContext) error {
 	token := jwtgo.New(jwtgo.SigningMethodRS512)
 	deadline := time.Now().AddDate(1, 0, 0).Unix()
 	token.Claims = jwtgo.MapClaims{
-		jwtKeyUID: 1,
+		jwtKeyUID: strconv.Itoa(1),
 		"iss":     "modoki",                         // who creates the token and signs it
 		"aud":     "modoki",                         // to whom the token is intended to be sent
 		"exp":     deadline,                         // time when the token will expire (10 minutes from now)

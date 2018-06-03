@@ -14,16 +14,17 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/cs3238-tsuzu/modoki/client"
-	"github.com/goadesign/goa"
-	goaclient "github.com/goadesign/goa/client"
-	uuid "github.com/goadesign/goa/uuid"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/cs3238-tsuzu/modoki/client"
+	"github.com/goadesign/goa"
+	goaclient "github.com/goadesign/goa/client"
+	uuid "github.com/goadesign/goa/uuid"
+	"github.com/spf13/cobra"
 )
 
 type (
@@ -373,8 +374,8 @@ func (cmd *CreateContainerCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *CreateContainerCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var cmd []string
-	cc.Flags().StringSliceVar(&cmd.Cmd, "cmd", cmd, `Command to run specified as a string or an array of strings.`)
+	var cmds []string
+	cc.Flags().StringSliceVar(&cmd.Cmd, "cmd", cmds, `Command to run specified as a string or an array of strings.`)
 	var entrypoint []string
 	cc.Flags().StringSliceVar(&cmd.Entrypoint, "entrypoint", entrypoint, `The entry point for the container as a string or an array of strings`)
 	var env []string

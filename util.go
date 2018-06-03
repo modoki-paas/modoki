@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/goadesign/goa/middleware/security/jwt"
@@ -15,7 +16,7 @@ func GetUIDFromJWT(ctx context.Context) (int, error) {
 	}
 	claims := token.Claims.(jwtgo.MapClaims)
 
-	uid := claims[jwtKeyUID].(int)
+	uidStr := claims[jwtKeyUID].(string)
 
-	return uid, nil
+	return strconv.Atoi(uidStr)
 }
