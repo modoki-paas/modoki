@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/docker/libkv/store/consul"
+
 	"github.com/docker/libkv/store"
-	"github.com/docker/libkv/store/zookeeper"
 )
 
 type Client struct {
@@ -16,7 +17,7 @@ type Client struct {
 }
 
 func NewClient(prefix, addr string) (*Client, error) {
-	store, err := zookeeper.New([]string{addr}, nil)
+	store, err := consul.New([]string{addr}, nil)
 
 	if err != nil {
 		return nil, err

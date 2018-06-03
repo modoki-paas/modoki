@@ -1,15 +1,23 @@
 version: "3"
 
 services:
-    zookeeper:
-        image: zookeeper
-        restart: always
+    #zookeeper:
+    #    image: zookeeper
+    #    restart: always
+    consul:
+        image: consul
+        command: consul agent -server -dev -client=0.0.0.0 -ui -bootstrap -log-level warn
+        ports:
+            - "8400:8400"
+            - "8500:8500"
+            - "8600:53/udp"
 
     traefik:
         restart: always
         image: traefik:alpine
         depends_on: 
-            - zookeeper
+            # - zookeeper
+            - consul
         links:
             - modoki # --traefikAddr of modoki
         ports: 
@@ -20,10 +28,12 @@ services:
         command:
             - --configfile=/usr/local/traefik/traefik.toml
             - --web
-            - --zookeeper
-            - --zookeeper.endpoint=zookeeper:2181
-            - --zookeeper.prefix=traefik
-            - --zookeeper.watch=true
+            #- --zookeeper
+            #- --zookeeper.endpoint=zookeeper:2181
+            #- --zookeeper.prefix=traefik
+            #- --zookeeper.watch=true
+            - --consul
+            - --consul.endpoint=consul:8500
             - --debug
 
     modoki:
@@ -34,10 +44,11 @@ services:
             - ./cred:/usr/local/modoki/cred
         depends_on:
             - mysql
-            - zookeeper
+            # - zookeeper
+            - consul
         command:
             - --db=root:${DB_PASSWORD}@tcp(mysql:3306)/modoki?charset=utf8mb4&parseTime=True
-            - --zookeeper=zookeeper:2181
+            - --zookeeper=consul:2181
             - --docker-api=v1.37
             - --traefikAddr=http://modoki
             - --jwtkey=/usr/local/modoki/cred/jwt.example.key
