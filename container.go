@@ -26,7 +26,7 @@ import (
 )
 
 const containerSchema = `
-CREATE TABLE containers IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS containers (
 	id INT NOT NULL AUTO_INCREMENT,
 	cid VARCHAR(32) UNIQUE,
 	name VARCHAR(64) NOT NULL UNIQUE,
