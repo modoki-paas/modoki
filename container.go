@@ -72,7 +72,7 @@ func NewContainerController(service *goa.Service, dockerClient *client.Client, d
 }
 
 func (c *ContainerController) updateStatus(ctx context.Context, status, msg string, id int) error {
-	_, err := c.db.ExecContext(ctx, "UPDATE containers SET status=$1, message=$2 WHERE id=$3", status, msg, id)
+	_, err := c.db.ExecContext(ctx, "UPDATE containers SET status=?, message=? WHERE id=?", status, msg, id)
 
 	return err
 }
@@ -93,22 +93,18 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		return ctx.BadRequest(err)
 	}
 
-	rows, err := c.db.QueryContext(ctx, `INSERT INTO containers (name, uid, status) VALUES ($1, $2, "Waiting")`, ctx.Name, uid)
+	res, err := c.db.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (?, ?, "Waiting")`, ctx.Name, uid)
 
 	if err != nil {
 		return ctx.InternalServerError(err)
 	}
 
-	rows.Next()
-
 	var id int
-	if err := rows.Scan(&id); err != nil {
-		rows.Close()
-
+	if id64, err := res.LastInsertId(); err != nil {
 		return ctx.InternalServerError(err)
+	} else {
+		id = int(id64)
 	}
-
-	rows.Close()
 
 	go func() {
 		c.must(c.updateStatus(context.Background(), "Image Downloading", "", id))
@@ -180,7 +176,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			return
 		}
 
-		_, err = c.db.Exec("UPDATE containers SET cid=$1 where id=$2", body.ID, id)
+		_, err = c.db.Exec("UPDATE containers SET cid=? where id=?", body.ID, id)
 
 		if err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update containers table error: %v", err), uid))
@@ -209,11 +205,11 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 
 		c.must(c.updateStatus(context.Background(), "Created", "", uid))
 	}()
-	res := &app.GoaContainerCreateResults{
+	cres := &app.GoaContainerCreateResults{
 		ID: id,
 	}
 
-	return ctx.OK(res)
+	return ctx.OK(cres)
 	// ContainerController_Create: end_implement
 }
 
@@ -227,7 +223,7 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	rows, err := c.db.Query("SELECT id, cid FROM containers WHERE uid=$1 AND (id=$2 OR name=$2)", uid, ctx.ID)
+	rows, err := c.db.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
@@ -259,7 +255,7 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		}
 	}
 
-	if _, err := c.db.Exec("DELETE FROM containers WHERE id=$1", id); err != nil {
+	if _, err := c.db.Exec("DELETE FROM containers WHERE id=?", id); err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Deletion From Database Error"))
 	}
 
@@ -287,7 +283,7 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	rows, err := c.db.Query("SELECT id, cid FROM containers WHERE uid=$1 AND (id=$2 OR name=$2)", uid, ctx.ID)
+	rows, err := c.db.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
@@ -351,7 +347,7 @@ func (c *ContainerController) Stop(ctx *app.StopContainerContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	rows, err := c.db.Query("SELECT id, cid FROM containers WHERE uid=$1 AND (id=$2 OR name=$2)", uid, ctx.ID)
+	rows, err := c.db.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
