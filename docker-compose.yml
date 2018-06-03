@@ -47,8 +47,6 @@ services:
             - --acme.dnschallenge.delaybeforecheck=0s
             - --acme.domains=*.${PUBLIC_ADDR},${PUBLIC_ADDR}
             - --acme.email=${EMAIL_ADDRESS}
-        networks:
-            - paas-network
 
     modoki:
         restart: always
