@@ -240,8 +240,10 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 	var id int
 	var cid sql.NullString
 	if err := rows.Scan(&id, &cid); err != nil {
+		rows.Close()
 		return ctx.NotFound()
 	}
+	rows.Close()
 
 	if !cid.Valid {
 		return ctx.NotFound()
@@ -251,13 +253,14 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		context.Background(),
 		cid.String,
 		types.ContainerRemoveOptions{
-			RemoveLinks:   true,
 			RemoveVolumes: true,
 			Force:         ctx.Force,
 		},
 	); err != nil {
 		if strings.Contains(err.Error(), "You cannot remove a running container") {
 			return ctx.RunningContainer()
+		} else {
+			return ctx.InternalServerError(errors.Wrap(err, "Docker API Error"))
 		}
 	}
 
@@ -300,8 +303,10 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 	var id int
 	var cid sql.NullString
 	if err := rows.Scan(&id, &cid); err != nil {
+		rows.Close()
 		return ctx.NotFound()
 	}
+	rows.Close()
 
 	if !cid.Valid {
 		return ctx.NotFound()
@@ -364,8 +369,10 @@ func (c *ContainerController) Stop(ctx *app.StopContainerContext) error {
 	var id int
 	var cid sql.NullString
 	if err := rows.Scan(&id, &cid); err != nil {
+		rows.Close()
 		return ctx.NotFound()
 	}
+	rows.Close()
 
 	if !cid.Valid {
 		return ctx.NotFound()
