@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/docker/libkv/store"
+
 	"github.com/cs3238-tsuzu/modoki/consul_traefik"
 
 	"github.com/pkg/errors"
@@ -272,10 +274,15 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 	backendName := fmt.Sprintf(BackendFormat, id)
 
 	if err := c.consul.DeleteBackend(backendName); err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "consul Error"))
+		if err != store.ErrKeyNotFound {
+			return ctx.InternalServerError(errors.Wrap(err, "Consul Error"))
+		}
+
 	}
 	if err := c.consul.DeleteFrontend(frontendName); err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "consul Error"))
+		if err != store.ErrKeyNotFound {
+			return ctx.InternalServerError(errors.Wrap(err, "Consul Error"))
+		}
 	}
 
 	return ctx.OK(nil)

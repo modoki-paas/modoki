@@ -118,5 +118,5 @@ func (c *Client) HasFrontend(frontendName string) (bool, error) {
 
 // Before executing DeleteBackend, you should execute BackupBackend
 func (c *Client) DeleteFrontend(frontend string) error {
-	return c.Client.DeleteTree(c.Prefix + "/backends/" + frontend)
+	return c.Client.DeleteTree(c.Prefix + "/frontends/" + frontend)
 }
