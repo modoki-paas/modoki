@@ -407,7 +407,7 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, id int,
 			return errors.Wrap(err, "Traefik Unregisteration Error")
 		}
 	} else {
-		if err := c.consul.NewBackend(backendName, ServerName, addr); err != nil {
+		if err := c.consul.NewBackend(backendName, ServerName, "http://"+addr); err != nil {
 			return errors.Wrap(err, "Traefik Registeration Error")
 		}
 	}
