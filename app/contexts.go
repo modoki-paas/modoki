@@ -23,13 +23,14 @@ type CreateContainerContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Cmd        []string
-	Entrypoint []string
-	Env        []string
-	Image      string
-	Name       string
-	Volumes    []string
-	WorkingDir *string
+	Cmd         []string
+	Entrypoint  []string
+	Env         []string
+	Image       string
+	Name        string
+	SslRedirect bool
+	Volumes     []string
+	WorkingDir  *string
 }
 
 // NewCreateContainerContext parses the incoming request URL and body, performs validations and creates the
@@ -76,6 +77,17 @@ func NewCreateContainerContext(ctx context.Context, r *http.Request, service *go
 			err = goa.MergeErrors(err, goa.InvalidLengthError(`name`, rctx.Name, utf8.RuneCountInString(rctx.Name), 64, false))
 		}
 	}
+	paramSslRedirect := req.Params["sslRedirect"]
+	if len(paramSslRedirect) == 0 {
+		rctx.SslRedirect = true
+	} else {
+		rawSslRedirect := paramSslRedirect[0]
+		if sslRedirect, err2 := strconv.ParseBool(rawSslRedirect); err2 == nil {
+			rctx.SslRedirect = sslRedirect
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("sslRedirect", rawSslRedirect, "boolean"))
+		}
+	}
 	paramVolumes := req.Params["volumes"]
 	if len(paramVolumes) > 0 {
 		params := paramVolumes
@@ -115,6 +127,63 @@ func (ctx *CreateContainerContext) Conflict(r error) error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *CreateContainerContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// DownloadContainerContext provides the container download action context.
+type DownloadContainerContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID   *string
+	Path *string
+}
+
+// NewDownloadContainerContext parses the incoming request URL and body, performs validations and creates the
+// context used by the container controller download action.
+func NewDownloadContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*DownloadContainerContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := DownloadContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = &rawID
+	}
+	paramPath := req.Params["path"]
+	if len(paramPath) > 0 {
+		rawPath := paramPath[0]
+		rctx.Path = &rawPath
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *DownloadContainerContext) OK(resp []byte) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+	}
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *DownloadContainerContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *DownloadContainerContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -286,6 +355,52 @@ func (ctx *StopContainerContext) NotFound() error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *StopContainerContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// UploadContainerContext provides the container upload action context.
+type UploadContainerContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *UploadPayload
+}
+
+// NewUploadContainerContext parses the incoming request URL and body, performs validations and creates the
+// context used by the container controller upload action.
+func NewUploadContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*UploadContainerContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := UploadContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *UploadContainerContext) OK(resp []byte) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+	}
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *UploadContainerContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *UploadContainerContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}

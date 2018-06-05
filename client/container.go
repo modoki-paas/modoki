@@ -11,10 +11,15 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -25,8 +30,8 @@ func CreateContainerPath() string {
 }
 
 // create a new container
-func (c *Client) CreateContainer(ctx context.Context, path string, image string, name string, cmd []string, entrypoint []string, env []string, volumes []string, workingDir *string) (*http.Response, error) {
-	req, err := c.NewCreateContainerRequest(ctx, path, image, name, cmd, entrypoint, env, volumes, workingDir)
+func (c *Client) CreateContainer(ctx context.Context, path string, image string, name string, cmd []string, entrypoint []string, env []string, sslRedirect *bool, volumes []string, workingDir *string) (*http.Response, error) {
+	req, err := c.NewCreateContainerRequest(ctx, path, image, name, cmd, entrypoint, env, sslRedirect, volumes, workingDir)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +39,7 @@ func (c *Client) CreateContainer(ctx context.Context, path string, image string,
 }
 
 // NewCreateContainerRequest create the request corresponding to the create action endpoint of the container resource.
-func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, image string, name string, cmd []string, entrypoint []string, env []string, volumes []string, workingDir *string) (*http.Request, error) {
+func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, image string, name string, cmd []string, entrypoint []string, env []string, sslRedirect *bool, volumes []string, workingDir *string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
@@ -44,23 +49,69 @@ func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, ima
 	values.Set("image", image)
 	values.Set("name", name)
 	for _, p := range cmd {
-		tmp9 := p
-		values.Add("cmd", tmp9)
+		tmp12 := p
+		values.Add("cmd", tmp12)
 	}
 	for _, p := range entrypoint {
-		tmp10 := p
-		values.Add("entrypoint", tmp10)
+		tmp13 := p
+		values.Add("entrypoint", tmp13)
 	}
 	for _, p := range env {
-		tmp11 := p
-		values.Add("env", tmp11)
+		tmp14 := p
+		values.Add("env", tmp14)
+	}
+	if sslRedirect != nil {
+		tmp15 := strconv.FormatBool(*sslRedirect)
+		values.Set("sslRedirect", tmp15)
 	}
 	for _, p := range volumes {
-		tmp12 := p
-		values.Add("volumes", tmp12)
+		tmp16 := p
+		values.Add("volumes", tmp16)
 	}
 	if workingDir != nil {
 		values.Set("workingDir", *workingDir)
+	}
+	u.RawQuery = values.Encode()
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// DownloadContainerPath computes a request path to the download action of container.
+func DownloadContainerPath() string {
+
+	return fmt.Sprintf("/api/v1/container/download")
+}
+
+// Copy files from the container
+func (c *Client) DownloadContainer(ctx context.Context, path string, id *string, path *string) (*http.Response, error) {
+	req, err := c.NewDownloadContainerRequest(ctx, path, id, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewDownloadContainerRequest create the request corresponding to the download action endpoint of the container resource.
+func (c *Client) NewDownloadContainerRequest(ctx context.Context, path string, id *string, path *string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "https"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	if id != nil {
+		values.Set("id", *id)
+	}
+	if path != nil {
+		values.Set("path", *path)
 	}
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -98,8 +149,8 @@ func (c *Client) NewRemoveContainerRequest(ctx context.Context, path string, for
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	tmp13 := strconv.FormatBool(force)
-	values.Set("force", tmp13)
+	tmp17 := strconv.FormatBool(force)
+	values.Set("force", tmp17)
 	values.Set("id", id)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -180,6 +231,82 @@ func (c *Client) NewStopContainerRequest(ctx context.Context, path string, id st
 	if err != nil {
 		return nil, err
 	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// UploadContainerPath computes a request path to the upload action of container.
+func UploadContainerPath() string {
+
+	return fmt.Sprintf("/api/v1/container/upload")
+}
+
+// Copy files to the container
+func (c *Client) UploadContainer(ctx context.Context, path string, payload *UploadPayload) (*http.Response, error) {
+	req, err := c.NewUploadContainerRequest(ctx, path, payload)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewUploadContainerRequest create the request corresponding to the upload action endpoint of the container resource.
+func (c *Client) NewUploadContainerRequest(ctx context.Context, path string, payload *UploadPayload) (*http.Request, error) {
+	var body bytes.Buffer
+	w := multipart.NewWriter(&body)
+	{
+		_, file := filepath.Split(payload.Data)
+		fw, err := w.CreateFormFile("data", file)
+		if err != nil {
+			return nil, err
+		}
+		fh, err := os.Open(payload.Data)
+		if err != nil {
+			return nil, err
+		}
+		defer fh.Close()
+		if _, err := io.Copy(fw, fh); err != nil {
+			return nil, err
+		}
+	}
+	{
+		fw, err := w.CreateFormField("id")
+		if err != nil {
+			return nil, err
+		}
+		s := payload.ID
+		if _, err := fw.Write([]byte(s)); err != nil {
+			return nil, err
+		}
+	}
+	{
+		fw, err := w.CreateFormField("path")
+		if err != nil {
+			return nil, err
+		}
+		s := payload.Path
+		if _, err := fw.Write([]byte(s)); err != nil {
+			return nil, err
+		}
+	}
+	if err := w.Close(); err != nil {
+		return nil, err
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "https"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("POST", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	header.Set("Content-Type", w.FormDataContentType())
 	if c.JWTSigner != nil {
 		if err := c.JWTSigner.Sign(req); err != nil {
 			return nil, err

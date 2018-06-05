@@ -29,7 +29,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		Description("create a new container")
 		Params(func() {
 			Param("name", String, func() {
-				Description("Name of container")
+				Description("Name of container and subdomain")
 				Pattern("^[a-zA-Z0-9_]+$")
 				Example("Hello_World01")
 				MaxLength(64)
@@ -40,6 +40,11 @@ var _ = Resource("container", func() { // Defines the Operands resource
 			Param("env", ArrayOf(String), "Environment variables")
 			Param("volumes", ArrayOf(String), "Path to volumes in a container")
 			Param("workingDir", String, "Current directory (PWD) in the command will be launched")
+			Param("sslRedirect", Boolean, func() {
+				Description("Whether HTTP is redirected to HTTPS")
+
+				Default(true)
+			})
 
 			Required("name", "image")
 		})
@@ -101,4 +106,35 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		})
 		Response(InternalServerError, ErrorMedia)
 	})
+	Action("upload", func() {
+		Routing(POST("/upload"))
+		Description("Copy files to the container")
+		MultipartForm()
+		Payload(UploadPayload)
+
+		Response(OK)
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+
+	Action("download", func() {
+		Routing(GET("/download"))
+		Description("Copy files from the container")
+		Params(func() {
+			Param("id", String, "ID or name")
+			Param("path", String, "Path in the container to save files")
+		})
+
+		Response(OK)
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+})
+
+var UploadPayload = Type("UploadPayload", func() {
+	Attribute("id", String, "ID or name")
+	Attribute("path", String, "Path in the container to save files")
+	Attribute("data", File, "File tar archive")
+
+	Required("id", "path", "data")
 })

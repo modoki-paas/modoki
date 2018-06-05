@@ -31,9 +31,11 @@ func initService(service *goa.Service) {
 type ContainerController interface {
 	goa.Muxer
 	Create(*CreateContainerContext) error
+	Download(*DownloadContainerContext) error
 	Remove(*RemoveContainerContext) error
 	Start(*StartContainerContext) error
 	Stop(*StopContainerContext) error
+	Upload(*UploadContainerContext) error
 }
 
 // MountContainerController "mounts" a Container resource controller on the given service.
@@ -56,6 +58,22 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v1/container/create", ctrl.MuxHandler("create", h, nil))
 	service.LogInfo("mount", "ctrl", "Container", "action", "Create", "route", "GET /api/v1/container/create", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDownloadContainerContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Download(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/api/v1/container/download", ctrl.MuxHandler("download", h, nil))
+	service.LogInfo("mount", "ctrl", "Container", "action", "Download", "route", "GET /api/v1/container/download", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -104,6 +122,54 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v1/container/stop", ctrl.MuxHandler("stop", h, nil))
 	service.LogInfo("mount", "ctrl", "Container", "action", "Stop", "route", "GET /api/v1/container/stop", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewUploadContainerContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*UploadPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Upload(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("POST", "/api/v1/container/upload", ctrl.MuxHandler("upload", h, unmarshalUploadContainerPayload))
+	service.LogInfo("mount", "ctrl", "Container", "action", "Upload", "route", "POST /api/v1/container/upload", "security", "jwt")
+}
+
+// unmarshalUploadContainerPayload unmarshals the request body into the context request data Payload field.
+func unmarshalUploadContainerPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	var err error
+	var payload uploadPayload
+	_, rawData, err2 := req.FormFile("data")
+	if err2 == nil {
+		payload.Data = rawData
+	} else {
+		err = goa.MergeErrors(err, goa.InvalidParamTypeError("data", "data", "file"))
+	}
+	rawID := req.FormValue("id")
+	payload.ID = &rawID
+	rawPath := req.FormValue("path")
+	payload.Path = &rawPath
+	if err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
 }
 
 // VironController is the controller interface for the Viron actions.

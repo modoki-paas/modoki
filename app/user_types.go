@@ -12,6 +12,7 @@ package app
 
 import (
 	"github.com/goadesign/goa"
+	"mime/multipart"
 	"time"
 	"unicode/utf8"
 )
@@ -434,5 +435,66 @@ func (ut *SigninPayload) Validate() (err error) {
 	if utf8.RuneCountInString(ut.Password) > 256 {
 		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.password`, ut.Password, utf8.RuneCountInString(ut.Password), 256, false))
 	}
+	return
+}
+
+// uploadPayload user type.
+type uploadPayload struct {
+	// File tar archive
+	Data *multipart.FileHeader `form:"data,omitempty" json:"data,omitempty" xml:"data,omitempty"`
+	// ID or name
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Path in the container to save files
+	Path *string `form:"path,omitempty" json:"path,omitempty" xml:"path,omitempty"`
+}
+
+// Validate validates the uploadPayload type instance.
+func (ut *uploadPayload) Validate() (err error) {
+	if ut.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "id"))
+	}
+	if ut.Path == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "path"))
+	}
+	if ut.Data == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "data"))
+	}
+	return
+}
+
+// Publicize creates UploadPayload from uploadPayload
+func (ut *uploadPayload) Publicize() *UploadPayload {
+	var pub UploadPayload
+	if ut.Data != nil {
+		pub.Data = ut.Data
+	}
+	if ut.ID != nil {
+		pub.ID = *ut.ID
+	}
+	if ut.Path != nil {
+		pub.Path = *ut.Path
+	}
+	return &pub
+}
+
+// UploadPayload user type.
+type UploadPayload struct {
+	// File tar archive
+	Data *multipart.FileHeader `form:"data" json:"data" xml:"data"`
+	// ID or name
+	ID string `form:"id" json:"id" xml:"id"`
+	// Path in the container to save files
+	Path string `form:"path" json:"path" xml:"path"`
+}
+
+// Validate validates the UploadPayload type instance.
+func (ut *UploadPayload) Validate() (err error) {
+	if ut.ID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "id"))
+	}
+	if ut.Path == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "path"))
+	}
+
 	return
 }

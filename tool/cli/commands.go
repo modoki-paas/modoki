@@ -14,17 +14,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
-	"os"
-	"strconv"
-	"strings"
-	"time"
-
 	"github.com/cs3238-tsuzu/modoki/client"
 	"github.com/goadesign/goa"
 	goaclient "github.com/goadesign/goa/client"
 	uuid "github.com/goadesign/goa/uuid"
 	"github.com/spf13/cobra"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type (
@@ -38,12 +37,23 @@ type (
 		Env []string
 		// Name of image
 		Image string
-		// Name of container
+		// Name of container and subdomain
 		Name string
+		// Whether HTTP is redirected to HTTPS
+		SslRedirect string
 		// Path to volumes in a container
 		Volumes []string
 		// Current directory (PWD) in the command will be launched
 		WorkingDir  string
+		PrettyPrint bool
+	}
+
+	// DownloadContainerCommand is the command line data structure for the download action of container
+	DownloadContainerCommand struct {
+		// ID or name
+		ID string
+		// Path in the container to save files
+		Path        string
 		PrettyPrint bool
 	}
 
@@ -67,6 +77,13 @@ type (
 	StopContainerCommand struct {
 		// id or name
 		ID          string
+		PrettyPrint bool
+	}
+
+	// UploadContainerCommand is the command line data structure for the upload action of container
+	UploadContainerCommand struct {
+		Payload     string
+		ContentType string
 		PrettyPrint bool
 	}
 
@@ -120,12 +137,12 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get",
-		Short: `Get viron menu`,
+		Use:   "download",
+		Short: `Copy files from the container`,
 	}
-	tmp3 := new(GetVironCommand)
+	tmp3 := new(DownloadContainerCommand)
 	sub = &cobra.Command{
-		Use:   `viron ["/api/v1/viron"]`,
+		Use:   `container ["/api/v1/container/download"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -134,12 +151,12 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "remove",
-		Short: `remove a container`,
+		Use:   "get",
+		Short: `Get viron menu`,
 	}
-	tmp4 := new(RemoveContainerCommand)
+	tmp4 := new(GetVironCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v1/container/remove"]`,
+		Use:   `viron ["/api/v1/viron"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}
@@ -148,10 +165,24 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "remove",
+		Short: `remove a container`,
+	}
+	tmp5 := new(RemoveContainerCommand)
+	sub = &cobra.Command{
+		Use:   `container ["/api/v1/container/remove"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
+	}
+	tmp5.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "signin",
 		Short: `Creates a valid JWT`,
 	}
-	tmp5 := new(SigninVironCommand)
+	tmp6 := new(SigninVironCommand)
 	sub = &cobra.Command{
 		Use:   `viron ["/api/v1/signin"]`,
 		Short: ``,
@@ -161,40 +192,63 @@ Payload example:
 
 {
    "id": "identify key",
-   "password": "ro7u3zvdvz"
+   "password": "o1bha872hy"
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
-	}
-	tmp5.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
-		Use:   "start",
-		Short: `start a container`,
-	}
-	tmp6 := new(StartContainerCommand)
-	sub = &cobra.Command{
-		Use:   `container ["/api/v1/container/start"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
 	tmp6.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp6.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "stop",
-		Short: `stop a container`,
+		Use:   "start",
+		Short: `start a container`,
 	}
-	tmp7 := new(StopContainerCommand)
+	tmp7 := new(StartContainerCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v1/container/stop"]`,
+		Use:   `container ["/api/v1/container/start"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
 	tmp7.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp7.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "stop",
+		Short: `stop a container`,
+	}
+	tmp8 := new(StopContainerCommand)
+	sub = &cobra.Command{
+		Use:   `container ["/api/v1/container/stop"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
+	}
+	tmp8.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp8.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "upload",
+		Short: `Copy files to the container`,
+	}
+	tmp9 := new(UploadContainerCommand)
+	sub = &cobra.Command{
+		Use:   `container ["/api/v1/container/upload"]`,
+		Short: ``,
+		Long: `
+
+Payload example:
+
+{
+   "data": "Autem.jpg",
+   "id": "Veniam unde aliquam tempore vero.",
+   "path": "Sed nam est commodi reiciendis."
+}`,
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp9.Run(c, args) },
+	}
+	tmp9.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp9.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -362,7 +416,16 @@ func (cmd *CreateContainerCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	resp, err := c.CreateContainer(ctx, path, cmd.Image, cmd.Name, cmd.Cmd, cmd.Entrypoint, cmd.Env, cmd.Volumes, stringFlagVal("workingDir", cmd.WorkingDir))
+	var tmp10 *bool
+	if cmd.SslRedirect != "" {
+		var err error
+		tmp10, err = boolVal(cmd.SslRedirect)
+		if err != nil {
+			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--sslRedirect", "err", err)
+			return err
+		}
+	}
+	resp, err := c.CreateContainer(ctx, path, cmd.Image, cmd.Name, cmd.Cmd, cmd.Entrypoint, cmd.Env, tmp10, cmd.Volumes, stringFlagVal("workingDir", cmd.WorkingDir))
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -374,8 +437,8 @@ func (cmd *CreateContainerCommand) Run(c *client.Client, args []string) error {
 
 // RegisterFlags registers the command flags with the command line.
 func (cmd *CreateContainerCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
-	var cmds []string
-	cc.Flags().StringSliceVar(&cmd.Cmd, "cmd", cmds, `Command to run specified as a string or an array of strings.`)
+	var cmd []string
+	cc.Flags().StringSliceVar(&cmd.Cmd, "cmd", cmd, `Command to run specified as a string or an array of strings.`)
 	var entrypoint []string
 	cc.Flags().StringSliceVar(&cmd.Entrypoint, "entrypoint", entrypoint, `The entry point for the container as a string or an array of strings`)
 	var env []string
@@ -383,11 +446,40 @@ func (cmd *CreateContainerCommand) RegisterFlags(cc *cobra.Command, c *client.Cl
 	var image string
 	cc.Flags().StringVar(&cmd.Image, "image", image, `Name of image`)
 	var name string
-	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of container`)
+	cc.Flags().StringVar(&cmd.Name, "name", name, `Name of container and subdomain`)
+	cc.Flags().StringVar(&cmd.SslRedirect, "sslRedirect", "true", `Whether HTTP is redirected to HTTPS`)
 	var volumes []string
 	cc.Flags().StringSliceVar(&cmd.Volumes, "volumes", volumes, `Path to volumes in a container`)
 	var workingDir string
 	cc.Flags().StringVar(&cmd.WorkingDir, "workingDir", workingDir, `Current directory (PWD) in the command will be launched`)
+}
+
+// Run makes the HTTP request corresponding to the DownloadContainerCommand command.
+func (cmd *DownloadContainerCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/api/v1/container/download"
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.DownloadContainer(ctx, path, stringFlagVal("id", cmd.ID), stringFlagVal("path", cmd.Path))
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *DownloadContainerCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `ID or name`)
+	var path string
+	cc.Flags().StringVar(&cmd.Path, "path", path, `Path in the container to save files`)
 }
 
 // Run makes the HTTP request corresponding to the RemoveContainerCommand command.
@@ -400,20 +492,20 @@ func (cmd *RemoveContainerCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	var tmp8 *bool
+	var tmp11 *bool
 	if cmd.Force != "" {
 		var err error
-		tmp8, err = boolVal(cmd.Force)
+		tmp11, err = boolVal(cmd.Force)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--force", "err", err)
 			return err
 		}
 	}
-	if tmp8 == nil {
+	if tmp11 == nil {
 		goa.LogError(ctx, "required flag is missing", "flag", "--force")
 		return fmt.Errorf("required flag force is missing")
 	}
-	resp, err := c.RemoveContainer(ctx, path, *tmp8, cmd.ID)
+	resp, err := c.RemoveContainer(ctx, path, *tmp11, cmd.ID)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -481,6 +573,39 @@ func (cmd *StopContainerCommand) Run(c *client.Client, args []string) error {
 func (cmd *StopContainerCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
 	var id string
 	cc.Flags().StringVar(&cmd.ID, "id", id, `id or name`)
+}
+
+// Run makes the HTTP request corresponding to the UploadContainerCommand command.
+func (cmd *UploadContainerCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/api/v1/container/upload"
+	}
+	var payload client.UploadPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.UploadContainer(ctx, path, &payload)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *UploadContainerCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request body encoded in JSON")
+	cc.Flags().StringVar(&cmd.ContentType, "content", "", "Request content type override, e.g. 'application/x-www-form-urlencoded'")
 }
 
 // Run makes the HTTP request corresponding to the AuthtypeVironCommand command.
