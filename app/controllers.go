@@ -32,6 +32,8 @@ type ContainerController interface {
 	goa.Muxer
 	Create(*CreateContainerContext) error
 	Download(*DownloadContainerContext) error
+	Inspect(*InspectContainerContext) error
+	List(*ListContainerContext) error
 	Remove(*RemoveContainerContext) error
 	Start(*StartContainerContext) error
 	Stop(*StopContainerContext) error
@@ -74,6 +76,38 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v1/container/download", ctrl.MuxHandler("download", h, nil))
 	service.LogInfo("mount", "ctrl", "Container", "action", "Download", "route", "GET /api/v1/container/download", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewInspectContainerContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Inspect(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/api/v1/container/inspect", ctrl.MuxHandler("inspect", h, nil))
+	service.LogInfo("mount", "ctrl", "Container", "action", "Inspect", "route", "GET /api/v1/container/inspect", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewListContainerContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.List(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/api/v1/container/list", ctrl.MuxHandler("list", h, nil))
+	service.LogInfo("mount", "ctrl", "Container", "action", "List", "route", "GET /api/v1/container/list", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request

@@ -138,8 +138,8 @@ type DownloadContainerContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID   *string
-	Path *string
+	ID   string
+	Path string
 }
 
 // NewDownloadContainerContext parses the incoming request URL and body, performs validations and creates the
@@ -152,14 +152,18 @@ func NewDownloadContainerContext(ctx context.Context, r *http.Request, service *
 	req.Request = r
 	rctx := DownloadContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
-	if len(paramID) > 0 {
+	if len(paramID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("id"))
+	} else {
 		rawID := paramID[0]
-		rctx.ID = &rawID
+		rctx.ID = rawID
 	}
 	paramPath := req.Params["path"]
-	if len(paramPath) > 0 {
+	if len(paramPath) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("path"))
+	} else {
 		rawPath := paramPath[0]
-		rctx.Path = &rawPath
+		rctx.Path = rawPath
 	}
 	return &rctx, err
 }
@@ -184,6 +188,99 @@ func (ctx *DownloadContainerContext) NotFound(r error) error {
 
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *DownloadContainerContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// InspectContainerContext provides the container inspect action context.
+type InspectContainerContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewInspectContainerContext parses the incoming request URL and body, performs validations and creates the
+// context used by the container controller inspect action.
+func NewInspectContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*InspectContainerContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := InspectContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("id"))
+	} else {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *InspectContainerContext) OK(r *GoaContainerInspect) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.inspect")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *InspectContainerContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *InspectContainerContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ListContainerContext provides the container list action context.
+type ListContainerContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewListContainerContext parses the incoming request URL and body, performs validations and creates the
+// context used by the container controller list action.
+func NewListContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListContainerContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ListContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ListContainerContext) OK(r GoaContainerListEachCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.list.each; type=collection")
+	}
+	if r == nil {
+		r = GoaContainerListEachCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ListContainerContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ListContainerContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}

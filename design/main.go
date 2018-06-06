@@ -106,6 +106,32 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		})
 		Response(InternalServerError, ErrorMedia)
 	})
+
+	Action("inspect", func() {
+		Routing(GET("/inspect"))
+		Description("Return details of a container")
+
+		Params(func() {
+			Param("id", String, "ID or name")
+
+			Required("id")
+		})
+
+		Response(OK, ContainerInspectMedia)
+		Response(NotFound)
+		Response(InternalServerError, ErrorMedia)
+	})
+	Action("list", func() {
+		Routing(GET("/list"))
+		Description("Return details of a container")
+
+		Params(func() {
+		})
+
+		Response(OK, CollectionOf(ContainerListEachMedia))
+		Response(NotFound)
+		Response(InternalServerError, ErrorMedia)
+	})
 	Action("upload", func() {
 		Routing(POST("/upload"))
 		Description("Copy files to the container")
@@ -123,6 +149,8 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		Params(func() {
 			Param("id", String, "ID or name")
 			Param("path", String, "Path in the container to save files")
+
+			Required("id", "path")
 		})
 
 		Response(OK)
@@ -135,6 +163,8 @@ var UploadPayload = Type("UploadPayload", func() {
 	Attribute("id", String, "ID or name")
 	Attribute("path", String, "Path in the container to save files")
 	Attribute("data", File, "File tar archive")
+
+	Required("id", "path", "data")
 
 	Required("id", "path", "data")
 })

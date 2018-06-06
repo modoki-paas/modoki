@@ -5,84 +5,43 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
 
-	"github.com/docker/libkv/store"
+	"github.com/docker/docker/api/types/filters"
 
 	"github.com/cs3238-tsuzu/modoki/consul_traefik"
 
-	"github.com/pkg/errors"
+	"github.com/docker/docker/client"
 
-	"github.com/docker/docker/api/types"
+	"github.com/jmoiron/sqlx"
 
 	"github.com/cs3238-tsuzu/modoki/app"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
-	"github.com/docker/docker/client"
+	"github.com/docker/libkv/store"
 	"github.com/goadesign/goa"
-	"github.com/jmoiron/sqlx"
+	"github.com/pkg/errors"
 )
-
-const containerSchema = `
-CREATE TABLE IF NOT EXISTS containers (
-	id INT NOT NULL AUTO_INCREMENT,
-	cid VARCHAR(128) UNIQUE,
-	name VARCHAR(64) NOT NULL UNIQUE,
-	uid INT NOT NULL,
-	status VARCHAR(32),
-	message TEXT,
-	PRIMARY KEY (id),
-	INDEX(cid, name, uid)
-);
-`
-
-func InitSchemaForContainer(db *sqlx.DB) error {
-	_, err := db.Exec(containerSchema)
-
-	return err
-}
-
-type Container struct {
-	ID      int
-	CID     sql.NullString
-	Name    string
-	UID     int
-	Status  string
-	Message string
-}
 
 // ContainerController implements the container resource.
 type ContainerController struct {
 	*goa.Controller
-	dockerClient *client.Client
-	db           *sqlx.DB
-	consul       *consulTraefik.Client
+
+	DB           *sqlx.DB
+	DockerClient *client.Client
+	Consul       *consulTraefik.Client
 }
 
 // NewContainerController creates a container controller.
-func NewContainerController(service *goa.Service, dockerClient *client.Client, db *sqlx.DB, consul *consulTraefik.Client) *ContainerController {
-	return &ContainerController{
-		Controller:   service.NewController("ContainerController"),
-		dockerClient: dockerClient,
-		db:           db,
-		consul:       consul,
-	}
-}
-
-func (c *ContainerController) updateStatus(ctx context.Context, status, msg string, id int) error {
-	_, err := c.db.ExecContext(ctx, "UPDATE containers SET status=?, message=? WHERE id=?", status, msg, id)
-
-	return err
-}
-
-func (c *ContainerController) must(err error) {
-	if err != nil {
-		log.Println("UpdateStatus error:", err)
-	}
+func NewContainerController(service *goa.Service) *ContainerController {
+	return &ContainerController{Controller: service.NewController("ContainerController")}
 }
 
 // Create runs the create action.
@@ -95,7 +54,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		return ctx.BadRequest(err)
 	}
 
-	res, err := c.db.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (?, ?, "Waiting")`, ctx.Name, uid)
+	res, err := c.DB.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (?, ?, "Waiting")`, ctx.Name, uid)
 
 	if err != nil {
 		return ctx.InternalServerError(err)
@@ -121,7 +80,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			ID       string `json:"id,omitempty"`
 		}
 
-		if rc, err := c.dockerClient.ImagePull(context.Background(), ctx.Image, types.ImagePullOptions{}); err != nil {
+		if rc, err := c.DockerClient.ImagePull(context.Background(), ctx.Image, types.ImagePullOptions{}); err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Image downloading error: %v", err), id))
 
 			return
@@ -160,6 +119,11 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			Entrypoint: ctx.Entrypoint,
 			Env:        ctx.Env,
 			Volumes:    volumesMap,
+			Labels: map[string]string{
+				DockerLabelModokiID:   strconv.Itoa(id),
+				DockerLabelModokiUID:  strconv.Itoa(uid),
+				DockerLabelModokiName: ctx.Name,
+			},
 		}
 
 		if ctx.WorkingDir != nil {
@@ -176,7 +140,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			}
 		}
 
-		body, err := c.dockerClient.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, "")
+		body, err := c.DockerClient.ContainerCreate(context.Background(), config, hostConfig, networkingConfig, "")
 
 		if err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Failed to create a container: %v", err), id))
@@ -184,7 +148,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			return
 		}
 
-		_, err = c.db.Exec("UPDATE containers SET cid=? where id=?", body.ID, id)
+		_, err = c.DB.Exec("UPDATE containers SET cid=? where id=?", body.ID, id)
 
 		if err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update containers table error: %v", err), id))
@@ -194,18 +158,23 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 
 		frontendName := fmt.Sprintf(FrontendFormat, id)
 		backendName := fmt.Sprintf(BackendFormat, id)
-		if err := c.consul.NewFrontend(frontendName, "Host: "+ctx.Name+"."+*publicAddr); err != nil {
+		if err := c.Consul.NewFrontend(frontendName, "Host: "+ctx.Name+"."+*publicAddr); err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
 
 			return
 		}
-		if err := c.consul.AddValueForFrontend(frontendName, "passHostHeader", true); err != nil {
-			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("UUpdate traefik error: %v", err), id))
+		if err := c.Consul.AddValueForFrontend(frontendName, "passHostHeader", true); err != nil {
+			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
+
+			return
+		}
+		if err := c.Consul.AddValueForFrontend(frontendName, "headers", "SSLRedirect", ctx.SslRedirect); err != nil {
+			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
 
 			return
 		}
 
-		if err := c.consul.AddValueForFrontend(frontendName, "backend", backendName); err != nil {
+		if err := c.Consul.AddValueForFrontend(frontendName, "backend", backendName); err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
 
 			return
@@ -218,7 +187,54 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 	}
 
 	return ctx.OK(cres)
+
 	// ContainerController_Create: end_implement
+}
+
+// Download runs the download action.
+func (c *ContainerController) Download(ctx *app.DownloadContainerContext) error {
+	// ContainerController_Download: start_implement
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+
+	if err != nil {
+		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+	}
+
+	rows.Next()
+
+	var id int
+	var cid sql.NullString
+	if err := rows.Scan(&id, &cid); err != nil {
+		rows.Close()
+		return ctx.NotFound(errors.New("No container found"))
+	}
+	rows.Close()
+
+	if !cid.Valid {
+		return ctx.NotFound(errors.New("No container found"))
+	}
+
+	rc, stat, err := c.DockerClient.CopyFromContainer(ctx, cid.String, ctx.Path)
+
+	if err != nil {
+		return ctx.NotFound(err)
+	}
+	defer rc.Close()
+
+	ctx.ResponseWriter.Header().Set("Content-Length", strconv.FormatInt(stat.Size, 10))
+	ctx.ResponseWriter.Header().Set("Content-Type", "application/octet-stream")
+
+	io.Copy(ctx.ResponseWriter, rc)
+
+	return nil
+	// ContainerController_Download: end_implement
 }
 
 // Remove runs the remove action.
@@ -231,7 +247,7 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	rows, err := c.db.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
@@ -251,7 +267,7 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		return ctx.NotFound()
 	}
 
-	if err := c.dockerClient.ContainerRemove(
+	if err := c.DockerClient.ContainerRemove(
 		context.Background(),
 		cid.String,
 		types.ContainerRemoveOptions{
@@ -266,26 +282,27 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		}
 	}
 
-	if _, err := c.db.Exec("DELETE FROM containers WHERE id=?", id); err != nil {
+	if _, err := c.DB.Exec("DELETE FROM containers WHERE id=?", id); err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Deletion From Database Error"))
 	}
 
 	frontendName := fmt.Sprintf(FrontendFormat, id)
 	backendName := fmt.Sprintf(BackendFormat, id)
 
-	if err := c.consul.DeleteBackend(backendName); err != nil {
+	if err := c.Consul.DeleteBackend(backendName); err != nil {
 		if err != store.ErrKeyNotFound {
 			return ctx.InternalServerError(errors.Wrap(err, "Consul Error"))
 		}
 
 	}
-	if err := c.consul.DeleteFrontend(frontendName); err != nil {
+	if err := c.Consul.DeleteFrontend(frontendName); err != nil {
 		if err != store.ErrKeyNotFound {
 			return ctx.InternalServerError(errors.Wrap(err, "Consul Error"))
 		}
 	}
 
 	return ctx.OK(nil)
+
 	// ContainerController_Remove: end_implement
 }
 
@@ -299,7 +316,7 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	rows, err := c.db.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
@@ -319,7 +336,7 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 		return ctx.NotFound()
 	}
 
-	resp, err := c.dockerClient.HTTPClient().Post("http://"+*dockerAPIVersion+"/containers/"+cid.String+"/start", "", nil)
+	resp, err := c.DockerClient.HTTPClient().Post("http://"+*dockerAPIVersion+"/containers/"+cid.String+"/start", "", nil)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Docker API error"))
@@ -347,11 +364,12 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 		return ctx.InternalServerError(fmt.Errorf("Container starting error: %s", msg.Message))
 	}
 
-	if err := c.updateContainerStatus(context.Background(), id, cid.String); err != nil {
+	if err := c.updateContainerStatus(context.Background(), cid.String); err != nil {
 		return ctx.InternalServerError(err)
 	}
 
 	return ctx.OK(nil)
+
 	// ContainerController_Start: end_implement
 }
 
@@ -365,7 +383,7 @@ func (c *ContainerController) Stop(ctx *app.StopContainerContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	rows, err := c.db.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
@@ -387,20 +405,172 @@ func (c *ContainerController) Stop(ctx *app.StopContainerContext) error {
 
 	d := 15 * time.Second
 
-	if err := c.dockerClient.ContainerStop(context.Background(), cid.String, &d); err != nil {
+	if err := c.DockerClient.ContainerStop(context.Background(), cid.String, &d); err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Docker API error"))
 	}
 
-	if err := c.updateContainerStatus(context.Background(), id, cid.String); err != nil {
+	if err := c.updateContainerStatus(context.Background(), cid.String); err != nil {
 		return ctx.InternalServerError(err)
 	}
 
 	return ctx.OK(nil)
+
 	// ContainerController_Stop: end_implement
 }
 
-func (c *ContainerController) updateContainerStatus(ctx context.Context, id int, cid string) error {
-	j, err := c.dockerClient.ContainerInspect(ctx, cid)
+// Inspect runs the inspect action.
+func (c *ContainerController) Inspect(ctx *app.InspectContainerContext) error {
+	// ContainerController_Inspect: start_implement
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	rows, err := c.DB.Query("SELECT id, cid, name FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+
+	if err != nil {
+		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+	}
+
+	rows.Next()
+
+	var id int
+	var cid sql.NullString
+	var name string
+	if err := rows.Scan(&id, &cid, &name); err != nil {
+		rows.Close()
+		return ctx.NotFound()
+	}
+	rows.Close()
+
+	if !cid.Valid {
+		return ctx.NotFound()
+	}
+
+	j, err := c.DockerClient.ContainerInspect(ctx, cid.String)
+
+	if err != nil {
+		return errors.Wrap(err, "Container Inspect Error")
+	}
+
+	t, _ := time.Parse(time.RFC3339Nano, j.Created)
+
+	vols := make([]string, 0, len(j.Config.Volumes))
+	for k := range j.Config.Volumes {
+		vols = append(vols, k)
+	}
+
+	insp := &app.GoaContainerInspect{
+		Args:    j.Args,
+		Created: t,
+		ID:      id,
+		Image:   j.Config.Image,
+		ImageID: j.Image,
+		Name:    name,
+		Path:    j.Path,
+		Volumes: vols,
+	}
+
+	rawState := j.State
+
+	s, _ := time.Parse(time.RFC3339Nano, rawState.StartedAt)
+	f, _ := time.Parse(time.RFC3339Nano, rawState.FinishedAt)
+
+	insp.RawState = &app.GoaContainerInspectRawState{
+		Dead:       rawState.Dead,
+		ExitCode:   rawState.ExitCode,
+		FinishedAt: f,
+		OomKilled:  rawState.OOMKilled,
+		Paused:     rawState.Paused,
+		Pid:        rawState.Pid,
+		Restarting: rawState.Restarting,
+		Running:    rawState.Running,
+		StartedAt:  s,
+		Status:     rawState.Status,
+	}
+
+	return ctx.OK(insp)
+	// ContainerController_Inspect: end_implement
+}
+
+// Inspect runs the inspect action.
+func (c *ContainerController) List(ctx *app.ListContainerContext) error {
+	// ContainerController_Inspect: start_implement
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	filter := filters.NewArgs()
+
+	filter.Add("label", DockerLabelModokiUID+"="+strconv.Itoa(uid))
+
+	list, err := c.DockerClient.ContainerList(ctx, types.ContainerListOptions{
+		Filters: filter,
+	})
+
+	if err != nil {
+		return ctx.InternalServerError(errors.Wrap(err, "Docker API Error"))
+	}
+
+	res := make(app.GoaContainerListEachCollection, 0, len(list))
+	for i := range list {
+		j := list[i]
+
+		vols := make([]string, 0, len(j.Mounts))
+		for k := range j.Mounts {
+			vols = append(vols, j.Mounts[k].Destination)
+		}
+
+		t := time.Unix(j.Created, 0)
+		id, _ := strconv.Atoi(j.Labels[DockerLabelModokiID])
+		name := j.Labels[DockerLabelModokiName]
+
+		each := &app.GoaContainerListEach{
+			Command: j.Command,
+			Created: t,
+			ID:      id,
+			Image:   j.Image,
+			ImageID: j.ImageID,
+			Name:    name,
+			Volumes: vols,
+		}
+
+		res = append(res, each)
+	}
+
+	return ctx.OK(res)
+	// ContainerController_Inspect: end_implement
+}
+
+// Upload runs the upload action.
+func (c *ContainerController) Upload(ctx *app.UploadContainerContext) error {
+	// ContainerController_Upload: start_implement
+
+	// Put your logic here
+
+	return nil
+	// ContainerController_Upload: end_implement
+}
+
+func (c *ContainerController) updateStatus(ctx context.Context, status, msg string, id int) error {
+	_, err := c.DB.ExecContext(ctx, "UPDATE containers SET status=?, message=? WHERE id=?", status, msg, id)
+
+	return err
+}
+
+func (c *ContainerController) must(err error) {
+	if err != nil {
+		log.Println("UpdateStatus error:", err)
+	}
+}
+
+func (c *ContainerController) updateContainerStatus(ctx context.Context, cid string) error {
+	j, err := c.DockerClient.ContainerInspect(ctx, cid)
 
 	if err != nil {
 		return errors.Wrap(err, "Container Inspect Error")
@@ -412,16 +582,27 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, id int,
 		n = *networkName
 	}
 
+	var id int
+	if idStr, ok := j.Config.Labels[DockerLabelModokiID]; !ok {
+		return errors.New("This container is not maintained by modoki")
+	} else {
+		id, err = strconv.Atoi(idStr)
+
+		if err != nil {
+			return errors.Wrap(err, "Invalid id format")
+		}
+	}
+
 	addr := j.NetworkSettings.Networks[n].IPAddress
 
 	backendName := fmt.Sprintf(BackendFormat, id)
 
 	if addr == "" {
-		if err := c.consul.DeleteBackend(backendName); err != nil {
+		if err := c.Consul.DeleteBackend(backendName); err != nil {
 			return errors.Wrap(err, "Traefik Unregisteration Error")
 		}
 	} else {
-		if err := c.consul.NewBackend(backendName, ServerName, "http://"+addr); err != nil {
+		if err := c.Consul.NewBackend(backendName, ServerName, "http://"+addr); err != nil {
 			return errors.Wrap(err, "Traefik Registeration Error")
 		}
 	}
@@ -438,4 +619,36 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, id int,
 	}
 
 	return nil
+}
+
+func (c *ContainerController) run(ctx context.Context) {
+	var fn func()
+
+	fn = func() {
+		select {
+		case <-ctx.Done():
+		default:
+			return
+		}
+
+		defer fn()
+		msg, err := c.DockerClient.Events(ctx, types.EventsOptions{})
+
+		for {
+			select {
+			case m := <-msg:
+				switch m.Status {
+				case "start":
+					c.updateContainerStatus(context.Background(), m.Actor.ID)
+				case "die":
+					c.updateContainerStatus(context.Background(), m.Actor.ID)
+				}
+			case <-err:
+				return
+			}
+		}
+
+	}
+
+	fn()
 }

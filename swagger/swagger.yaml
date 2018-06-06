@@ -17,6 +17,284 @@ definitions:
     title: 'Mediatype identifier: vnd.application/goa.container.create.results+json;
       view=default'
     type: object
+  GoaContainerInspect:
+    description: GoaContainerInspect media type (default view)
+    example:
+      args:
+      - Commodi reiciendis officia eos aut.
+      - Commodi reiciendis officia eos aut.
+      - Commodi reiciendis officia eos aut.
+      created: "2001-11-22T05:16:23Z"
+      id: 8.791908884472495e+18
+      image: Aut nobis saepe.
+      imageID: Ipsam alias.
+      name: Omnis tenetur ut laudantium fugit aut officia.
+      path: Consequatur ex et nostrum.
+      raw_state:
+        dead: true
+        exitCode: 5.696698905917418e+18
+        finishedAt: "1975-02-15T18:29:12Z"
+        oomKilled: false
+        paused: true
+        pid: 9.010558457491618e+18
+        restarting: false
+        running: false
+        startedAt: "1982-07-06T02:57:49Z"
+        status: restarting
+      status: Created
+      volumes:
+      - Ex totam et dolores quae sapiente.
+      - Ex totam et dolores quae sapiente.
+      - Ex totam et dolores quae sapiente.
+    properties:
+      args:
+        description: The arguments to the command being run
+        example:
+        - Commodi reiciendis officia eos aut.
+        - Commodi reiciendis officia eos aut.
+        - Commodi reiciendis officia eos aut.
+        items:
+          example: Commodi reiciendis officia eos aut.
+          type: string
+        type: array
+      created:
+        description: The time the container was created
+        example: "2001-11-22T05:16:23Z"
+        format: date-time
+        type: string
+      id:
+        description: ID
+        example: 8.791908884472495e+18
+        format: int64
+        type: integer
+      image:
+        description: The name of the image to use when creating the container
+        example: Aut nobis saepe.
+        type: string
+      imageID:
+        description: The container's image ID
+        example: Ipsam alias.
+        type: string
+      name:
+        description: Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
+        example: Omnis tenetur ut laudantium fugit aut officia.
+        type: string
+      path:
+        description: The path to the command being run
+        example: Consequatur ex et nostrum.
+        type: string
+      raw_state:
+        $ref: '#/definitions/GoaContainerInspectRaw_state'
+      status:
+        enum:
+        - Image Downloading
+        - Created
+        - Running
+        - Stopped
+        - Error
+        example: Created
+        type: string
+      volumes:
+        description: Paths to mount volumes in
+        example:
+        - Ex totam et dolores quae sapiente.
+        - Ex totam et dolores quae sapiente.
+        - Ex totam et dolores quae sapiente.
+        items:
+          example: Ex totam et dolores quae sapiente.
+          type: string
+        type: array
+    required:
+    - name
+    - id
+    - image
+    - imageID
+    - path
+    - args
+    - created
+    - status
+    - raw_state
+    - volumes
+    title: 'Mediatype identifier: vpn.application/goa.container.inspect; view=default'
+    type: object
+  GoaContainerInspectRaw_state:
+    description: GoaContainerInspectRaw_state media type (default view)
+    example:
+      dead: true
+      exitCode: 5.696698905917418e+18
+      finishedAt: "1975-02-15T18:29:12Z"
+      oomKilled: false
+      paused: true
+      pid: 9.010558457491618e+18
+      restarting: false
+      running: false
+      startedAt: "1982-07-06T02:57:49Z"
+      status: restarting
+    properties:
+      dead:
+        example: true
+        type: boolean
+      exitCode:
+        example: 5.696698905917418e+18
+        format: int64
+        type: integer
+      finishedAt:
+        example: "1975-02-15T18:29:12Z"
+        format: date-time
+        type: string
+      oomKilled:
+        example: false
+        type: boolean
+      paused:
+        example: true
+        type: boolean
+      pid:
+        example: 9.010558457491618e+18
+        format: int64
+        type: integer
+      restarting:
+        example: false
+        type: boolean
+      running:
+        example: false
+        type: boolean
+      startedAt:
+        example: "1982-07-06T02:57:49Z"
+        format: date-time
+        type: string
+      status:
+        enum:
+        - created
+        - running
+        - paused
+        - restarting
+        - removing
+        - exited
+        - dead
+        example: restarting
+        type: string
+    required:
+    - exitCode
+    - finishedAt
+    - oomKilled
+    - dead
+    - paused
+    - pid
+    - restarting
+    - running
+    - startedAt
+    - status
+    title: 'Mediatype identifier: vnd.application/goa.container.inspect.raw_state;
+      view=default'
+    type: object
+  GoaContainerListEach:
+    description: GoaContainerListEach media type (default view)
+    example:
+      command: Enim sapiente delectus libero.
+      created: "1981-05-17T20:19:18Z"
+      id: 9.12853634710742e+18
+      image: Ut possimus magni.
+      imageID: Culpa quia nisi dolore ut nisi.
+      name: Eaque molestiae odio quia voluptate explicabo asperiores.
+      status: Stopped
+      volumes:
+      - Amet laborum suscipit delectus consequatur.
+      - Amet laborum suscipit delectus consequatur.
+    properties:
+      command:
+        description: Command to run when starting the container
+        example: Enim sapiente delectus libero.
+        type: string
+      created:
+        description: The time the container was created
+        example: "1981-05-17T20:19:18Z"
+        format: date-time
+        type: string
+      id:
+        description: ID
+        example: 9.12853634710742e+18
+        format: int64
+        type: integer
+      image:
+        description: The name of the image to use when creating the container
+        example: Ut possimus magni.
+        type: string
+      imageID:
+        description: The container's image ID
+        example: Culpa quia nisi dolore ut nisi.
+        type: string
+      name:
+        description: Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
+        example: Eaque molestiae odio quia voluptate explicabo asperiores.
+        type: string
+      status:
+        enum:
+        - Image Downloading
+        - Created
+        - Running
+        - Stopped
+        - Error
+        example: Stopped
+        type: string
+      volumes:
+        description: Paths to mount volumes in
+        example:
+        - Amet laborum suscipit delectus consequatur.
+        - Amet laborum suscipit delectus consequatur.
+        items:
+          example: Amet laborum suscipit delectus consequatur.
+          type: string
+        type: array
+    required:
+    - name
+    - id
+    - image
+    - imageID
+    - command
+    - created
+    - status
+    - volumes
+    title: 'Mediatype identifier: vpn.application/goa.container.list.each; view=default'
+    type: object
+  GoaContainerListEachCollection:
+    description: GoaContainerListEachCollection is the media type for an array of
+      GoaContainerListEach (default view)
+    example:
+    - command: Enim sapiente delectus libero.
+      created: "1981-05-17T20:19:18Z"
+      id: 9.12853634710742e+18
+      image: Ut possimus magni.
+      imageID: Culpa quia nisi dolore ut nisi.
+      name: Eaque molestiae odio quia voluptate explicabo asperiores.
+      status: Stopped
+      volumes:
+      - Amet laborum suscipit delectus consequatur.
+      - Amet laborum suscipit delectus consequatur.
+    - command: Enim sapiente delectus libero.
+      created: "1981-05-17T20:19:18Z"
+      id: 9.12853634710742e+18
+      image: Ut possimus magni.
+      imageID: Culpa quia nisi dolore ut nisi.
+      name: Eaque molestiae odio quia voluptate explicabo asperiores.
+      status: Stopped
+      volumes:
+      - Amet laborum suscipit delectus consequatur.
+      - Amet laborum suscipit delectus consequatur.
+    - command: Enim sapiente delectus libero.
+      created: "1981-05-17T20:19:18Z"
+      id: 9.12853634710742e+18
+      image: Ut possimus magni.
+      imageID: Culpa quia nisi dolore ut nisi.
+      name: Eaque molestiae odio quia voluptate explicabo asperiores.
+      status: Stopped
+      volumes:
+      - Amet laborum suscipit delectus consequatur.
+      - Amet laborum suscipit delectus consequatur.
+    items:
+      $ref: '#/definitions/GoaContainerListEach'
+    title: 'Mediatype identifier: vpn.application/goa.container.list.each; type=collection;
+      view=default'
+    type: array
   Query:
     description: viron query (default view)
     example:
@@ -39,7 +317,7 @@ definitions:
   SigninPayload:
     example:
       id: identify key
-      password: o1bha872hy
+      password: 5iiajsggxx
     properties:
       id:
         description: ID or Email
@@ -47,7 +325,7 @@ definitions:
         type: string
       password:
         description: Password
-        example: o1bha872hy
+        example: 5iiajsggxx
         maxLength: 256
         type: string
     required:
@@ -109,10 +387,6 @@ definitions:
     description: VironauthtypeCollection is the media type for an array of Vironauthtype
       (default view)
     example:
-    - method: POST
-      provider: ""
-      type: signin
-      url: /signin
     - method: POST
       provider: ""
       type: signin
@@ -532,12 +806,12 @@ paths:
       - description: ID or name
         in: query
         name: id
-        required: false
+        required: true
         type: string
       - description: Path in the container to save files
         in: query
         name: path
-        required: false
+        required: true
         type: string
       produces:
       - application/vnd.goa.error
@@ -559,6 +833,64 @@ paths:
       security:
       - jwt: []
       summary: download container
+      tags:
+      - container
+  /container/inspect:
+    get:
+      description: Return details of a container
+      operationId: container#inspect
+      parameters:
+      - description: ID or name
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.container.inspect
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaContainerInspect'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: inspect container
+      tags:
+      - container
+  /container/list:
+    get:
+      description: Return details of a container
+      operationId: container#list
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.container.list.each; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaContainerListEachCollection'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: list container
       tags:
       - container
   /container/remove:

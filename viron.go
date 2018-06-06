@@ -16,15 +16,12 @@ import (
 type VironController struct {
 	*goa.Controller
 
-	privateKey *rsa.PrivateKey
+	PrivateKey *rsa.PrivateKey
 }
 
 // NewVironController creates a viron controller.
-func NewVironController(service *goa.Service, privateKey *rsa.PrivateKey) *VironController {
-	return &VironController{
-		Controller: service.NewController("VironController"),
-		privateKey: privateKey,
-	}
+func NewVironController(service *goa.Service) *VironController {
+	return &VironController{Controller: service.NewController("VironController")}
 }
 
 // Authtype runs the authtype action.
@@ -46,6 +43,7 @@ func (c *VironController) Authtype(ctx *app.AuthtypeVironContext) error {
 		},
 	}
 	return ctx.OK(res)
+
 	// VironController_Authtype: end_implement
 }
 
@@ -57,6 +55,7 @@ func (c *VironController) Get(ctx *app.GetVironContext) error {
 
 	res := &app.Vironsetting{}
 	return ctx.OK(res)
+
 	// VironController_Get: end_implement
 }
 
@@ -81,7 +80,7 @@ func (c *VironController) Signin(ctx *app.SigninVironContext) error {
 		"sub":     "subject",                        // the subject/principal is whom the token is about
 		"scopes":  "api:access",                     // token scope - not a standard claim
 	}
-	signedToken, err := token.SignedString(c.privateKey)
+	signedToken, err := token.SignedString(c.PrivateKey)
 	if err != nil {
 		return fmt.Errorf("failed to sign token: %s", err) // internal error
 	}

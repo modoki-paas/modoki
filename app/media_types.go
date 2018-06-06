@@ -12,6 +12,7 @@ package app
 
 import (
 	"github.com/goadesign/goa"
+	"time"
 )
 
 // viron query (default view)
@@ -247,4 +248,161 @@ func (mt *Vironsetting) Validate() (err error) {
 type GoaContainerCreateResults struct {
 	// container id
 	ID int `form:"id" json:"id" xml:"id"`
+}
+
+// GoaContainerInspectRaw_state media type (default view)
+//
+// Identifier: vnd.application/goa.container.inspect.raw_state; view=default
+type GoaContainerInspectRawState struct {
+	Dead       bool      `form:"dead" json:"dead" xml:"dead"`
+	ExitCode   int       `form:"exitCode" json:"exitCode" xml:"exitCode"`
+	FinishedAt time.Time `form:"finishedAt" json:"finishedAt" xml:"finishedAt"`
+	OomKilled  bool      `form:"oomKilled" json:"oomKilled" xml:"oomKilled"`
+	Paused     bool      `form:"paused" json:"paused" xml:"paused"`
+	Pid        int       `form:"pid" json:"pid" xml:"pid"`
+	Restarting bool      `form:"restarting" json:"restarting" xml:"restarting"`
+	Running    bool      `form:"running" json:"running" xml:"running"`
+	StartedAt  time.Time `form:"startedAt" json:"startedAt" xml:"startedAt"`
+	Status     string    `form:"status" json:"status" xml:"status"`
+}
+
+// Validate validates the GoaContainerInspectRawState media type instance.
+func (mt *GoaContainerInspectRawState) Validate() (err error) {
+
+	if mt.Status == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
+	}
+	if !(mt.Status == "created" || mt.Status == "running" || mt.Status == "paused" || mt.Status == "restarting" || mt.Status == "removing" || mt.Status == "exited" || mt.Status == "dead") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"created", "running", "paused", "restarting", "removing", "exited", "dead"}))
+	}
+	return
+}
+
+// GoaContainerInspect media type (default view)
+//
+// Identifier: vpn.application/goa.container.inspect; view=default
+type GoaContainerInspect struct {
+	// The arguments to the command being run
+	Args []string `form:"args" json:"args" xml:"args"`
+	// The time the container was created
+	Created time.Time `form:"created" json:"created" xml:"created"`
+	// ID
+	ID int `form:"id" json:"id" xml:"id"`
+	// The name of the image to use when creating the container
+	Image string `form:"image" json:"image" xml:"image"`
+	// The container's image ID
+	ImageID string `form:"imageID" json:"imageID" xml:"imageID"`
+	// Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
+	Name string `form:"name" json:"name" xml:"name"`
+	// The path to the command being run
+	Path     string                       `form:"path" json:"path" xml:"path"`
+	RawState *GoaContainerInspectRawState `form:"raw_state" json:"raw_state" xml:"raw_state"`
+	Status   string                       `form:"status" json:"status" xml:"status"`
+	// Paths to mount volumes in
+	Volumes []string `form:"volumes" json:"volumes" xml:"volumes"`
+}
+
+// Validate validates the GoaContainerInspect media type instance.
+func (mt *GoaContainerInspect) Validate() (err error) {
+	if mt.Name == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
+	}
+
+	if mt.Image == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "image"))
+	}
+	if mt.ImageID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "imageID"))
+	}
+	if mt.Path == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "path"))
+	}
+	if mt.Args == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "args"))
+	}
+
+	if mt.Status == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
+	}
+	if mt.RawState == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "raw_state"))
+	}
+	if mt.Volumes == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "volumes"))
+	}
+	if mt.RawState != nil {
+		if err2 := mt.RawState.Validate(); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if !(mt.Status == "Image Downloading" || mt.Status == "Created" || mt.Status == "Running" || mt.Status == "Stopped" || mt.Status == "Error") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"Image Downloading", "Created", "Running", "Stopped", "Error"}))
+	}
+	return
+}
+
+// GoaContainerListEach media type (default view)
+//
+// Identifier: vpn.application/goa.container.list.each; view=default
+type GoaContainerListEach struct {
+	// Command to run when starting the container
+	Command string `form:"command" json:"command" xml:"command"`
+	// The time the container was created
+	Created time.Time `form:"created" json:"created" xml:"created"`
+	// ID
+	ID int `form:"id" json:"id" xml:"id"`
+	// The name of the image to use when creating the container
+	Image string `form:"image" json:"image" xml:"image"`
+	// The container's image ID
+	ImageID string `form:"imageID" json:"imageID" xml:"imageID"`
+	// Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
+	Name   string `form:"name" json:"name" xml:"name"`
+	Status string `form:"status" json:"status" xml:"status"`
+	// Paths to mount volumes in
+	Volumes []string `form:"volumes" json:"volumes" xml:"volumes"`
+}
+
+// Validate validates the GoaContainerListEach media type instance.
+func (mt *GoaContainerListEach) Validate() (err error) {
+	if mt.Name == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
+	}
+
+	if mt.Image == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "image"))
+	}
+	if mt.ImageID == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "imageID"))
+	}
+	if mt.Command == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "command"))
+	}
+
+	if mt.Status == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "status"))
+	}
+	if mt.Volumes == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "volumes"))
+	}
+	if !(mt.Status == "Image Downloading" || mt.Status == "Created" || mt.Status == "Running" || mt.Status == "Stopped" || mt.Status == "Error") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"Image Downloading", "Created", "Running", "Stopped", "Error"}))
+	}
+	return
+}
+
+// GoaContainerListEachCollection is the media type for an array of GoaContainerListEach (default view)
+//
+// Identifier: vpn.application/goa.container.list.each; type=collection; view=default
+type GoaContainerListEachCollection []*GoaContainerListEach
+
+// Validate validates the GoaContainerListEachCollection media type instance.
+func (mt GoaContainerListEachCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
 }

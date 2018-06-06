@@ -3,6 +3,8 @@
 package main
 
 import (
+	"context"
+
 	"github.com/cs3238-tsuzu/modoki/consul_traefik"
 	_ "github.com/go-sql-driver/mysql"
 
@@ -120,10 +122,18 @@ func main() {
 	}
 
 	// Mount "container" controller
-	c := NewContainerController(service, dockerClient, db, consul)
+	c := NewContainerController(service)
+
+	c.DockerClient = dockerClient
+	c.DB = db
+	c.Consul = consul
+	go c.run(context.Background())
+
 	app.MountContainerController(service, c)
 	// Mount "viron" controller
-	c2 := NewVironController(service, privKey)
+	c2 := NewVironController(service)
+
+	c2.PrivateKey = privKey
 	app.MountVironController(service, c2)
 
 	// Start service
