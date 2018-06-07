@@ -14,6 +14,7 @@ import (
 	"context"
 	"github.com/goadesign/goa"
 	"net/http"
+	"strconv"
 )
 
 // initService sets up the service encoders, decoders and mux.
@@ -184,6 +185,13 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 func unmarshalUploadContainerPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	var err error
 	var payload uploadPayload
+	rawAllowOverwrite := req.FormValue("allowOverwrite")
+	if allowOverwrite, err2 := strconv.ParseBool(rawAllowOverwrite); err2 == nil {
+		tmp3 := &allowOverwrite
+		payload.AllowOverwrite = tmp3
+	} else {
+		err = goa.MergeErrors(err, goa.InvalidParamTypeError("allowOverwrite", rawAllowOverwrite, "boolean"))
+	}
 	_, rawData, err2 := req.FormFile("data")
 	if err2 == nil {
 		payload.Data = rawData

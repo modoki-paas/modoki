@@ -488,12 +488,26 @@ func (ctx *UploadContainerContext) OK(resp []byte) error {
 	return err
 }
 
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *UploadContainerContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
 // NotFound sends a HTTP response with status code 404.
 func (ctx *UploadContainerContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// RequestEntityTooLarge sends a HTTP response with status code 413.
+func (ctx *UploadContainerContext) RequestEntityTooLarge() error {
+	ctx.ResponseData.WriteHeader(413)
+	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.

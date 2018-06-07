@@ -232,7 +232,7 @@ Payload example:
 
 {
    "id": "identify key",
-   "password": "5iiajsggxx"
+   "password": "iajsggxxhc"
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
 	}
@@ -281,9 +281,10 @@ Payload example:
 Payload example:
 
 {
-   "data": "Quas cupiditate ut architecto velit.jpg",
-   "id": "A dicta fugit qui quis.",
-   "path": "Accusantium voluptatem autem recusandae deleniti sunt aut."
+   "allowOverwrite": true,
+   "data": "Cupiditate ut architecto velit et a.jpg",
+   "id": "Fugit qui quis et accusantium.",
+   "path": "Autem recusandae deleniti sunt aut facilis nisi."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp11.Run(c, args) },
 	}

@@ -183,12 +183,22 @@ func (ut *SigninPayload) Validate() (err error) {
 
 // uploadPayload user type.
 type uploadPayload struct {
+	// Allow for a existing directory to be replaced by a file
+	AllowOverwrite *bool `form:"allowOverwrite,omitempty" json:"allowOverwrite,omitempty" xml:"allowOverwrite,omitempty"`
 	// File tar archive
 	Data *string `form:"data,omitempty" json:"data,omitempty" xml:"data,omitempty"`
 	// ID or name
 	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Path in the container to save files
 	Path *string `form:"path,omitempty" json:"path,omitempty" xml:"path,omitempty"`
+}
+
+// Finalize sets the default values for uploadPayload type instance.
+func (ut *uploadPayload) Finalize() {
+	var defaultAllowOverwrite = false
+	if ut.AllowOverwrite == nil {
+		ut.AllowOverwrite = &defaultAllowOverwrite
+	}
 }
 
 // Validate validates the uploadPayload type instance.
@@ -208,6 +218,9 @@ func (ut *uploadPayload) Validate() (err error) {
 // Publicize creates UploadPayload from uploadPayload
 func (ut *uploadPayload) Publicize() *UploadPayload {
 	var pub UploadPayload
+	if ut.AllowOverwrite != nil {
+		pub.AllowOverwrite = *ut.AllowOverwrite
+	}
 	if ut.Data != nil {
 		pub.Data = *ut.Data
 	}
@@ -222,6 +235,8 @@ func (ut *uploadPayload) Publicize() *UploadPayload {
 
 // UploadPayload user type.
 type UploadPayload struct {
+	// Allow for a existing directory to be replaced by a file
+	AllowOverwrite bool `form:"allowOverwrite" json:"allowOverwrite" xml:"allowOverwrite"`
 	// File tar archive
 	Data string `form:"data" json:"data" xml:"data"`
 	// ID or name

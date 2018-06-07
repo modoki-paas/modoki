@@ -551,9 +551,46 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 func (c *ContainerController) Upload(ctx *app.UploadContainerContext) error {
 	// ContainerController_Upload: start_implement
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.Payload.ID, ctx.Payload.ID)
+
+	if err != nil {
+		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+	}
+
+	rows.Next()
+
+	var id int
+	var cid sql.NullString
+	if err := rows.Scan(&id, &cid); err != nil {
+		rows.Close()
+		return ctx.NotFound(errors.New("No container found"))
+	}
+	rows.Close()
+
+	if !cid.Valid {
+		return ctx.NotFound(errors.New("No container found"))
+	}
+
+	reader, err := ctx.Payload.Data.Open()
+
+	if err != nil {
+		return ctx.BadRequest(errors.Wrap(err, "Opening the form error"))
+	}
+	defer reader.Close()
+
+	if err := c.DockerClient.CopyToContainer(ctx, cid.String, ctx.Payload.Path, reader, types.CopyToContainerOptions{
+		AllowOverwriteDirWithFile: ctx.Payload.AllowOverwrite,
+	}); err != nil {
+		return ctx.InternalServerError(errors.Wrap(err, "Failed to copy a file via Docker API"))
+	}
+
+	return ctx.OK(nil)
 	// ContainerController_Upload: end_implement
 }
 

@@ -326,6 +326,16 @@ func (c *Client) NewUploadContainerRequest(ctx context.Context, path string, pay
 	var body bytes.Buffer
 	w := multipart.NewWriter(&body)
 	{
+		fw, err := w.CreateFormField("allowOverwrite")
+		if err != nil {
+			return nil, err
+		}
+		s := strconv.FormatBool(payload.AllowOverwrite)
+		if _, err := fw.Write([]byte(s)); err != nil {
+			return nil, err
+		}
+	}
+	{
 		_, file := filepath.Split(payload.Data)
 		fw, err := w.CreateFormFile("data", file)
 		if err != nil {

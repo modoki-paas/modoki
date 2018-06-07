@@ -317,7 +317,7 @@ definitions:
   SigninPayload:
     example:
       id: identify key
-      password: 5iiajsggxx
+      password: iajsggxxhc
     properties:
       id:
         description: ID or Email
@@ -325,7 +325,7 @@ definitions:
         type: string
       password:
         description: Password
-        example: 5iiajsggxx
+        example: iajsggxxhc
         maxLength: 256
         type: string
     required:
@@ -387,6 +387,14 @@ definitions:
     description: VironauthtypeCollection is the media type for an array of Vironauthtype
       (default view)
     example:
+    - method: POST
+      provider: ""
+      type: signin
+      url: /signin
+    - method: POST
+      provider: ""
+      type: signin
+      url: /signin
     - method: POST
       provider: ""
       type: signin
@@ -996,6 +1004,12 @@ paths:
       description: Copy files to the container
       operationId: container#upload
       parameters:
+      - default: false
+        description: Allow for a existing directory to be replaced by a file
+        in: formData
+        name: allowOverwrite
+        required: false
+        type: boolean
       - description: File tar archive
         in: formData
         name: data
@@ -1017,10 +1031,16 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
         "404":
           description: Not Found
           schema:
             $ref: '#/definitions/error'
+        "413":
+          description: Request Entity Too Large
         "500":
           description: Internal Server Error
           schema:
@@ -1105,6 +1125,8 @@ responses:
     description: Not Found
   OK:
     description: OK
+  RequestEntityTooLarge:
+    description: Request Entity Too Large
   Unauthorized:
     description: Unauthorized
 schemes:

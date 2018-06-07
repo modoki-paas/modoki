@@ -140,6 +140,8 @@ var _ = Resource("container", func() { // Defines the Operands resource
 
 		Response(OK)
 		Response(NotFound, ErrorMedia)
+		Response(BadRequest, ErrorMedia)
+		Response(RequestEntityTooLarge)
 		Response(InternalServerError, ErrorMedia)
 	})
 
@@ -163,8 +165,10 @@ var UploadPayload = Type("UploadPayload", func() {
 	Attribute("id", String, "ID or name")
 	Attribute("path", String, "Path in the container to save files")
 	Attribute("data", File, "File tar archive")
-
-	Required("id", "path", "data")
+	Attribute("allowOverwrite", Boolean, func() {
+		Description("Allow for a existing directory to be replaced by a file")
+		Default(false)
+	})
 
 	Required("id", "path", "data")
 })
