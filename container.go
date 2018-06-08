@@ -168,7 +168,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 
 			return
 		}
-		if err := c.Consul.AddValueForFrontend(frontendName, "headers", "SSLRedirect", ctx.SslRedirect); err != nil {
+		if err := c.Consul.AddValueForFrontend(frontendName, "headers", "sslredirect", ctx.SslRedirect); err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
 
 			return
