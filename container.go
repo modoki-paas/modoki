@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/k0kubun/pp"
+
 	"github.com/docker/docker/api/types/filters"
 
 	"github.com/cs3238-tsuzu/modoki/consul_traefik"
@@ -510,14 +512,38 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 	filter.Add("label", DockerLabelModokiUID+"="+strconv.Itoa(uid))
 
 	list, err := c.DockerClient.ContainerList(ctx, types.ContainerListOptions{
+		All:     true,
 		Filters: filter,
 	})
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Docker API Error"))
 	}
+	res := make(app.GoaContainerListEachCollection, 0, len(list)+10)
 
-	res := make(app.GoaContainerListEachCollection, 0, len(list))
+	rows, err := c.DB.Query(`SELECT id, name, nessage FROM containers WHERE status="Error"`)
+
+	if err != nil {
+		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+	}
+
+	defer rows.Close()
+
+	for rows.Next() {
+		var id int
+		var name, msg string
+		if err := rows.Scan(&id, &name, &msg); err != nil {
+			return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+		}
+
+		res = append(res, &app.GoaContainerListEach{
+			ID:      id,
+			Name:    name,
+			Command: msg,
+		})
+	}
+	rows.Close()
+
 	for i := range list {
 		j := list[i]
 
@@ -530,6 +556,19 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 		id, _ := strconv.Atoi(j.Labels[DockerLabelModokiID])
 		name := j.Labels[DockerLabelModokiName]
 
+		var state string
+
+		switch strings.ToLower(j.State) {
+		case "running":
+			state = "Running"
+		case "restarting":
+			state = "Running"
+		case "created":
+			state = "Created"
+		default:
+			state = "Stopped"
+		}
+
 		each := &app.GoaContainerListEach{
 			Command: j.Command,
 			Created: t,
@@ -537,6 +576,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 			Image:   j.Image,
 			ImageID: j.ImageID,
 			Name:    name,
+			Status:  state,
 			Volumes: vols,
 		}
 
@@ -674,13 +714,16 @@ func (c *ContainerController) run(ctx context.Context) {
 		for {
 			select {
 			case m := <-msg:
+				log.Println("event caught: ", pp.Sprint(m))
+
 				switch m.Status {
 				case "start":
 					c.updateContainerStatus(context.Background(), m.Actor.ID)
 				case "die":
 					c.updateContainerStatus(context.Background(), m.Actor.ID)
 				}
-			case <-err:
+			case e := <-err:
+				log.Println("Watching events error: ", e)
 				return
 			}
 		}
