@@ -521,7 +521,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 	}
 	res := make(app.GoaContainerListEachCollection, 0, len(list)+10)
 
-	rows, err := c.DB.Query(`SELECT id, name, nessage FROM containers WHERE status="Error"`)
+	rows, err := c.DB.Query(`SELECT id, name, message FROM containers WHERE status="Error"`)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
