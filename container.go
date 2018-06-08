@@ -70,7 +70,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 	}
 
 	go func() {
-		c.must(c.updateStatus(context.Background(), "Image Downloading", "", id))
+		c.must(c.updateStatus(context.Background(), "Creating", "", id))
 
 		type ImagePullProgress struct {
 			Status         string `json:"status"`
@@ -83,7 +83,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		}
 
 		if rc, err := c.DockerClient.ImagePull(context.Background(), ctx.Image, types.ImagePullOptions{}); err != nil {
-			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Image downloading error: %v", err), id))
+			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Downloading the image error: %v", err), id))
 
 			return
 		} else {
@@ -521,7 +521,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 	}
 	res := make(app.GoaContainerListEachCollection, 0, len(list)+10)
 
-	rows, err := c.DB.Query(`SELECT id, name, message FROM containers WHERE status="Error"`)
+	rows, err := c.DB.Query(`SELECT id, name, message FROM containers WHERE status="Error" OR status="Creating"`)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))

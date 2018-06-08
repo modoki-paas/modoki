@@ -91,8 +91,8 @@ func DownloadContainerPath() string {
 }
 
 // Copy files from the container
-func (c *Client) DownloadContainer(ctx context.Context, path_ string, id string, path string) (*http.Response, error) {
-	req, err := c.NewDownloadContainerRequest(ctx, path_, id, path)
+func (c *Client) DownloadContainer(ctx context.Context, path string, id string, path string) (*http.Response, error) {
+	req, err := c.NewDownloadContainerRequest(ctx, path, id, path)
 	if err != nil {
 		return nil, err
 	}
@@ -100,12 +100,12 @@ func (c *Client) DownloadContainer(ctx context.Context, path_ string, id string,
 }
 
 // NewDownloadContainerRequest create the request corresponding to the download action endpoint of the container resource.
-func (c *Client) NewDownloadContainerRequest(ctx context.Context, path_ string, id string, path string) (*http.Request, error) {
+func (c *Client) NewDownloadContainerRequest(ctx context.Context, path string, id string, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
 	}
-	u := url.URL{Host: c.Host, Scheme: scheme, Path: path_}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	values.Set("id", id)
 	values.Set("path", path)

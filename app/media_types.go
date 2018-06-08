@@ -384,8 +384,8 @@ func (mt *GoaContainerListEach) Validate() (err error) {
 	if mt.Volumes == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "volumes"))
 	}
-	if !(mt.Status == "Image Downloading" || mt.Status == "Created" || mt.Status == "Running" || mt.Status == "Stopped" || mt.Status == "Error") {
-		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"Image Downloading", "Created", "Running", "Stopped", "Error"}))
+	if !(mt.Status == "Creating" || mt.Status == "Created" || mt.Status == "Running" || mt.Status == "Stopped" || mt.Status == "Error") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"Creating", "Created", "Running", "Stopped", "Error"}))
 	}
 	return
 }

@@ -47,7 +47,7 @@ var ContainerListEachMedia = MediaType("vpn.application/goa.container.list.each"
 		Attribute("created", DateTime, "The time the container was created")
 		Attribute("volumes", ArrayOf(String), "Paths to mount volumes in")
 		Attribute("status", String, func() {
-			Enum("Image Downloading", "Created", "Running", "Stopped", "Error")
+			Enum("Creating", "Created", "Running", "Stopped", "Error")
 		})
 
 		Required("name", "id", "image", "imageID", "command", "created", "status", "volumes")

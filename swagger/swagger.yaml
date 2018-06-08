@@ -229,7 +229,7 @@ definitions:
         type: string
       status:
         enum:
-        - Image Downloading
+        - Creating
         - Created
         - Running
         - Stopped
