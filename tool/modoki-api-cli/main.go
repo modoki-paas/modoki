@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/cs3238-tsuzu/modoki/client"
 	"github.com/cs3238-tsuzu/modoki/tool/cli"
 	goaclient "github.com/goadesign/goa/client"
 	"github.com/spf13/cobra"
-	"net/http"
-	"os"
-	"time"
 )
 
 func main() {

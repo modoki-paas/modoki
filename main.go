@@ -78,6 +78,10 @@ func main() {
 			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
 		}
 
+		if err := consul.AddValueForFrontend(TraefikFrontendName, "headers", "sslredirect", true); err != nil {
+			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
+		}
+
 		if err := consul.AddValueForFrontend(TraefikFrontendName, "backend", TraefikBackendName); err != nil {
 			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
 		}

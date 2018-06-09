@@ -102,8 +102,9 @@ var ContainerCreateOK = MediaType("vnd.application/goa.container.create.results+
 	Description("The results of container creation")
 	Attributes(func() { // Defines the media type attributes
 		Attribute("id", Integer, "container id")
+		Attribute("endpoint", ArrayOf(String), "endpoint URL")
 
-		Required("id")
+		Required("id", "endpoint")
 	})
 
 	View("default", func() {

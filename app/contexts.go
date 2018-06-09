@@ -15,6 +15,7 @@ import (
 	"github.com/goadesign/goa"
 	"net/http"
 	"strconv"
+	"time"
 	"unicode/utf8"
 )
 
@@ -23,7 +24,7 @@ type CreateContainerContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Cmd         []string
+	Command     []string
 	Entrypoint  []string
 	Env         []string
 	Image       string
@@ -42,10 +43,10 @@ func NewCreateContainerContext(ctx context.Context, r *http.Request, service *go
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := CreateContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
-	paramCmd := req.Params["cmd"]
-	if len(paramCmd) > 0 {
-		params := paramCmd
-		rctx.Cmd = params
+	paramCommand := req.Params["command"]
+	if len(paramCommand) > 0 {
+		params := paramCommand
+		rctx.Command = params
 	}
 	paramEntrypoint := req.Params["entrypoint"]
 	if len(paramEntrypoint) > 0 {
@@ -138,8 +139,8 @@ type DownloadContainerContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	ID   string
-	Path string
+	ID           string
+	InternalPath string
 }
 
 // NewDownloadContainerContext parses the incoming request URL and body, performs validations and creates the
@@ -158,12 +159,12 @@ func NewDownloadContainerContext(ctx context.Context, r *http.Request, service *
 		rawID := paramID[0]
 		rctx.ID = rawID
 	}
-	paramPath := req.Params["path"]
-	if len(paramPath) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("path"))
+	paramInternalPath := req.Params["internalPath"]
+	if len(paramInternalPath) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("internalPath"))
 	} else {
-		rawPath := paramPath[0]
-		rctx.Path = rawPath
+		rawInternalPath := paramInternalPath[0]
+		rctx.InternalPath = rawInternalPath
 	}
 	return &rctx, err
 }
@@ -287,6 +288,127 @@ func (ctx *ListContainerContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// LogsContainerContext provides the container logs action context.
+type LogsContainerContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Follow     bool
+	ID         string
+	Since      *time.Time
+	Stderr     bool
+	Stdout     bool
+	Tail       string
+	Timestamps bool
+	Until      *time.Time
+}
+
+// NewLogsContainerContext parses the incoming request URL and body, performs validations and creates the
+// context used by the container controller logs action.
+func NewLogsContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*LogsContainerContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := LogsContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramFollow := req.Params["follow"]
+	if len(paramFollow) == 0 {
+		rctx.Follow = false
+	} else {
+		rawFollow := paramFollow[0]
+		if follow, err2 := strconv.ParseBool(rawFollow); err2 == nil {
+			rctx.Follow = follow
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("follow", rawFollow, "boolean"))
+		}
+	}
+	paramID := req.Params["id"]
+	if len(paramID) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("id"))
+	} else {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramSince := req.Params["since"]
+	if len(paramSince) > 0 {
+		rawSince := paramSince[0]
+		if since, err2 := time.Parse(time.RFC3339, rawSince); err2 == nil {
+			tmp3 := &since
+			rctx.Since = tmp3
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("since", rawSince, "datetime"))
+		}
+	}
+	paramStderr := req.Params["stderr"]
+	if len(paramStderr) == 0 {
+		rctx.Stderr = false
+	} else {
+		rawStderr := paramStderr[0]
+		if stderr, err2 := strconv.ParseBool(rawStderr); err2 == nil {
+			rctx.Stderr = stderr
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("stderr", rawStderr, "boolean"))
+		}
+	}
+	paramStdout := req.Params["stdout"]
+	if len(paramStdout) == 0 {
+		rctx.Stdout = false
+	} else {
+		rawStdout := paramStdout[0]
+		if stdout, err2 := strconv.ParseBool(rawStdout); err2 == nil {
+			rctx.Stdout = stdout
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("stdout", rawStdout, "boolean"))
+		}
+	}
+	paramTail := req.Params["tail"]
+	if len(paramTail) == 0 {
+		rctx.Tail = "all"
+	} else {
+		rawTail := paramTail[0]
+		rctx.Tail = rawTail
+	}
+	paramTimestamps := req.Params["timestamps"]
+	if len(paramTimestamps) == 0 {
+		rctx.Timestamps = false
+	} else {
+		rawTimestamps := paramTimestamps[0]
+		if timestamps, err2 := strconv.ParseBool(rawTimestamps); err2 == nil {
+			rctx.Timestamps = timestamps
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("timestamps", rawTimestamps, "boolean"))
+		}
+	}
+	paramUntil := req.Params["until"]
+	if len(paramUntil) > 0 {
+		rawUntil := paramUntil[0]
+		if until, err2 := time.Parse(time.RFC3339, rawUntil); err2 == nil {
+			tmp7 := &until
+			rctx.Until = tmp7
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("until", rawUntil, "datetime"))
+		}
+	}
+	return &rctx, err
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *LogsContainerContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *LogsContainerContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // RemoveContainerContext provides the container remove action context.
 type RemoveContainerContext struct {
 	context.Context
@@ -326,14 +448,10 @@ func NewRemoveContainerContext(ctx context.Context, r *http.Request, service *go
 	return &rctx, err
 }
 
-// OK sends a HTTP response with status code 200.
-func (ctx *RemoveContainerContext) OK(resp []byte) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
-	}
-	ctx.ResponseData.WriteHeader(200)
-	_, err := ctx.ResponseData.Write(resp)
-	return err
+// NoContent sends a HTTP response with status code 204.
+func (ctx *RemoveContainerContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
@@ -383,14 +501,10 @@ func NewStartContainerContext(ctx context.Context, r *http.Request, service *goa
 	return &rctx, err
 }
 
-// OK sends a HTTP response with status code 200.
-func (ctx *StartContainerContext) OK(resp []byte) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
-	}
-	ctx.ResponseData.WriteHeader(200)
-	_, err := ctx.ResponseData.Write(resp)
-	return err
+// NoContent sends a HTTP response with status code 204.
+func (ctx *StartContainerContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
@@ -434,14 +548,10 @@ func NewStopContainerContext(ctx context.Context, r *http.Request, service *goa.
 	return &rctx, err
 }
 
-// OK sends a HTTP response with status code 200.
-func (ctx *StopContainerContext) OK(resp []byte) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
-	}
-	ctx.ResponseData.WriteHeader(200)
-	_, err := ctx.ResponseData.Write(resp)
-	return err
+// NoContent sends a HTTP response with status code 204.
+func (ctx *StopContainerContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
@@ -478,14 +588,10 @@ func NewUploadContainerContext(ctx context.Context, r *http.Request, service *go
 	return &rctx, err
 }
 
-// OK sends a HTTP response with status code 200.
-func (ctx *UploadContainerContext) OK(resp []byte) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
-	}
-	ctx.ResponseData.WriteHeader(200)
-	_, err := ctx.ResponseData.Write(resp)
-	return err
+// NoContent sends a HTTP response with status code 204.
+func (ctx *UploadContainerContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
 }
 
 // BadRequest sends a HTTP response with status code 400.

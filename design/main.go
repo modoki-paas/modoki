@@ -11,8 +11,6 @@ var _ = API("Modoki API", func() {
 	Host("localhost:4434")
 	BasePath("/api/v1")
 	Security(JWT)
-	Consumes("application/json")
-	Produces("application/json")
 })
 
 var JWT = JWTSecurity("jwt", func() {
@@ -35,7 +33,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 				MaxLength(64)
 			})
 			Param("image", String, "Name of image")
-			Param("cmd", ArrayOf(String), "Command to run specified as a string or an array of strings.")
+			Param("command", ArrayOf(String), "Command to run specified as a string or an array of strings.")
 			Param("entrypoint", ArrayOf(String), "The entry point for the container as a string or an array of strings")
 			Param("env", ArrayOf(String), "Environment variables")
 			Param("volumes", ArrayOf(String), "Path to volumes in a container")
@@ -68,7 +66,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 
 			Required("id")
 		})
-		Response(OK)
+		Response(NoContent)
 		Response(NotFound)
 		Response(InternalServerError, ErrorMedia)
 	})
@@ -81,7 +79,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 
 			Required("id")
 		})
-		Response(OK)
+		Response(NoContent)
 		Response(NotFound)
 		Response(InternalServerError, ErrorMedia)
 	})
@@ -98,7 +96,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 
 			Required("id", "force")
 		})
-		Response(OK)
+		Response(NoContent)
 		Response(NotFound)
 		Response("RunningContainer", func() {
 			Status(409)
@@ -123,10 +121,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 	})
 	Action("list", func() {
 		Routing(GET("/list"))
-		Description("Return details of a container")
-
-		Params(func() {
-		})
+		Description("Return a list of containers")
 
 		Response(OK, CollectionOf(ContainerListEachMedia))
 		Response(NotFound)
@@ -138,7 +133,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		MultipartForm()
 		Payload(UploadPayload)
 
-		Response(OK)
+		Response(NoContent)
 		Response(NotFound, ErrorMedia)
 		Response(BadRequest, ErrorMedia)
 		Response(RequestEntityTooLarge)
@@ -150,12 +145,46 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		Description("Copy files from the container")
 		Params(func() {
 			Param("id", String, "ID or name")
-			Param("path", String, "Path in the container to save files")
+			Param("internalPath", String, "Path in the container to save files")
 
-			Required("id", "path")
+			Required("id", "internalPath")
 		})
 
 		Response(OK)
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
+
+	Action("logs", func() { // WebSocket API
+		Routing(GET("/logs"))
+		Scheme("ws")
+		Description("Get stdout and stderr logs from a container.")
+
+		Params(func() {
+			Param("id", String, "id or name")
+
+			Param("follow", Boolean, func() {
+				Default(false)
+			})
+			Param("stdout", Boolean, func() {
+				Default(false)
+			})
+			Param("stderr", Boolean, func() {
+				Default(false)
+			})
+			Param("since", DateTime)
+			Param("until", DateTime)
+			Param("timestamps", Boolean, func() {
+				Default(false)
+			})
+			Param("tail", String, func() {
+				Default("all")
+			})
+
+			Required("id")
+		})
+
+		Response(SwitchingProtocols)
 		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})

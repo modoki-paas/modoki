@@ -88,8 +88,8 @@ func SigninVironPath() string {
 }
 
 // Creates a valid JWT
-func (c *Client) SigninViron(ctx context.Context, path string, payload *SigninPayload) (*http.Response, error) {
-	req, err := c.NewSigninVironRequest(ctx, path, payload)
+func (c *Client) SigninViron(ctx context.Context, path string, payload *SigninPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewSigninVironRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -97,9 +97,12 @@ func (c *Client) SigninViron(ctx context.Context, path string, payload *SigninPa
 }
 
 // NewSigninVironRequest create the request corresponding to the signin action endpoint of the viron resource.
-func (c *Client) NewSigninVironRequest(ctx context.Context, path string, payload *SigninPayload) (*http.Request, error) {
+func (c *Client) NewSigninVironRequest(ctx context.Context, path string, payload *SigninPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
-	err := c.Encoder.Encode(payload, &body, "*/*")
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
 	if err != nil {
 		return nil, fmt.Errorf("failed to encode body: %s", err)
 	}
@@ -113,6 +116,10 @@ func (c *Client) NewSigninVironRequest(ctx context.Context, path string, payload
 		return nil, err
 	}
 	header := req.Header
-	header.Set("Content-Type", "application/json")
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
+	}
 	return req, nil
 }

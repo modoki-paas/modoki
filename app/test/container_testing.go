@@ -22,13 +22,14 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"time"
 )
 
 // CreateContainerBadRequest runs the method Create of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateContainerBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, cmd []string, entrypoint []string, env []string, image string, name string, sslRedirect bool, volumes []string, workingDir *string) (http.ResponseWriter, error) {
+func CreateContainerBadRequest(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, command []string, entrypoint []string, env []string, image string, name string, sslRedirect bool, volumes []string, workingDir *string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -50,8 +51,8 @@ func CreateContainerBadRequest(t goatest.TInterface, ctx context.Context, servic
 	rw := httptest.NewRecorder()
 	query := url.Values{}
 	{
-		sliceVal := cmd
-		query["cmd"] = sliceVal
+		sliceVal := command
+		query["command"] = sliceVal
 	}
 	{
 		sliceVal := entrypoint
@@ -91,8 +92,8 @@ func CreateContainerBadRequest(t goatest.TInterface, ctx context.Context, servic
 	}
 	prms := url.Values{}
 	{
-		sliceVal := cmd
-		prms["cmd"] = sliceVal
+		sliceVal := command
+		prms["command"] = sliceVal
 	}
 	{
 		sliceVal := entrypoint
@@ -162,7 +163,7 @@ func CreateContainerBadRequest(t goatest.TInterface, ctx context.Context, servic
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateContainerConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, cmd []string, entrypoint []string, env []string, image string, name string, sslRedirect bool, volumes []string, workingDir *string) (http.ResponseWriter, error) {
+func CreateContainerConflict(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, command []string, entrypoint []string, env []string, image string, name string, sslRedirect bool, volumes []string, workingDir *string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -184,8 +185,8 @@ func CreateContainerConflict(t goatest.TInterface, ctx context.Context, service 
 	rw := httptest.NewRecorder()
 	query := url.Values{}
 	{
-		sliceVal := cmd
-		query["cmd"] = sliceVal
+		sliceVal := command
+		query["command"] = sliceVal
 	}
 	{
 		sliceVal := entrypoint
@@ -225,8 +226,8 @@ func CreateContainerConflict(t goatest.TInterface, ctx context.Context, service 
 	}
 	prms := url.Values{}
 	{
-		sliceVal := cmd
-		prms["cmd"] = sliceVal
+		sliceVal := command
+		prms["command"] = sliceVal
 	}
 	{
 		sliceVal := entrypoint
@@ -296,7 +297,7 @@ func CreateContainerConflict(t goatest.TInterface, ctx context.Context, service 
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateContainerInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, cmd []string, entrypoint []string, env []string, image string, name string, sslRedirect bool, volumes []string, workingDir *string) (http.ResponseWriter, error) {
+func CreateContainerInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, command []string, entrypoint []string, env []string, image string, name string, sslRedirect bool, volumes []string, workingDir *string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -318,8 +319,8 @@ func CreateContainerInternalServerError(t goatest.TInterface, ctx context.Contex
 	rw := httptest.NewRecorder()
 	query := url.Values{}
 	{
-		sliceVal := cmd
-		query["cmd"] = sliceVal
+		sliceVal := command
+		query["command"] = sliceVal
 	}
 	{
 		sliceVal := entrypoint
@@ -359,8 +360,8 @@ func CreateContainerInternalServerError(t goatest.TInterface, ctx context.Contex
 	}
 	prms := url.Values{}
 	{
-		sliceVal := cmd
-		prms["cmd"] = sliceVal
+		sliceVal := command
+		prms["command"] = sliceVal
 	}
 	{
 		sliceVal := entrypoint
@@ -430,7 +431,7 @@ func CreateContainerInternalServerError(t goatest.TInterface, ctx context.Contex
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func CreateContainerOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, cmd []string, entrypoint []string, env []string, image string, name string, sslRedirect bool, volumes []string, workingDir *string) (http.ResponseWriter, *app.GoaContainerCreateResults) {
+func CreateContainerOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, command []string, entrypoint []string, env []string, image string, name string, sslRedirect bool, volumes []string, workingDir *string) (http.ResponseWriter, *app.GoaContainerCreateResults) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -452,8 +453,8 @@ func CreateContainerOK(t goatest.TInterface, ctx context.Context, service *goa.S
 	rw := httptest.NewRecorder()
 	query := url.Values{}
 	{
-		sliceVal := cmd
-		query["cmd"] = sliceVal
+		sliceVal := command
+		query["command"] = sliceVal
 	}
 	{
 		sliceVal := entrypoint
@@ -493,8 +494,8 @@ func CreateContainerOK(t goatest.TInterface, ctx context.Context, service *goa.S
 	}
 	prms := url.Values{}
 	{
-		sliceVal := cmd
-		prms["cmd"] = sliceVal
+		sliceVal := command
+		prms["command"] = sliceVal
 	}
 	{
 		sliceVal := entrypoint
@@ -565,7 +566,7 @@ func CreateContainerOK(t goatest.TInterface, ctx context.Context, service *goa.S
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DownloadContainerInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string, path string) (http.ResponseWriter, error) {
+func DownloadContainerInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string, internalPath string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -591,8 +592,8 @@ func DownloadContainerInternalServerError(t goatest.TInterface, ctx context.Cont
 		query["id"] = sliceVal
 	}
 	{
-		sliceVal := []string{path}
-		query["path"] = sliceVal
+		sliceVal := []string{internalPath}
+		query["internalPath"] = sliceVal
 	}
 	u := &url.URL{
 		Path:     fmt.Sprintf("/api/v1/container/download"),
@@ -608,8 +609,8 @@ func DownloadContainerInternalServerError(t goatest.TInterface, ctx context.Cont
 		prms["id"] = sliceVal
 	}
 	{
-		sliceVal := []string{path}
-		prms["path"] = sliceVal
+		sliceVal := []string{internalPath}
+		prms["internalPath"] = sliceVal
 	}
 	if ctx == nil {
 		ctx = context.Background()
@@ -651,7 +652,7 @@ func DownloadContainerInternalServerError(t goatest.TInterface, ctx context.Cont
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DownloadContainerNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string, path string) (http.ResponseWriter, error) {
+func DownloadContainerNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string, internalPath string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -677,8 +678,8 @@ func DownloadContainerNotFound(t goatest.TInterface, ctx context.Context, servic
 		query["id"] = sliceVal
 	}
 	{
-		sliceVal := []string{path}
-		query["path"] = sliceVal
+		sliceVal := []string{internalPath}
+		query["internalPath"] = sliceVal
 	}
 	u := &url.URL{
 		Path:     fmt.Sprintf("/api/v1/container/download"),
@@ -694,8 +695,8 @@ func DownloadContainerNotFound(t goatest.TInterface, ctx context.Context, servic
 		prms["id"] = sliceVal
 	}
 	{
-		sliceVal := []string{path}
-		prms["path"] = sliceVal
+		sliceVal := []string{internalPath}
+		prms["internalPath"] = sliceVal
 	}
 	if ctx == nil {
 		ctx = context.Background()
@@ -737,7 +738,7 @@ func DownloadContainerNotFound(t goatest.TInterface, ctx context.Context, servic
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func DownloadContainerOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string, path string) http.ResponseWriter {
+func DownloadContainerOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string, internalPath string) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -762,8 +763,8 @@ func DownloadContainerOK(t goatest.TInterface, ctx context.Context, service *goa
 		query["id"] = sliceVal
 	}
 	{
-		sliceVal := []string{path}
-		query["path"] = sliceVal
+		sliceVal := []string{internalPath}
+		query["internalPath"] = sliceVal
 	}
 	u := &url.URL{
 		Path:     fmt.Sprintf("/api/v1/container/download"),
@@ -779,8 +780,8 @@ func DownloadContainerOK(t goatest.TInterface, ctx context.Context, service *goa
 		prms["id"] = sliceVal
 	}
 	{
-		sliceVal := []string{path}
-		prms["path"] = sliceVal
+		sliceVal := []string{internalPath}
+		prms["internalPath"] = sliceVal
 	}
 	if ctx == nil {
 		ctx = context.Background()
@@ -1243,6 +1244,274 @@ func ListContainerOK(t goatest.TInterface, ctx context.Context, service *goa.Ser
 	return rw, mt
 }
 
+// LogsContainerInternalServerError runs the method Logs of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func LogsContainerInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, follow bool, id string, since *time.Time, stderr bool, stdout bool, tail string, timestamps bool, until *time.Time) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", follow)}
+		query["follow"] = sliceVal
+	}
+	{
+		sliceVal := []string{id}
+		query["id"] = sliceVal
+	}
+	if since != nil {
+		sliceVal := []string{(*since).Format(time.RFC3339)}
+		query["since"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", stderr)}
+		query["stderr"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", stdout)}
+		query["stdout"] = sliceVal
+	}
+	{
+		sliceVal := []string{tail}
+		query["tail"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", timestamps)}
+		query["timestamps"] = sliceVal
+	}
+	if until != nil {
+		sliceVal := []string{(*until).Format(time.RFC3339)}
+		query["until"] = sliceVal
+	}
+	u := &url.URL{
+		Path:     fmt.Sprintf("/api/v1/container/logs"),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", follow)}
+		prms["follow"] = sliceVal
+	}
+	{
+		sliceVal := []string{id}
+		prms["id"] = sliceVal
+	}
+	if since != nil {
+		sliceVal := []string{(*since).Format(time.RFC3339)}
+		prms["since"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", stderr)}
+		prms["stderr"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", stdout)}
+		prms["stdout"] = sliceVal
+	}
+	{
+		sliceVal := []string{tail}
+		prms["tail"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", timestamps)}
+		prms["timestamps"] = sliceVal
+	}
+	if until != nil {
+		sliceVal := []string{(*until).Format(time.RFC3339)}
+		prms["until"] = sliceVal
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
+	logsCtx, _err := app.NewLogsContainerContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		return nil, e
+	}
+
+	// Perform action
+	_err = ctrl.Logs(logsCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 500 {
+		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// LogsContainerNotFound runs the method Logs of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func LogsContainerNotFound(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, follow bool, id string, since *time.Time, stderr bool, stdout bool, tail string, timestamps bool, until *time.Time) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", follow)}
+		query["follow"] = sliceVal
+	}
+	{
+		sliceVal := []string{id}
+		query["id"] = sliceVal
+	}
+	if since != nil {
+		sliceVal := []string{(*since).Format(time.RFC3339)}
+		query["since"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", stderr)}
+		query["stderr"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", stdout)}
+		query["stdout"] = sliceVal
+	}
+	{
+		sliceVal := []string{tail}
+		query["tail"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", timestamps)}
+		query["timestamps"] = sliceVal
+	}
+	if until != nil {
+		sliceVal := []string{(*until).Format(time.RFC3339)}
+		query["until"] = sliceVal
+	}
+	u := &url.URL{
+		Path:     fmt.Sprintf("/api/v1/container/logs"),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", follow)}
+		prms["follow"] = sliceVal
+	}
+	{
+		sliceVal := []string{id}
+		prms["id"] = sliceVal
+	}
+	if since != nil {
+		sliceVal := []string{(*since).Format(time.RFC3339)}
+		prms["since"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", stderr)}
+		prms["stderr"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", stdout)}
+		prms["stdout"] = sliceVal
+	}
+	{
+		sliceVal := []string{tail}
+		prms["tail"] = sliceVal
+	}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", timestamps)}
+		prms["timestamps"] = sliceVal
+	}
+	if until != nil {
+		sliceVal := []string{(*until).Format(time.RFC3339)}
+		prms["until"] = sliceVal
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
+	logsCtx, _err := app.NewLogsContainerContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		return nil, e
+	}
+
+	// Perform action
+	_err = ctrl.Logs(logsCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 404 {
+		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
 // RemoveContainerInternalServerError runs the method Remove of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
@@ -1329,6 +1598,84 @@ func RemoveContainerInternalServerError(t goatest.TInterface, ctx context.Contex
 	return rw, mt
 }
 
+// RemoveContainerNoContent runs the method Remove of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func RemoveContainerNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, force bool, id string) http.ResponseWriter {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", force)}
+		query["force"] = sliceVal
+	}
+	{
+		sliceVal := []string{id}
+		query["id"] = sliceVal
+	}
+	u := &url.URL{
+		Path:     fmt.Sprintf("/api/v1/container/remove"),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	{
+		sliceVal := []string{fmt.Sprintf("%v", force)}
+		prms["force"] = sliceVal
+	}
+	{
+		sliceVal := []string{id}
+		prms["id"] = sliceVal
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
+	removeCtx, _err := app.NewRemoveContainerContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+
+	// Perform action
+	_err = ctrl.Remove(removeCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 204 {
+		t.Errorf("invalid response status code: got %+v, expected 204", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
 // RemoveContainerNotFound runs the method Remove of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
@@ -1401,84 +1748,6 @@ func RemoveContainerNotFound(t goatest.TInterface, ctx context.Context, service 
 	}
 	if rw.Code != 404 {
 		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
-	}
-
-	// Return results
-	return rw
-}
-
-// RemoveContainerOK runs the method Remove of the given controller with the given parameters.
-// It returns the response writer so it's possible to inspect the response headers.
-// If ctx is nil then context.Background() is used.
-// If service is nil then a default service is created.
-func RemoveContainerOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, force bool, id string) http.ResponseWriter {
-	// Setup service
-	var (
-		logBuf bytes.Buffer
-
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
-	)
-	if service == nil {
-		service = goatest.Service(&logBuf, respSetter)
-	} else {
-		logger := log.New(&logBuf, "", log.Ltime)
-		service.WithLogger(goa.NewLogger(logger))
-		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
-		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
-		service.Encoder.Register(newEncoder, "*/*")
-	}
-
-	// Setup request context
-	rw := httptest.NewRecorder()
-	query := url.Values{}
-	{
-		sliceVal := []string{fmt.Sprintf("%v", force)}
-		query["force"] = sliceVal
-	}
-	{
-		sliceVal := []string{id}
-		query["id"] = sliceVal
-	}
-	u := &url.URL{
-		Path:     fmt.Sprintf("/api/v1/container/remove"),
-		RawQuery: query.Encode(),
-	}
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
-	}
-	prms := url.Values{}
-	{
-		sliceVal := []string{fmt.Sprintf("%v", force)}
-		prms["force"] = sliceVal
-	}
-	{
-		sliceVal := []string{id}
-		prms["id"] = sliceVal
-	}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
-	removeCtx, _err := app.NewRemoveContainerContext(goaCtx, req, service)
-	if _err != nil {
-		e, ok := _err.(goa.ServiceError)
-		if !ok {
-			panic("invalid test data " + _err.Error()) // bug
-		}
-		t.Errorf("unexpected parameter validation error: %+v", e)
-		return nil
-	}
-
-	// Perform action
-	_err = ctrl.Remove(removeCtx)
-
-	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
-	}
-	if rw.Code != 200 {
-		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
 
 	// Return results
@@ -1641,6 +1910,76 @@ func StartContainerInternalServerError(t goatest.TInterface, ctx context.Context
 	return rw, mt
 }
 
+// StartContainerNoContent runs the method Start of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func StartContainerNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string) http.ResponseWriter {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{id}
+		query["id"] = sliceVal
+	}
+	u := &url.URL{
+		Path:     fmt.Sprintf("/api/v1/container/start"),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	{
+		sliceVal := []string{id}
+		prms["id"] = sliceVal
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
+	startCtx, _err := app.NewStartContainerContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+
+	// Perform action
+	_err = ctrl.Start(startCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 204 {
+		t.Errorf("invalid response status code: got %+v, expected 204", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
 // StartContainerNotFound runs the method Start of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
@@ -1705,76 +2044,6 @@ func StartContainerNotFound(t goatest.TInterface, ctx context.Context, service *
 	}
 	if rw.Code != 404 {
 		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
-	}
-
-	// Return results
-	return rw
-}
-
-// StartContainerOK runs the method Start of the given controller with the given parameters.
-// It returns the response writer so it's possible to inspect the response headers.
-// If ctx is nil then context.Background() is used.
-// If service is nil then a default service is created.
-func StartContainerOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string) http.ResponseWriter {
-	// Setup service
-	var (
-		logBuf bytes.Buffer
-
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
-	)
-	if service == nil {
-		service = goatest.Service(&logBuf, respSetter)
-	} else {
-		logger := log.New(&logBuf, "", log.Ltime)
-		service.WithLogger(goa.NewLogger(logger))
-		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
-		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
-		service.Encoder.Register(newEncoder, "*/*")
-	}
-
-	// Setup request context
-	rw := httptest.NewRecorder()
-	query := url.Values{}
-	{
-		sliceVal := []string{id}
-		query["id"] = sliceVal
-	}
-	u := &url.URL{
-		Path:     fmt.Sprintf("/api/v1/container/start"),
-		RawQuery: query.Encode(),
-	}
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
-	}
-	prms := url.Values{}
-	{
-		sliceVal := []string{id}
-		prms["id"] = sliceVal
-	}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
-	startCtx, _err := app.NewStartContainerContext(goaCtx, req, service)
-	if _err != nil {
-		e, ok := _err.(goa.ServiceError)
-		if !ok {
-			panic("invalid test data " + _err.Error()) // bug
-		}
-		t.Errorf("unexpected parameter validation error: %+v", e)
-		return nil
-	}
-
-	// Perform action
-	_err = ctrl.Start(startCtx)
-
-	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
-	}
-	if rw.Code != 200 {
-		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
 
 	// Return results
@@ -1859,6 +2128,76 @@ func StopContainerInternalServerError(t goatest.TInterface, ctx context.Context,
 	return rw, mt
 }
 
+// StopContainerNoContent runs the method Stop of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func StopContainerNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string) http.ResponseWriter {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	query := url.Values{}
+	{
+		sliceVal := []string{id}
+		query["id"] = sliceVal
+	}
+	u := &url.URL{
+		Path:     fmt.Sprintf("/api/v1/container/stop"),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	{
+		sliceVal := []string{id}
+		prms["id"] = sliceVal
+	}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
+	stopCtx, _err := app.NewStopContainerContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil
+	}
+
+	// Perform action
+	_err = ctrl.Stop(stopCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 204 {
+		t.Errorf("invalid response status code: got %+v, expected 204", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
 // StopContainerNotFound runs the method Stop of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
@@ -1923,76 +2262,6 @@ func StopContainerNotFound(t goatest.TInterface, ctx context.Context, service *g
 	}
 	if rw.Code != 404 {
 		t.Errorf("invalid response status code: got %+v, expected 404", rw.Code)
-	}
-
-	// Return results
-	return rw
-}
-
-// StopContainerOK runs the method Stop of the given controller with the given parameters.
-// It returns the response writer so it's possible to inspect the response headers.
-// If ctx is nil then context.Background() is used.
-// If service is nil then a default service is created.
-func StopContainerOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, id string) http.ResponseWriter {
-	// Setup service
-	var (
-		logBuf bytes.Buffer
-
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
-	)
-	if service == nil {
-		service = goatest.Service(&logBuf, respSetter)
-	} else {
-		logger := log.New(&logBuf, "", log.Ltime)
-		service.WithLogger(goa.NewLogger(logger))
-		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
-		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
-		service.Encoder.Register(newEncoder, "*/*")
-	}
-
-	// Setup request context
-	rw := httptest.NewRecorder()
-	query := url.Values{}
-	{
-		sliceVal := []string{id}
-		query["id"] = sliceVal
-	}
-	u := &url.URL{
-		Path:     fmt.Sprintf("/api/v1/container/stop"),
-		RawQuery: query.Encode(),
-	}
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		panic("invalid test " + err.Error()) // bug
-	}
-	prms := url.Values{}
-	{
-		sliceVal := []string{id}
-		prms["id"] = sliceVal
-	}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
-	stopCtx, _err := app.NewStopContainerContext(goaCtx, req, service)
-	if _err != nil {
-		e, ok := _err.(goa.ServiceError)
-		if !ok {
-			panic("invalid test data " + _err.Error()) // bug
-		}
-		t.Errorf("unexpected parameter validation error: %+v", e)
-		return nil
-	}
-
-	// Perform action
-	_err = ctrl.Stop(stopCtx)
-
-	// Validate response
-	if _err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
-	}
-	if rw.Code != 200 {
-		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
 	}
 
 	// Return results
@@ -2157,6 +2426,78 @@ func UploadContainerInternalServerError(t goatest.TInterface, ctx context.Contex
 	return rw, mt
 }
 
+// UploadContainerNoContent runs the method Upload of the given controller with the given parameters and payload.
+// It returns the response writer so it's possible to inspect the response headers.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func UploadContainerNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, payload *app.UploadPayload) http.ResponseWriter {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Validate payload
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(goa.ServiceError)
+		if !ok {
+			panic(err) // bug
+		}
+		t.Errorf("unexpected payload validation error: %+v", e)
+		return nil
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v1/container/upload"),
+	}
+	req, _err := http.NewRequest("POST", u.String(), nil)
+	if _err != nil {
+		panic("invalid test " + _err.Error()) // bug
+	}
+	prms := url.Values{}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
+	uploadCtx, __err := app.NewUploadContainerContext(goaCtx, req, service)
+	if __err != nil {
+		_e, _ok := __err.(goa.ServiceError)
+		if !_ok {
+			panic("invalid test data " + __err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", _e)
+		return nil
+	}
+	uploadCtx.Payload = payload
+
+	// Perform action
+	__err = ctrl.Upload(uploadCtx)
+
+	// Validate response
+	if __err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
+	}
+	if rw.Code != 204 {
+		t.Errorf("invalid response status code: got %+v, expected 204", rw.Code)
+	}
+
+	// Return results
+	return rw
+}
+
 // UploadContainerNotFound runs the method Upload of the given controller with the given parameters and payload.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
@@ -2234,78 +2575,6 @@ func UploadContainerNotFound(t goatest.TInterface, ctx context.Context, service 
 
 	// Return results
 	return rw, mt
-}
-
-// UploadContainerOK runs the method Upload of the given controller with the given parameters and payload.
-// It returns the response writer so it's possible to inspect the response headers.
-// If ctx is nil then context.Background() is used.
-// If service is nil then a default service is created.
-func UploadContainerOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.ContainerController, payload *app.UploadPayload) http.ResponseWriter {
-	// Setup service
-	var (
-		logBuf bytes.Buffer
-
-		respSetter goatest.ResponseSetterFunc = func(r interface{}) {}
-	)
-	if service == nil {
-		service = goatest.Service(&logBuf, respSetter)
-	} else {
-		logger := log.New(&logBuf, "", log.Ltime)
-		service.WithLogger(goa.NewLogger(logger))
-		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
-		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
-		service.Encoder.Register(newEncoder, "*/*")
-	}
-
-	// Validate payload
-	err := payload.Validate()
-	if err != nil {
-		e, ok := err.(goa.ServiceError)
-		if !ok {
-			panic(err) // bug
-		}
-		t.Errorf("unexpected payload validation error: %+v", e)
-		return nil
-	}
-
-	// Setup request context
-	rw := httptest.NewRecorder()
-	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/container/upload"),
-	}
-	req, _err := http.NewRequest("POST", u.String(), nil)
-	if _err != nil {
-		panic("invalid test " + _err.Error()) // bug
-	}
-	prms := url.Values{}
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	goaCtx := goa.NewContext(goa.WithAction(ctx, "ContainerTest"), rw, req, prms)
-	uploadCtx, __err := app.NewUploadContainerContext(goaCtx, req, service)
-	if __err != nil {
-		_e, _ok := __err.(goa.ServiceError)
-		if !_ok {
-			panic("invalid test data " + __err.Error()) // bug
-		}
-		t.Errorf("unexpected parameter validation error: %+v", _e)
-		return nil
-	}
-	uploadCtx.Payload = payload
-
-	// Perform action
-	__err = ctrl.Upload(uploadCtx)
-
-	// Validate response
-	if __err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
-	}
-	if rw.Code != 200 {
-		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
-	}
-
-	// Return results
-	return rw
 }
 
 // UploadContainerRequestEntityTooLarge runs the method Upload of the given controller with the given parameters and payload.

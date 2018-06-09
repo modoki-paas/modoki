@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/websocket"
+
 	"github.com/k0kubun/pp"
 
 	"github.com/docker/docker/api/types/filters"
@@ -117,7 +119,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 
 		config := &container.Config{
 			Image:      ctx.Image,
-			Cmd:        strslice.StrSlice(ctx.Cmd),
+			Cmd:        strslice.StrSlice(ctx.Command),
 			Entrypoint: ctx.Entrypoint,
 			Env:        ctx.Env,
 			Volumes:    volumesMap,
@@ -223,7 +225,7 @@ func (c *ContainerController) Download(ctx *app.DownloadContainerContext) error 
 		return ctx.NotFound(errors.New("No container found"))
 	}
 
-	rc, stat, err := c.DockerClient.CopyFromContainer(ctx, cid.String, ctx.Path)
+	rc, stat, err := c.DockerClient.CopyFromContainer(ctx, cid.String, ctx.InternalPath)
 
 	if err != nil {
 		return ctx.NotFound(err)
@@ -303,7 +305,7 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		}
 	}
 
-	return ctx.OK(nil)
+	return ctx.NoContent()
 
 	// ContainerController_Remove: end_implement
 }
@@ -352,7 +354,7 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 	case http.StatusOK:
 		// Do nothing
 	case 304: // Already started
-		return ctx.OK(nil)
+		return ctx.NoContent()
 	case http.StatusNotFound:
 		return ctx.NotFound()
 	case http.StatusInternalServerError:
@@ -370,7 +372,7 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	return ctx.OK(nil)
+	return ctx.NoContent()
 
 	// ContainerController_Start: end_implement
 }
@@ -415,7 +417,7 @@ func (c *ContainerController) Stop(ctx *app.StopContainerContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	return ctx.OK(nil)
+	return ctx.NoContent()
 
 	// ContainerController_Stop: end_implement
 }
@@ -630,8 +632,93 @@ func (c *ContainerController) Upload(ctx *app.UploadContainerContext) error {
 		return ctx.InternalServerError(errors.Wrap(err, "Failed to copy a file via Docker API"))
 	}
 
-	return ctx.OK(nil)
+	return ctx.NoContent()
 	// ContainerController_Upload: end_implement
+}
+
+var (
+	upgrader = websocket.Upgrader{}
+)
+
+// Logs runs the logs action.
+func (c *ContainerController) Logs(ctx *app.LogsContainerContext) error {
+	// ContainerController_Logs: start_implement
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+
+	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+
+	if err != nil {
+		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+	}
+
+	rows.Next()
+
+	var id int
+	var cid sql.NullString
+	if err := rows.Scan(&id, &cid); err != nil {
+		rows.Close()
+		return ctx.NotFound(errors.New("No container found"))
+	}
+	rows.Close()
+
+	if !cid.Valid {
+		return ctx.NotFound(errors.New("No container found"))
+	}
+
+	opts := types.ContainerLogsOptions{
+		ShowStderr: ctx.Stderr,
+		ShowStdout: ctx.Stdout,
+		Timestamps: ctx.Timestamps,
+		Follow:     ctx.Follow,
+		Tail:       ctx.Tail,
+	}
+
+	if ctx.Since != nil {
+		opts.Since = ctx.Since.Format(time.RFC3339)
+	}
+	if ctx.Until != nil {
+		opts.Until = ctx.Until.Format(time.RFC3339)
+	}
+
+	rc, err := c.DockerClient.ContainerLogs(ctx, cid.String, opts)
+
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+	defer rc.Close()
+
+	conn, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, nil)
+
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	ch := conn.CloseHandler()
+	conn.SetCloseHandler(func(code int, text string) error {
+		rc.Close()
+
+		return ch(code, text)
+	})
+
+	wc, err := conn.NextWriter(websocket.TextMessage)
+
+	if err != nil {
+		return err
+	}
+	defer wc.Close()
+
+	if _, err := io.Copy(wc, rc); err != nil {
+		return err
+	}
+
+	return nil
+	// ContainerController_Logs: end_implement
 }
 
 func (c *ContainerController) updateStatus(ctx context.Context, status, msg string, id int) error {
@@ -704,8 +791,8 @@ func (c *ContainerController) run(ctx context.Context) {
 	fn = func() {
 		select {
 		case <-ctx.Done():
-		default:
 			return
+		default:
 		}
 
 		defer fn()

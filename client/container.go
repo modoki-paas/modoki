@@ -14,6 +14,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"golang.org/x/net/websocket"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -21,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 // CreateContainerPath computes a request path to the create action of container.
@@ -30,8 +32,8 @@ func CreateContainerPath() string {
 }
 
 // create a new container
-func (c *Client) CreateContainer(ctx context.Context, path string, image string, name string, cmd []string, entrypoint []string, env []string, sslRedirect *bool, volumes []string, workingDir *string) (*http.Response, error) {
-	req, err := c.NewCreateContainerRequest(ctx, path, image, name, cmd, entrypoint, env, sslRedirect, volumes, workingDir)
+func (c *Client) CreateContainer(ctx context.Context, path string, image string, name string, command []string, entrypoint []string, env []string, sslRedirect *bool, volumes []string, workingDir *string) (*http.Response, error) {
+	req, err := c.NewCreateContainerRequest(ctx, path, image, name, command, entrypoint, env, sslRedirect, volumes, workingDir)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +41,7 @@ func (c *Client) CreateContainer(ctx context.Context, path string, image string,
 }
 
 // NewCreateContainerRequest create the request corresponding to the create action endpoint of the container resource.
-func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, image string, name string, cmd []string, entrypoint []string, env []string, sslRedirect *bool, volumes []string, workingDir *string) (*http.Request, error) {
+func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, image string, name string, command []string, entrypoint []string, env []string, sslRedirect *bool, volumes []string, workingDir *string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
@@ -48,25 +50,25 @@ func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, ima
 	values := u.Query()
 	values.Set("image", image)
 	values.Set("name", name)
-	for _, p := range cmd {
-		tmp14 := p
-		values.Add("cmd", tmp14)
+	for _, p := range command {
+		tmp21 := p
+		values.Add("command", tmp21)
 	}
 	for _, p := range entrypoint {
-		tmp15 := p
-		values.Add("entrypoint", tmp15)
+		tmp22 := p
+		values.Add("entrypoint", tmp22)
 	}
 	for _, p := range env {
-		tmp16 := p
-		values.Add("env", tmp16)
+		tmp23 := p
+		values.Add("env", tmp23)
 	}
 	if sslRedirect != nil {
-		tmp17 := strconv.FormatBool(*sslRedirect)
-		values.Set("sslRedirect", tmp17)
+		tmp24 := strconv.FormatBool(*sslRedirect)
+		values.Set("sslRedirect", tmp24)
 	}
 	for _, p := range volumes {
-		tmp18 := p
-		values.Add("volumes", tmp18)
+		tmp25 := p
+		values.Add("volumes", tmp25)
 	}
 	if workingDir != nil {
 		values.Set("workingDir", *workingDir)
@@ -91,8 +93,8 @@ func DownloadContainerPath() string {
 }
 
 // Copy files from the container
-func (c *Client) DownloadContainer(ctx context.Context, path string, id string, path string) (*http.Response, error) {
-	req, err := c.NewDownloadContainerRequest(ctx, path, id, path)
+func (c *Client) DownloadContainer(ctx context.Context, path string, id string, internalPath string) (*http.Response, error) {
+	req, err := c.NewDownloadContainerRequest(ctx, path, id, internalPath)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +102,7 @@ func (c *Client) DownloadContainer(ctx context.Context, path string, id string, 
 }
 
 // NewDownloadContainerRequest create the request corresponding to the download action endpoint of the container resource.
-func (c *Client) NewDownloadContainerRequest(ctx context.Context, path string, id string, path string) (*http.Request, error) {
+func (c *Client) NewDownloadContainerRequest(ctx context.Context, path string, id string, internalPath string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
@@ -108,7 +110,7 @@ func (c *Client) NewDownloadContainerRequest(ctx context.Context, path string, i
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	values.Set("id", id)
-	values.Set("path", path)
+	values.Set("internalPath", internalPath)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -165,7 +167,7 @@ func ListContainerPath() string {
 	return fmt.Sprintf("/api/v1/container/list")
 }
 
-// Return details of a container
+// Return a list of containers
 func (c *Client) ListContainer(ctx context.Context, path string) (*http.Response, error) {
 	req, err := c.NewListContainerRequest(ctx, path)
 	if err != nil {
@@ -193,6 +195,57 @@ func (c *Client) NewListContainerRequest(ctx context.Context, path string) (*htt
 	return req, nil
 }
 
+// LogsContainerPath computes a request path to the logs action of container.
+func LogsContainerPath() string {
+
+	return fmt.Sprintf("/api/v1/container/logs")
+}
+
+// Get stdout and stderr logs from a container.
+func (c *Client) LogsContainer(ctx context.Context, path string, id string, follow *bool, since *time.Time, stderr *bool, stdout *bool, tail *string, timestamps *bool, until *time.Time) (*websocket.Conn, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "ws"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	values.Set("id", id)
+	if follow != nil {
+		tmp26 := strconv.FormatBool(*follow)
+		values.Set("follow", tmp26)
+	}
+	if since != nil {
+		tmp27 := since.Format(time.RFC3339)
+		values.Set("since", tmp27)
+	}
+	if stderr != nil {
+		tmp28 := strconv.FormatBool(*stderr)
+		values.Set("stderr", tmp28)
+	}
+	if stdout != nil {
+		tmp29 := strconv.FormatBool(*stdout)
+		values.Set("stdout", tmp29)
+	}
+	if tail != nil {
+		values.Set("tail", *tail)
+	}
+	if timestamps != nil {
+		tmp30 := strconv.FormatBool(*timestamps)
+		values.Set("timestamps", tmp30)
+	}
+	if until != nil {
+		tmp31 := until.Format(time.RFC3339)
+		values.Set("until", tmp31)
+	}
+	u.RawQuery = values.Encode()
+	url_ := u.String()
+	cfg, err := websocket.NewConfig(url_, url_)
+	if err != nil {
+		return nil, err
+	}
+	return websocket.DialConfig(cfg)
+}
+
 // RemoveContainerPath computes a request path to the remove action of container.
 func RemoveContainerPath() string {
 
@@ -216,8 +269,8 @@ func (c *Client) NewRemoveContainerRequest(ctx context.Context, path string, for
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	tmp19 := strconv.FormatBool(force)
-	values.Set("force", tmp19)
+	tmp32 := strconv.FormatBool(force)
+	values.Set("force", tmp32)
 	values.Set("id", id)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -313,8 +366,8 @@ func UploadContainerPath() string {
 }
 
 // Copy files to the container
-func (c *Client) UploadContainer(ctx context.Context, path string, payload *UploadPayload) (*http.Response, error) {
-	req, err := c.NewUploadContainerRequest(ctx, path, payload)
+func (c *Client) UploadContainer(ctx context.Context, path string, payload *UploadPayload, contentType string) (*http.Response, error) {
+	req, err := c.NewUploadContainerRequest(ctx, path, payload, contentType)
 	if err != nil {
 		return nil, err
 	}
@@ -322,7 +375,7 @@ func (c *Client) UploadContainer(ctx context.Context, path string, payload *Uplo
 }
 
 // NewUploadContainerRequest create the request corresponding to the upload action endpoint of the container resource.
-func (c *Client) NewUploadContainerRequest(ctx context.Context, path string, payload *UploadPayload) (*http.Request, error) {
+func (c *Client) NewUploadContainerRequest(ctx context.Context, path string, payload *UploadPayload, contentType string) (*http.Request, error) {
 	var body bytes.Buffer
 	w := multipart.NewWriter(&body)
 	{

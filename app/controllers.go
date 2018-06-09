@@ -21,7 +21,11 @@ import (
 func initService(service *goa.Service) {
 	// Setup encoders and decoders
 	service.Encoder.Register(goa.NewJSONEncoder, "application/json")
+	service.Encoder.Register(goa.NewGobEncoder, "application/gob", "application/x-gob")
+	service.Encoder.Register(goa.NewXMLEncoder, "application/xml")
 	service.Decoder.Register(goa.NewJSONDecoder, "application/json")
+	service.Decoder.Register(goa.NewGobDecoder, "application/gob", "application/x-gob")
+	service.Decoder.Register(goa.NewXMLDecoder, "application/xml")
 
 	// Setup default encoder and decoder
 	service.Encoder.Register(goa.NewJSONEncoder, "*/*")
@@ -35,6 +39,7 @@ type ContainerController interface {
 	Download(*DownloadContainerContext) error
 	Inspect(*InspectContainerContext) error
 	List(*ListContainerContext) error
+	Logs(*LogsContainerContext) error
 	Remove(*RemoveContainerContext) error
 	Start(*StartContainerContext) error
 	Stop(*StopContainerContext) error
@@ -116,6 +121,22 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
+		rctx, err := NewLogsContainerContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Logs(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/api/v1/container/logs", ctrl.MuxHandler("logs", h, nil))
+	service.LogInfo("mount", "ctrl", "Container", "action", "Logs", "route", "GET /api/v1/container/logs", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
 		rctx, err := NewRemoveContainerContext(ctx, req, service)
 		if err != nil {
 			return err
@@ -187,8 +208,8 @@ func unmarshalUploadContainerPayload(ctx context.Context, service *goa.Service, 
 	var payload uploadPayload
 	rawAllowOverwrite := req.FormValue("allowOverwrite")
 	if allowOverwrite, err2 := strconv.ParseBool(rawAllowOverwrite); err2 == nil {
-		tmp3 := &allowOverwrite
-		payload.AllowOverwrite = tmp3
+		tmp9 := &allowOverwrite
+		payload.AllowOverwrite = tmp9
 	} else {
 		err = goa.MergeErrors(err, goa.InvalidParamTypeError("allowOverwrite", rawAllowOverwrite, "boolean"))
 	}
