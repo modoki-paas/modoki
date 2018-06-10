@@ -246,8 +246,19 @@ func (mt *Vironsetting) Validate() (err error) {
 //
 // Identifier: vnd.application/goa.container.create.results+json; view=default
 type GoaContainerCreateResults struct {
+	// endpoint URL
+	Endpoints []string `form:"endpoints" json:"endpoints" xml:"endpoints"`
 	// container id
 	ID int `form:"id" json:"id" xml:"id"`
+}
+
+// Validate validates the GoaContainerCreateResults media type instance.
+func (mt *GoaContainerCreateResults) Validate() (err error) {
+
+	if mt.Endpoints == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "endpoints"))
+	}
+	return
 }
 
 // GoaContainerInspectRaw_state media type (default view)

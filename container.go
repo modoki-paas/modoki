@@ -172,10 +172,13 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 
 			return
 		}
-		if err := c.Consul.AddValueForFrontend(frontendName, "headers", "sslredirect", ctx.SslRedirect); err != nil {
-			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
 
-			return
+		if *https {
+			if err := c.Consul.AddValueForFrontend(frontendName, "headers", "sslredirect", ctx.SslRedirect); err != nil {
+				c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
+
+				return
+			}
 		}
 
 		if err := c.Consul.AddValueForFrontend(frontendName, "backend", backendName); err != nil {
@@ -186,8 +189,23 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 
 		c.must(c.updateStatus(context.Background(), "Created", "", id))
 	}()
+
+	var eps []string
+
+	if *https {
+		eps = []string{
+			"https://" + ctx.Name + "." + *publicAddr,
+			"http://" + ctx.Name + "." + *publicAddr,
+		}
+	} else {
+		eps = []string{
+			"http://" + ctx.Name + "." + *publicAddr,
+		}
+	}
+
 	cres := &app.GoaContainerCreateResults{
-		ID: id,
+		ID:        id,
+		Endpoints: eps,
 	}
 
 	return ctx.OK(cres)

@@ -8,8 +8,18 @@ definitions:
   GoaContainerCreateResults:
     description: The results of container creation (default view)
     example:
+      endpoints:
+      - Autem voluptas.
       id: 1.794563140867684e+18
     properties:
+      endpoints:
+        description: endpoint URL
+        example:
+        - Autem voluptas.
+        items:
+          example: Autem voluptas.
+          type: string
+        type: array
       id:
         description: container id
         example: 1.794563140867684e+18
@@ -17,6 +27,7 @@ definitions:
         type: integer
     required:
     - id
+    - endpoints
     title: 'Mediatype identifier: vnd.application/goa.container.create.results+json;
       view=default'
     type: object

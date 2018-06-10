@@ -124,7 +124,6 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		Description("Return a list of containers")
 
 		Response(OK, CollectionOf(ContainerListEachMedia))
-		Response(NotFound)
 		Response(InternalServerError, ErrorMedia)
 	})
 	Action("upload", func() {

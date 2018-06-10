@@ -34,6 +34,7 @@ var (
 	traefikAddr      = flag.String("traefikAddr", "http://modoki", "Address to register on traefik")
 	publicAddr       = flag.String("addr", "modoki.example.com", "API ep: modoki.example.com Service ep: *.modoki.example.com")
 	networkName      = flag.String("net", "", "network for containers to join")
+	https            = flag.Bool("https", true, "Enable HTTPS")
 	help             = flag.Bool("help", false, "Show this")
 )
 
@@ -78,8 +79,10 @@ func main() {
 			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
 		}
 
-		if err := consul.AddValueForFrontend(TraefikFrontendName, "headers", "sslredirect", true); err != nil {
-			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
+		if *https {
+			if err := consul.AddValueForFrontend(TraefikFrontendName, "headers", "sslredirect", true); err != nil {
+				log.Fatal("error: zookeeper.AddValueForFrontend error", err)
+			}
 		}
 
 		if err := consul.AddValueForFrontend(TraefikFrontendName, "backend", TraefikBackendName); err != nil {
