@@ -13,13 +13,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/k0kubun/pp"
-
 	modoki "github.com/cs3238-tsuzu/modoki/client"
 	"github.com/goadesign/goa/client"
+	"github.com/k0kubun/pp"
 	"github.com/olekukonko/tablewriter"
 	"github.com/pkg/errors"
-
 	"github.com/urfave/cli"
 )
 
@@ -126,9 +124,9 @@ func main() {
 
 	app.Commands = []cli.Command{
 		cli.Command{
-			Name:        "create",
-			ArgsUsage:   "[options] [iamge name] [commands...]",
-			Description: "Create a new container",
+			Name:      "create",
+			ArgsUsage: "[options] [iamge name] [commands...]",
+			Usage:     "Create a new container",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "name",
@@ -197,9 +195,9 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name:        "start",
-			ArgsUsage:   "[id or name]",
-			Description: "Start a container",
+			Name:      "start",
+			ArgsUsage: "[id or name]",
+			Usage:     "Start a container",
 			Action: func(ctx *cli.Context) error {
 				if ctx.NArg() < 1 {
 					return errors.New("ID or name is not specified")
@@ -228,9 +226,9 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name:        "stop",
-			ArgsUsage:   "[id or name]",
-			Description: "Stop a container",
+			Name:      "stop",
+			ArgsUsage: "[id or name]",
+			Usage:     "Stop a container",
 			Action: func(ctx *cli.Context) error {
 				if ctx.NArg() < 1 {
 					return errors.New("ID or name is not specified")
@@ -259,10 +257,10 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name:        "remove",
-			Aliases:     []string{"rm"},
-			ArgsUsage:   "[options] [id or name]",
-			Description: "Remove a container",
+			Name:      "remove",
+			Aliases:   []string{"rm"},
+			ArgsUsage: "[options] [id or name]",
+			Usage:     "Remove a container",
 
 			Flags: []cli.Flag{
 				cli.BoolFlag{
@@ -298,9 +296,9 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name:        "inspect",
-			ArgsUsage:   "[id or name]",
-			Description: "Show inspection of a container",
+			Name:      "inspect",
+			ArgsUsage: "[id or name]",
+			Usage:     "Sho inspection of a container",
 			Action: func(ctx *cli.Context) error {
 				if ctx.NArg() < 1 {
 					return errors.New("ID or name is not specified")
@@ -337,9 +335,9 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name:        "ps",
-			ArgsUsage:   "[options]",
-			Description: "Show a list of containers",
+			Name:      "ps",
+			ArgsUsage: "[options]",
+			Usage:     "Show a list of containers",
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "json",
@@ -390,9 +388,9 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name:        "logs",
-			ArgsUsage:   "[options...] [id or name]",
-			Description: "Show logs of a container",
+			Name:      "logs",
+			ArgsUsage: "[options...] [id or name]",
+			Usage:     "Show logs of a container",
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name: "follow, f",
@@ -483,7 +481,7 @@ func main() {
 		},
 		cli.Command{
 			Name:  "signin",
-			Usage: "Set token to the config file",
+			Usage: "Set token in the config file",
 			Action: func(ctx *cli.Context) error {
 				fmt.Print("Token: ")
 				var token string
@@ -497,7 +495,7 @@ func main() {
 		},
 		cli.Command{
 			Name:      "endpoint",
-			Usage:     "Set scheme and host",
+			Usage:     "Set scheme and host in the config file",
 			ArgsUsage: " [scheme(http/https)] [host]",
 			Action: func(ctx *cli.Context) error {
 				if ctx.NArg() < 2 {

@@ -450,7 +450,7 @@ func (c *ContainerController) Inspect(ctx *app.InspectContainerContext) error {
 		return ctx.InternalServerError(err)
 	}
 
-	rows, err := c.DB.Query("SELECT id, cid, name FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+	rows, err := c.DB.Query("SELECT id, cid, name, status FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
@@ -460,12 +460,22 @@ func (c *ContainerController) Inspect(ctx *app.InspectContainerContext) error {
 
 	var id int
 	var cid sql.NullString
-	var name string
-	if err := rows.Scan(&id, &cid, &name); err != nil {
+	var name, status string
+	if err := rows.Scan(&id, &cid, &name, &status); err != nil {
 		rows.Close()
 		return ctx.NotFound()
 	}
 	rows.Close()
+
+	if status == "Error" || status == "Created" {
+		insp := &app.GoaContainerInspect{
+			ID:     id,
+			Name:   name,
+			Status: status,
+		}
+
+		return ctx.OK(insp)
+	}
 
 	if !cid.Valid {
 		return ctx.NotFound()
@@ -497,6 +507,15 @@ func (c *ContainerController) Inspect(ctx *app.InspectContainerContext) error {
 
 	rawState := j.State
 
+	switch rawState.Status {
+	case "created":
+		insp.Status = "Created"
+	case "Running":
+		insp.Status = "Running"
+	default:
+		insp.Status = "Stopped"
+	}
+
 	s, _ := time.Parse(time.RFC3339Nano, rawState.StartedAt)
 	f, _ := time.Parse(time.RFC3339Nano, rawState.FinishedAt)
 
@@ -519,7 +538,7 @@ func (c *ContainerController) Inspect(ctx *app.InspectContainerContext) error {
 
 // Inspect runs the inspect action.
 func (c *ContainerController) List(ctx *app.ListContainerContext) error {
-	// ContainerController_Inspect: start_implement
+	// ContainerController_List: start_implement
 
 	uid, err := GetUIDFromJWT(ctx)
 
@@ -583,8 +602,6 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 		switch strings.ToLower(j.State) {
 		case "running":
 			state = "Running"
-		case "restarting":
-			state = "Running"
 		case "created":
 			state = "Created"
 		default:
@@ -606,7 +623,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 	}
 
 	return ctx.OK(res)
-	// ContainerController_Inspect: end_implement
+	// ContainerController_List: end_implement
 }
 
 // Upload runs the upload action.
