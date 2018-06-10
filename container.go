@@ -541,7 +541,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 	}
 	res := make(app.GoaContainerListEachCollection, 0, len(list)+10)
 
-	rows, err := c.DB.Query(`SELECT id, name, message FROM containers WHERE status="Error" OR status="Creating"`)
+	rows, err := c.DB.Query(`SELECT id, name, message, status FROM containers WHERE status="Error" OR status="Creating"`)
 
 	if err != nil {
 		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
@@ -551,8 +551,9 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 
 	for rows.Next() {
 		var id int
-		var name, msg string
-		if err := rows.Scan(&id, &name, &msg); err != nil {
+		var name, msg, status string
+
+		if err := rows.Scan(&id, &name, &msg, &status); err != nil {
 			return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
 		}
 
@@ -560,6 +561,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 			ID:      id,
 			Name:    name,
 			Command: msg,
+			Status:  status,
 		})
 	}
 	rows.Close()
