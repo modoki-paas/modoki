@@ -252,7 +252,6 @@ func (c *ContainerController) Download(ctx *app.DownloadContainerContext) error 
 
 	j, _ := json.Marshal(stat)
 	ctx.ResponseWriter.Header().Set("X-Docker-Container-Path-Stat", string(j))
-	ctx.ResponseWriter.Header().Set("Content-Length", strconv.FormatInt(stat.Size, 10))
 	ctx.ResponseWriter.Header().Set("Content-Type", "application/octet-stream")
 
 	ctx.ResponseWriter.WriteHeader(http.StatusOK)
