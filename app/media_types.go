@@ -11,8 +11,10 @@
 package app
 
 import (
-	"github.com/goadesign/goa"
+	"mime/multipart"
 	"time"
+
+	"github.com/goadesign/goa"
 )
 
 // viron query (default view)
@@ -287,6 +289,13 @@ func (mt *GoaContainerInspectRawState) Validate() (err error) {
 		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`response.status`, mt.Status, []interface{}{"created", "running", "paused", "restarting", "removing", "exited", "dead"}))
 	}
 	return
+}
+
+// GoaContainerDownloadResult media type (default view)
+//
+// Identifier: vpn.application/goa.container.download.result; view=default
+type GoaContainerDownloadResult struct {
+	File *multipart.FileHeader `form:"file,omitempty" json:"file,omitempty" xml:"file,omitempty"`
 }
 
 // GoaContainerInspect media type (default view)

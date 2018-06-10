@@ -172,7 +172,7 @@ func NewDownloadContainerContext(ctx context.Context, r *http.Request, service *
 // OK sends a HTTP response with status code 200.
 func (ctx *DownloadContainerContext) OK(resp []byte) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "text/plain")
+		ctx.ResponseData.Header().Set("Content-Type", "application/octet-stream")
 	}
 	ctx.ResponseData.WriteHeader(200)
 	_, err := ctx.ResponseData.Write(resp)

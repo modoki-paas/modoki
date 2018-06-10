@@ -149,7 +149,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 			Required("id", "internalPath")
 		})
 
-		Response(OK)
+		Response(OK, "application/octet-stream")
 		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})

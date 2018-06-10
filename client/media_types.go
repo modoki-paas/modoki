@@ -11,9 +11,11 @@
 package client
 
 import (
-	"github.com/goadesign/goa"
+	"mime/multipart"
 	"net/http"
 	"time"
+
+	"github.com/goadesign/goa"
 )
 
 // DecodeErrorResponse decodes the ErrorResponse instance encoded in resp body.
@@ -356,6 +358,20 @@ func (mt *GoaContainerInspectRawState) Validate() (err error) {
 // DecodeGoaContainerInspectRawState decodes the GoaContainerInspectRawState instance encoded in resp body.
 func (c *Client) DecodeGoaContainerInspectRawState(resp *http.Response) (*GoaContainerInspectRawState, error) {
 	var decoded GoaContainerInspectRawState
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// GoaContainerDownloadResult media type (default view)
+//
+// Identifier: vpn.application/goa.container.download.result; view=default
+type GoaContainerDownloadResult struct {
+	File *multipart.FileHeader `form:"file,omitempty" json:"file,omitempty" xml:"file,omitempty"`
+}
+
+// DecodeGoaContainerDownloadResult decodes the GoaContainerDownloadResult instance encoded in resp body.
+func (c *Client) DecodeGoaContainerDownloadResult(resp *http.Response) (*GoaContainerDownloadResult, error) {
+	var decoded GoaContainerDownloadResult
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }

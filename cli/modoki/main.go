@@ -9,9 +9,12 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/docker/docker/api/types"
 
 	modoki "github.com/cs3238-tsuzu/modoki/client"
 	"github.com/goadesign/goa/client"
@@ -158,6 +161,10 @@ func main() {
 				if ctx.NArg() < 1 {
 					return errors.New("Image name is not specified")
 				}
+				if ctx.String("name") == "" {
+					return errors.New("--name is not specified")
+				}
+
 				image := ctx.Args()[0]
 				cmd := ctx.Args()[1:]
 
@@ -170,13 +177,13 @@ func main() {
 				resp, err := modokiClient.CreateContainer(context.Background(), modoki.CreateContainerPath(), image, ctx.String("name"), cmd, ctx.StringSlice("entrypoint"), ctx.StringSlice("env"), &sslRedirect, ctx.StringSlice("volumes"), workDir)
 
 				if resp.StatusCode != http.StatusOK {
-					resp, err := modokiClient.DecodeErrorResponse(resp)
+					res, err := modokiClient.DecodeErrorResponse(resp)
 
 					if err != nil {
-						return err
+						return errors.Wrap(err, resp.Status)
 					}
 
-					return resp
+					return errors.Wrap(res, resp.Status)
 				}
 				if err != nil {
 					return err
@@ -215,13 +222,13 @@ func main() {
 				case http.StatusNotFound:
 					return errors.New("No such container")
 				default:
-					resp, err := modokiClient.DecodeErrorResponse(resp)
+					res, err := modokiClient.DecodeErrorResponse(resp)
 
 					if err != nil {
-						return err
+						return errors.Wrap(err, resp.Status)
 					}
 
-					return resp
+					return errors.Wrap(res, resp.Status)
 				}
 			},
 		},
@@ -246,13 +253,13 @@ func main() {
 				case http.StatusNotFound:
 					return errors.New("No such container")
 				default:
-					resp, err := modokiClient.DecodeErrorResponse(resp)
+					res, err := modokiClient.DecodeErrorResponse(resp)
 
 					if err != nil {
-						return err
+						return errors.Wrap(err, resp.Status)
 					}
 
-					return resp
+					return errors.Wrap(res, resp.Status)
 				}
 			},
 		},
@@ -285,13 +292,13 @@ func main() {
 				case http.StatusNotFound:
 					return errors.New("No such container")
 				default:
-					resp, err := modokiClient.DecodeErrorResponse(resp)
+					res, err := modokiClient.DecodeErrorResponse(resp)
 
 					if err != nil {
-						return err
+						return errors.Wrap(err, resp.Status)
 					}
 
-					return resp
+					return errors.Wrap(res, resp.Status)
 				}
 			},
 		},
@@ -299,6 +306,12 @@ func main() {
 			Name:      "inspect",
 			ArgsUsage: "[id or name]",
 			Usage:     "Sho inspection of a container",
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "json",
+					Usage: "in json format",
+				},
+			},
 			Action: func(ctx *cli.Context) error {
 				if ctx.NArg() < 1 {
 					return errors.New("ID or name is not specified")
@@ -318,19 +331,23 @@ func main() {
 						return err
 					}
 
-					pp.Println(res)
+					if ctx.Bool("json") {
+						json.NewEncoder(os.Stdout).Encode(res)
+					} else {
+						pp.Println(res)
+					}
 
 					return nil
 				case http.StatusNotFound:
 					return errors.New("No such container")
 				default:
-					resp, err := modokiClient.DecodeErrorResponse(resp)
+					res, err := modokiClient.DecodeErrorResponse(resp)
 
 					if err != nil {
-						return err
+						return errors.Wrap(err, resp.Status)
 					}
 
-					return resp
+					return errors.Wrap(res, resp.Status)
 				}
 			},
 		},
@@ -359,6 +376,12 @@ func main() {
 						return err
 					}
 
+					if ctx.Bool("json") {
+						json.NewEncoder(os.Stdout).Encode(res)
+
+						return nil
+					}
+
 					table := tablewriter.NewWriter(os.Stdout)
 					table.SetBorder(true)
 					table.SetHeader([]string{"Name", "ID", "Image", "Status", "Command/Msg"})
@@ -377,13 +400,13 @@ func main() {
 
 					return nil
 				default:
-					resp, err := modokiClient.DecodeErrorResponse(resp)
+					res, err := modokiClient.DecodeErrorResponse(resp)
 
 					if err != nil {
-						return err
+						return errors.Wrap(err, resp.Status)
 					}
 
-					return resp
+					return errors.Wrap(res, resp.Status)
 				}
 			},
 		},
@@ -476,8 +499,131 @@ func main() {
 			},
 		},
 		cli.Command{
-			Name:      "cp",
-			ArgsUsage: `[container_name:]source_path [container_name:]dest_path (container_name can't be used for the both)`,
+			Name:        "cp",
+			ArgsUsage:   `(container id/name:)source_path (container id/name:)dest_path`,
+			Usage:       "Upload or download files",
+			Description: "You cannot set 'container id/name' to both parameters",
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "overwrite",
+					Usage: "(For only uploading) Allow for a existing directory to be replaced by a file",
+				},
+				cli.BoolFlag{
+					Name:  "raw",
+					Usage: "(For only downloading) Save a tar archive directly (not untarred)",
+				},
+			},
+			Action: func(ctx *cli.Context) error {
+				overwrite := ctx.Bool("overwrite")
+				raw := ctx.Bool("raw")
+
+				if ctx.NArg() != 2 {
+					return errors.New("The source and destination paths must be specified")
+				}
+				from := ctx.Args()[0]
+				to := ctx.Args()[1]
+
+				if strings.Contains(from, ":") {
+					if !strings.Contains(to, ":") {
+						return errors.New("Use 'cp' command instead")
+					}
+
+					arr := strings.SplitN(from, ":", 2)
+					id := arr[0]
+					from = arr[1]
+
+					resp, err := modokiClient.DownloadContainer(context.Background(), modoki.DownloadContainerPath(), id, from)
+
+					if err != nil {
+						return err
+					}
+
+					switch resp.StatusCode {
+					case http.StatusOK:
+						var stat types.ContainerPathStat
+						if err := json.Unmarshal([]byte(resp.Header.Get("X-Docker-Container-Path-Stat")), &stat); err != nil {
+							return err
+						}
+
+						defer resp.Body.Close()
+
+						if raw {
+							_, name := filepath.Split(from)
+
+							fp, err := os.Create(filepath.Join(to, name+".tar"))
+
+							if err != nil {
+								return err
+							}
+
+							if _, err := io.Copy(fp, resp.Body); err != nil {
+								return err
+							}
+
+							return nil
+						}
+
+						if err := extractTarArchive(resp.Body, to, stat); err != nil {
+							return err
+						}
+
+					default:
+						res, err := modokiClient.DecodeErrorResponse(resp)
+
+						if err != nil {
+							return errors.Wrap(err, resp.Status)
+						}
+
+						return errors.Wrap(res, resp.Status)
+					}
+				} else {
+					if strings.Contains(to, ":") {
+						return errors.New("You cannot transfer files from one container to another container")
+					}
+
+					arr := strings.SplitN(to, ":", 2)
+					id := arr[0]
+					to = arr[1]
+
+					path, err := createTarArchive(from)
+
+					if err != nil {
+						return errors.Wrap(err, "Failed to create a tar archive")
+					}
+
+					defer os.Remove(path)
+
+					payload := modoki.UploadPayload{
+						AllowOverwrite: overwrite,
+						Data:           path,
+						ID:             id,
+						Path:           to,
+					}
+
+					resp, err := modokiClient.UploadContainer(context.Background(), modoki.UploadContainerPath(), &payload, "multipart/form-data")
+
+					if err != nil {
+						return err
+					}
+
+					switch resp.StatusCode {
+					case http.StatusNoContent:
+						return nil
+					case http.StatusRequestEntityTooLarge:
+						return errors.New("Too large files")
+					default:
+						res, err := modokiClient.DecodeErrorResponse(resp)
+
+						if err != nil {
+							return errors.Wrap(err, resp.Status)
+						}
+
+						return errors.Wrap(res, resp.Status)
+					}
+				}
+
+				return nil
+			},
 		},
 		cli.Command{
 			Name:  "signin",

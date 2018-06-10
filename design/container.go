@@ -112,3 +112,13 @@ var ContainerCreateOK = MediaType("vnd.application/goa.container.create.results+
 		Attribute("endpoints")
 	})
 })
+
+var ContainerDownloadOK = MediaType("vpn.application/goa.container.download.result", func() {
+	Attributes(func() {
+		Attribute("file", File)
+	})
+
+	View("default", func() {
+		Attribute("file")
+	})
+})

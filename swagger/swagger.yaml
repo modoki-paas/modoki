@@ -35,12 +35,14 @@ definitions:
     description: GoaContainerInspect media type (default view)
     example:
       args:
-      - Aut rerum dolorem rerum aut nobis.
-      created: "1994-12-21T10:17:26Z"
-      id: 1.0549173781011334e+18
-      image: Alias quas.
-      imageID: Tenetur ut laudantium fugit aut officia inventore.
-      name: Ex et nostrum quo aut.
+      - Aut nobis saepe.
+      - Aut nobis saepe.
+      - Aut nobis saepe.
+      created: "2001-09-08T00:38:05Z"
+      id: 8.573946150583195e+18
+      image: Quas omnis tenetur ut laudantium.
+      imageID: Aut officia inventore consequatur ex et.
+      name: Quo aut.
       path: Ex totam et dolores quae sapiente.
       raw_state:
         dead: true
@@ -62,32 +64,34 @@ definitions:
       args:
         description: The arguments to the command being run
         example:
-        - Aut rerum dolorem rerum aut nobis.
+        - Aut nobis saepe.
+        - Aut nobis saepe.
+        - Aut nobis saepe.
         items:
-          example: Aut rerum dolorem rerum aut nobis.
+          example: Aut nobis saepe.
           type: string
         type: array
       created:
         description: The time the container was created
-        example: "1994-12-21T10:17:26Z"
+        example: "2001-09-08T00:38:05Z"
         format: date-time
         type: string
       id:
         description: ID
-        example: 1.0549173781011334e+18
+        example: 8.573946150583195e+18
         format: int64
         type: integer
       image:
         description: The name of the image to use when creating the container
-        example: Alias quas.
+        example: Quas omnis tenetur ut laudantium.
         type: string
       imageID:
         description: The container's image ID
-        example: Tenetur ut laudantium fugit aut officia inventore.
+        example: Aut officia inventore consequatur ex et.
         type: string
       name:
         description: Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
-        example: Ex et nostrum quo aut.
+        example: Quo aut.
         type: string
       path:
         description: The path to the command being run
@@ -827,8 +831,8 @@ paths:
         required: true
         type: string
       produces:
+      - application/octet-stream
       - application/vnd.goa.error
-      - text/plain
       responses:
         "200":
           description: OK
@@ -1190,8 +1194,6 @@ responses:
     description: No Content
   NotFound:
     description: Not Found
-  OK:
-    description: OK
   RequestEntityTooLarge:
     description: Request Entity Too Large
   SwitchingProtocols:

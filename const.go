@@ -3,8 +3,6 @@ package main
 const jwtKeyUID = "uid"
 
 const (
-	StatusImagePulling = "image_downloading"
-
 	TraefikFrontendName = "modoki"
 	TraefikBackendName  = "modoki_backend"
 

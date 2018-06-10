@@ -1,12 +1,21 @@
 package main
 
 import (
+	"archive/tar"
 	"context"
+	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"os/user"
+	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/docker/docker/api/types"
+	"github.com/pkg/errors"
 
 	modoki "github.com/cs3238-tsuzu/modoki/client"
 	"golang.org/x/net/websocket"
@@ -32,6 +41,143 @@ func newJWTSigner(key string) goaclient.Signer {
 		Format:    "Bearer %s",
 	}
 
+}
+
+func createTarArchive(src string) (string, error) {
+	if _, err := os.Stat(src); err != nil {
+		return "", err
+	}
+
+	fp, err := ioutil.TempFile("/tmp", "modoki_tar_")
+
+	if err != nil {
+		return "", err
+	}
+	defer fp.Close()
+
+	tw := tar.NewWriter(fp)
+
+	src, err = filepath.Abs(src)
+
+	if err != nil {
+		return "", err
+	}
+
+	src = filepath.Clean(src)
+
+	err = filepath.Walk(src, func(file string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		header, err := tar.FileInfoHeader(fi, fi.Name())
+		if err != nil {
+			return err
+		}
+
+		abs, err := filepath.Abs(file)
+
+		if err != nil {
+			return err
+		}
+
+		header.Name = strings.TrimPrefix(strings.TrimPrefix(filepath.Clean(abs), filepath.Dir(src)), string(filepath.Separator))
+
+		if header.Name == "" {
+			return nil
+		}
+
+		if err := tw.WriteHeader(header); err != nil {
+			return err
+		}
+
+		if !fi.Mode().IsRegular() {
+			return nil
+		}
+
+		f, err := os.Open(file)
+		defer f.Close()
+		if err != nil {
+			return err
+		}
+
+		if _, err := io.Copy(tw, f); err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	return fp.Name(), nil
+}
+
+func extractTarArchive(reader io.Reader, target string, stat types.ContainerPathStat) error {
+	target = filepath.Clean(target)
+
+	if !stat.Mode.IsDir() {
+		if s, err := os.Stat(target); err == nil && s.IsDir() {
+			target = filepath.Join(target, stat.Name)
+		}
+
+		fp, err := os.Create(target)
+
+		if err != nil {
+			return err
+		}
+		defer fp.Close()
+
+		_, err = io.Copy(fp, reader)
+
+		return err
+	}
+
+	if st, err := os.Stat(target); err != nil {
+		if err := os.Mkdir(target, 0660); err != nil {
+			return err
+		}
+	} else {
+		if !st.IsDir() {
+			return errors.New("The path is not a directory")
+		}
+		target = filepath.Join(target, stat.Name)
+	}
+
+	tarReader := tar.NewReader(reader)
+
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return err
+		}
+
+		path := filepath.Join(target, strings.TrimPrefix(header.Name, stat.Name))
+
+		info := header.FileInfo()
+		if info.IsDir() {
+			if err = os.MkdirAll(path, info.Mode()); err != nil {
+				return err
+			}
+			continue
+		}
+
+		file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
+		if err != nil {
+			return err
+		}
+		defer file.Close()
+		_, err = io.Copy(file, tarReader)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 // Get stdout and stderr logs from a container.
