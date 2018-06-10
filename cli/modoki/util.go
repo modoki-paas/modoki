@@ -3,6 +3,7 @@ package main
 import (
 	"archive/tar"
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -151,6 +152,8 @@ func extractTarArchive(reader io.Reader, target string, stat types.ContainerPath
 	for {
 		header, err := tarReader.Next()
 		if err == io.EOF {
+			fmt.Println("break")
+
 			break
 		} else if err != nil {
 			return err
@@ -170,11 +173,13 @@ func extractTarArchive(reader io.Reader, target string, stat types.ContainerPath
 		if err != nil {
 			return err
 		}
-		defer file.Close()
 		_, err = io.Copy(file, tarReader)
 		if err != nil {
+			file.Close()
 			return err
 		}
+		file.Close()
+
 	}
 
 	return nil

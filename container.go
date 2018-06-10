@@ -255,7 +255,10 @@ func (c *ContainerController) Download(ctx *app.DownloadContainerContext) error 
 	ctx.ResponseWriter.Header().Set("Content-Length", strconv.FormatInt(stat.Size, 10))
 	ctx.ResponseWriter.Header().Set("Content-Type", "application/octet-stream")
 
-	io.Copy(ctx.ResponseWriter, rc)
+	ctx.ResponseWriter.WriteHeader(http.StatusOK)
+	if _, err := io.Copy(ctx.ResponseWriter, rc); err != nil {
+		return err
+	}
 
 	return nil
 	// ContainerController_Download: end_implement

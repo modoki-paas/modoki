@@ -524,7 +524,7 @@ func main() {
 				to := ctx.Args()[1]
 
 				if strings.Contains(from, ":") {
-					if !strings.Contains(to, ":") {
+					if strings.Contains(to, ":") {
 						return errors.New("Use 'cp' command instead")
 					}
 
@@ -537,7 +537,13 @@ func main() {
 					if err != nil {
 						return err
 					}
+					fmt.Println(resp.Header)
 
+					b, _ := ioutil.ReadAll(resp.Body)
+
+					fmt.Println(len(b))
+
+					return nil
 					switch resp.StatusCode {
 					case http.StatusOK:
 						var stat types.ContainerPathStat
@@ -577,7 +583,7 @@ func main() {
 						return errors.Wrap(res, resp.Status)
 					}
 				} else {
-					if strings.Contains(to, ":") {
+					if !strings.Contains(to, ":") {
 						return errors.New("You cannot transfer files from one container to another container")
 					}
 
