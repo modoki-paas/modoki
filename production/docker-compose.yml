@@ -1,0 +1,92 @@
+version: "3"
+
+services:
+    consul:
+        image: consul
+        volumes:
+            - consul-volume:/consul/data
+        command: consul agent -server -dev -client=0.0.0.0 -ui -bootstrap -log-level warn
+        ports:
+            - "8400:8400"
+            - "8500:8500"
+            - "8600:53/udp"
+
+    traefik:
+        restart: always
+        image: traefik:alpine
+        networks:
+            - paas-bridge
+            - default
+        dns:
+            - 1.1.1.1
+            - 8.8.8.8
+            - 8.8.4.4
+        environment:
+            - CLOUDFLARE_EMAIL=${CLOUDFLARE_EMAIL}
+            - CLOUDFLARE_API_KEY=${CLOUDFLARE_API_KEY}
+        depends_on: 
+            - consul
+        links:
+            - modoki # --traefikAddr of modoki
+        ports: 
+            - 80:80
+            - 443:443
+        command:
+            - --entryPoints=Name:http Address::80
+            - --entryPoints=Name:https Address::443 TLS
+            - --defaultentrypoints=http,https
+            - --web
+            - --consul
+            - --consul.endpoint=consul:8500
+            - --debug
+            - --acme
+            - --acme.storage=traefik/acme/account
+            - --acme.acmelogging=true
+            - --acme.entryPoint=https
+            - --acme.dnschallenge=true
+            - --acme.dnschallenge.provider=cloudflare
+            - --acme.dnschallenge.delaybeforecheck=0s
+            - --acme.domains=*.${PUBLIC_ADDR},${PUBLIC_ADDR}
+            - --acme.email=${EMAIL_ADDRESS}
+
+    modoki:
+        restart: always
+        image: tsuzu/modoki
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./cred:/usr/local/modoki/cred
+        depends_on:
+            - consul
+        command:
+            - --addr=${PUBLIC_ADDR}
+            - --db=root:${DB_PASSWORD}@tcp(mysql:3306)/modoki?charset=utf8mb4&parseTime=True
+            - --consul=consul:8500
+            - --docker-api=v1.37
+            - --traefikAddr=http://modoki
+            - --jwtkey=/usr/local/modoki/cred/jwt.example.key
+            - --jwtpub=/usr/local/modoki/cred/jwt.example.key.pub
+            - --net=modoki_paas-bridge
+
+    mysql:
+        restart: always
+        volumes:
+            - mysql-volume:/var/lib/mysql
+        image: mysql
+        user: mysql
+        command: 
+            - mysqld
+            - --character-set-server=utf8mb4
+            - --collation-server=utf8mb4_unicode_ci
+        environment: 
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: modoki
+
+volumes:
+    mysql-volume:
+        driver: local
+    consul-volume:
+        driver: local
+
+networks:
+    paas-bridge:
+        driver: bridge

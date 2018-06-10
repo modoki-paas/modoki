@@ -55,18 +55,18 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return ctx.BadRequest(err)
+		return ctx.BadRequest(goa.ErrBadRequest(err))
 	}
 
 	res, err := c.DB.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (?, ?, "Waiting")`, ctx.Name, uid)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	var id int
 	if id64, err := res.LastInsertId(); err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	} else {
 		id = int(id64)
 	}
@@ -220,13 +220,13 @@ func (c *ContainerController) Download(ctx *app.DownloadContainerContext) error 
 	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
 	}
 
 	rows.Next()
@@ -235,18 +235,18 @@ func (c *ContainerController) Download(ctx *app.DownloadContainerContext) error 
 	var cid sql.NullString
 	if err := rows.Scan(&id, &cid); err != nil {
 		rows.Close()
-		return ctx.NotFound(errors.New("No container found"))
+		return ctx.NotFound(goa.ErrNotFound(errors.New("No container found")))
 	}
 	rows.Close()
 
 	if !cid.Valid {
-		return ctx.NotFound(errors.New("No container found"))
+		return ctx.NotFound(goa.ErrNotFound(errors.New("No container found")))
 	}
 
 	rc, stat, err := c.DockerClient.CopyFromContainer(ctx, cid.String, ctx.InternalPath)
 
 	if err != nil {
-		return ctx.NotFound(err)
+		return ctx.NotFound(goa.ErrNotFound(err))
 	}
 	defer rc.Close()
 
@@ -270,13 +270,13 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
 	}
 
 	rows.Next()
@@ -304,12 +304,12 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		if strings.Contains(err.Error(), "You cannot remove a running container") {
 			return ctx.RunningContainer()
 		} else {
-			return ctx.InternalServerError(errors.Wrap(err, "Docker API Error"))
+			return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Docker API Error")))
 		}
 	}
 
 	if _, err := c.DB.Exec("DELETE FROM containers WHERE id=?", id); err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Deletion From Database Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Deletion From Database Error")))
 	}
 
 	frontendName := fmt.Sprintf(FrontendFormat, id)
@@ -317,13 +317,13 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 
 	if err := c.Consul.DeleteBackend(backendName); err != nil {
 		if err != store.ErrKeyNotFound {
-			return ctx.InternalServerError(errors.Wrap(err, "Consul Error"))
+			return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Consul Error")))
 		}
 
 	}
 	if err := c.Consul.DeleteFrontend(frontendName); err != nil {
 		if err != store.ErrKeyNotFound {
-			return ctx.InternalServerError(errors.Wrap(err, "Consul Error"))
+			return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Consul Error")))
 		}
 	}
 
@@ -339,13 +339,13 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
 	}
 
 	rows.Next()
@@ -365,7 +365,7 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 	resp, err := c.DockerClient.HTTPClient().Post("http://"+*dockerAPIVersion+"/containers/"+cid.String+"/start", "", nil)
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Docker API error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Docker API error")))
 	}
 	defer func() {
 		if resp.Body != nil {
@@ -391,7 +391,7 @@ func (c *ContainerController) Start(ctx *app.StartContainerContext) error {
 	}
 
 	if err := c.updateContainerStatus(context.Background(), cid.String); err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	return ctx.NoContent()
@@ -406,13 +406,13 @@ func (c *ContainerController) Stop(ctx *app.StopContainerContext) error {
 	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
 	}
 
 	rows.Next()
@@ -432,11 +432,11 @@ func (c *ContainerController) Stop(ctx *app.StopContainerContext) error {
 	d := 15 * time.Second
 
 	if err := c.DockerClient.ContainerStop(context.Background(), cid.String, &d); err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Docker API error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Docker API error")))
 	}
 
 	if err := c.updateContainerStatus(context.Background(), cid.String); err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	return ctx.NoContent()
@@ -451,13 +451,13 @@ func (c *ContainerController) Inspect(ctx *app.InspectContainerContext) error {
 	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	rows, err := c.DB.Query("SELECT id, cid, name, status FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
 	}
 
 	rows.Next()
@@ -547,7 +547,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	filter := filters.NewArgs()
@@ -560,14 +560,14 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 	})
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Docker API Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Docker API Error")))
 	}
 	res := make(app.GoaContainerListEachCollection, 0, len(list)+10)
 
 	rows, err := c.DB.Query(`SELECT id, name, message, status FROM containers WHERE status="Error" OR status="Creating"`)
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
 	}
 
 	defer rows.Close()
@@ -577,7 +577,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 		var name, msg, status string
 
 		if err := rows.Scan(&id, &name, &msg, &status); err != nil {
-			return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+			return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
 		}
 
 		res = append(res, &app.GoaContainerListEach{
@@ -637,13 +637,13 @@ func (c *ContainerController) Upload(ctx *app.UploadContainerContext) error {
 	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.Payload.ID, ctx.Payload.ID)
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
 	}
 
 	rows.Next()
@@ -652,25 +652,29 @@ func (c *ContainerController) Upload(ctx *app.UploadContainerContext) error {
 	var cid sql.NullString
 	if err := rows.Scan(&id, &cid); err != nil {
 		rows.Close()
-		return ctx.NotFound(errors.New("No container found"))
+		return ctx.NotFound(goa.ErrInternal(errors.New("No container found")))
 	}
 	rows.Close()
 
 	if !cid.Valid {
-		return ctx.NotFound(errors.New("No container found"))
+		return ctx.NotFound(goa.ErrInternal(errors.New("No container found")))
 	}
 
 	reader, err := ctx.Payload.Data.Open()
 
 	if err != nil {
-		return ctx.BadRequest(errors.Wrap(err, "Opening the form error"))
+		return ctx.BadRequest(goa.ErrBadRequest(errors.Wrap(err, "Opening the form error")))
 	}
 	defer reader.Close()
 
 	if err := c.DockerClient.CopyToContainer(ctx, cid.String, ctx.Payload.Path, reader, types.CopyToContainerOptions{
 		AllowOverwriteDirWithFile: ctx.Payload.AllowOverwrite,
 	}); err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Failed to copy a file via Docker API"))
+		if strings.Contains(strings.ToLower(err.Error()), "not found") {
+			return ctx.NotFound(goa.ErrNotFound(errors.New("The path does not exist")))
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Failed to copy a file via Docker API")))
 	}
 
 	return ctx.NoContent()
@@ -684,13 +688,13 @@ func (c *ContainerController) Logs(ctx *app.LogsContainerContext) error {
 	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
 	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
-		return ctx.InternalServerError(errors.Wrap(err, "Database Error"))
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
 	}
 
 	rows.Next()
@@ -699,12 +703,12 @@ func (c *ContainerController) Logs(ctx *app.LogsContainerContext) error {
 	var cid sql.NullString
 	if err := rows.Scan(&id, &cid); err != nil {
 		rows.Close()
-		return ctx.NotFound(errors.New("No container found"))
+		return ctx.NotFound(goa.ErrNotFound(errors.New("No container found")))
 	}
 	rows.Close()
 
 	if !cid.Valid {
-		return ctx.NotFound(errors.New("No container found"))
+		return ctx.NotFound(goa.ErrNotFound(errors.New("No container found")))
 	}
 
 	opts := types.ContainerLogsOptions{
@@ -725,7 +729,7 @@ func (c *ContainerController) Logs(ctx *app.LogsContainerContext) error {
 	rc, err := c.DockerClient.ContainerLogs(ctx, cid.String, opts)
 
 	if err != nil {
-		return ctx.InternalServerError(err)
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 	defer rc.Close()
 
