@@ -274,12 +274,6 @@ func (ctx *ListContainerContext) OK(r GoaContainerListEachCollection) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
 
-// NotFound sends a HTTP response with status code 404.
-func (ctx *ListContainerContext) NotFound() error {
-	ctx.ResponseData.WriteHeader(404)
-	return nil
-}
-
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *ListContainerContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {

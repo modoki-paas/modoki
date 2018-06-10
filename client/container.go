@@ -14,7 +14,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"golang.org/x/net/websocket"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -23,6 +22,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"time"
+
+	"golang.org/x/net/websocket"
 )
 
 // CreateContainerPath computes a request path to the create action of container.

@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gorilla/websocket"
+	"golang.org/x/net/websocket"
 
 	"github.com/k0kubun/pp"
 
@@ -654,10 +654,6 @@ func (c *ContainerController) Upload(ctx *app.UploadContainerContext) error {
 	// ContainerController_Upload: end_implement
 }
 
-var (
-	upgrader = websocket.Upgrader{}
-)
-
 // Logs runs the logs action.
 func (c *ContainerController) Logs(ctx *app.LogsContainerContext) error {
 	// ContainerController_Logs: start_implement
@@ -710,31 +706,11 @@ func (c *ContainerController) Logs(ctx *app.LogsContainerContext) error {
 	}
 	defer rc.Close()
 
-	conn, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, nil)
-
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
-	ch := conn.CloseHandler()
-	conn.SetCloseHandler(func(code int, text string) error {
-		rc.Close()
-
-		return ch(code, text)
+	handler := websocket.Handler(func(conn *websocket.Conn) {
+		io.Copy(conn, rc)
 	})
 
-	wc, err := conn.NextWriter(websocket.TextMessage)
-
-	if err != nil {
-		return err
-	}
-	defer wc.Close()
-
-	if _, err := io.Copy(wc, rc); err != nil {
-		return err
-	}
-
+	handler.ServeHTTP(ctx.ResponseWriter, ctx.Request)
 	return nil
 	// ContainerController_Logs: end_implement
 }

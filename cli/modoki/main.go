@@ -361,6 +361,7 @@ func main() {
 					}
 
 					table := tablewriter.NewWriter(os.Stdout)
+					table.SetBorder(false)
 					table.SetHeader([]string{"Name", "ID", "Image", "Status", "Command/Msg"})
 
 					for i := range res {
@@ -395,10 +396,10 @@ func main() {
 				cli.BoolFlag{
 					Name: "follow, f",
 				},
-				cli.BoolFlag{
+				cli.BoolTFlag{
 					Name: "stdout",
 				},
-				cli.BoolFlag{
+				cli.BoolTFlag{
 					Name: "stderr",
 				},
 				cli.IntFlag{
@@ -421,21 +422,17 @@ func main() {
 					return errors.New("Image name is not specified")
 				}
 
-				var follow, stdout, stderr, timestamps *bool
+				var follow, timestamps *bool
+				var stdout, stderr bool
 				var since, until *time.Time
 				var tail *string
 				if ctx.IsSet("follow") {
 					b := ctx.Bool("follow")
 					follow = &b
 				}
-				if ctx.IsSet("stdout") {
-					b := ctx.Bool("stdout")
-					stdout = &b
-				}
-				if ctx.IsSet("stderr") {
-					b := ctx.Bool("stderr")
-					stderr = &b
-				}
+				stdout = ctx.Bool("stdout")
+				stderr = ctx.Bool("stderr")
+
 				if ctx.IsSet("timestamps") {
 					b := ctx.Bool("timestamps")
 					timestamps = &b
@@ -453,7 +450,21 @@ func main() {
 					tail = &b
 				}
 
-				conn, err := modokiClient.LogsContainer(context.Background(), modoki.LogsContainerPath(), ctx.Args()[0], follow, since, stderr, stdout, tail, timestamps, until)
+				prevScheme := modokiClient.Scheme
+
+				var scheme string
+				switch prevScheme {
+				case "http":
+					scheme = "ws"
+				case "https":
+					scheme = "wss"
+				}
+				modokiClient.Scheme = scheme
+				defer func() {
+					modokiClient.Scheme = prevScheme
+				}()
+
+				conn, err := modokiLogsContainer(modokiClient, context.Background(), modoki.LogsContainerPath(), ctx.Args()[0], follow, since, &stderr, &stdout, tail, timestamps, until)
 
 				if err != nil {
 					return err
