@@ -260,12 +260,13 @@ func main() {
 		},
 		cli.Command{
 			Name:        "remove",
+			Aliases:     []string{"rm"},
 			ArgsUsage:   "[options] [id or name]",
 			Description: "Remove a container",
 
 			Flags: []cli.Flag{
 				cli.BoolFlag{
-					Name:  "force",
+					Name:  "force, f",
 					Usage: "Remove if a container is running",
 				},
 			},
@@ -361,7 +362,7 @@ func main() {
 					}
 
 					table := tablewriter.NewWriter(os.Stdout)
-					table.SetBorder(false)
+					table.SetBorder(true)
 					table.SetHeader([]string{"Name", "ID", "Image", "Status", "Command/Msg"})
 
 					for i := range res {
