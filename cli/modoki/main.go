@@ -512,10 +512,15 @@ func main() {
 					Name:  "raw",
 					Usage: "(For only downloading) Save a tar archive directly (not untarred)",
 				},
+				cli.BoolFlag{
+					Name:  "verbose, v",
+					Usage: "Show verbose",
+				},
 			},
 			Action: func(ctx *cli.Context) error {
 				overwrite := ctx.Bool("overwrite")
 				raw := ctx.Bool("raw")
+				verbose := ctx.Bool("verbose")
 
 				if ctx.NArg() != 2 {
 					return errors.New("The source and destination paths must be specified")
@@ -537,13 +542,7 @@ func main() {
 					if err != nil {
 						return err
 					}
-					fmt.Println(resp.Header)
 
-					b, _ := ioutil.ReadAll(resp.Body)
-
-					fmt.Println(len(b))
-
-					return nil
 					switch resp.StatusCode {
 					case http.StatusOK:
 						var stat types.ContainerPathStat
@@ -561,6 +560,7 @@ func main() {
 							if err != nil {
 								return err
 							}
+							defer fp.Close()
 
 							if _, err := io.Copy(fp, resp.Body); err != nil {
 								return err
@@ -569,7 +569,7 @@ func main() {
 							return nil
 						}
 
-						if err := extractTarArchive(resp.Body, to, stat); err != nil {
+						if err := extractTarArchive(resp.Body, to, stat, verbose); err != nil {
 							return err
 						}
 

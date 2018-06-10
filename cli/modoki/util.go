@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -116,28 +117,38 @@ func createTarArchive(src string) (string, error) {
 	return fp.Name(), nil
 }
 
-func extractTarArchive(reader io.Reader, target string, stat types.ContainerPathStat) error {
+func extractTarArchive(reader io.Reader, target string, stat types.ContainerPathStat, verbose bool) error {
 	target = filepath.Clean(target)
 
+	tarReader := tar.NewReader(reader)
 	if !stat.Mode.IsDir() {
 		if s, err := os.Stat(target); err == nil && s.IsDir() {
 			target = filepath.Join(target, stat.Name)
 		}
 
-		fp, err := os.Create(target)
+		header, err := tarReader.Next()
+
+		if verbose {
+			log.Println("Extracting: ", header.Name)
+		}
+
+		info := header.FileInfo()
+
+		fp, err := os.OpenFile(target, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
+		if err != nil {
+			return err
+		}
 
 		if err != nil {
 			return err
 		}
-		defer fp.Close()
-
-		_, err = io.Copy(fp, reader)
+		_, err = io.Copy(fp, tarReader)
 
 		return err
 	}
 
 	if st, err := os.Stat(target); err != nil {
-		if err := os.Mkdir(target, 0660); err != nil {
+		if err := os.Mkdir(target, 0774); err != nil {
 			return err
 		}
 	} else {
@@ -146,8 +157,6 @@ func extractTarArchive(reader io.Reader, target string, stat types.ContainerPath
 		}
 		target = filepath.Join(target, stat.Name)
 	}
-
-	tarReader := tar.NewReader(reader)
 
 	for {
 		header, err := tarReader.Next()
@@ -158,9 +167,11 @@ func extractTarArchive(reader io.Reader, target string, stat types.ContainerPath
 		} else if err != nil {
 			return err
 		}
-
 		path := filepath.Join(target, strings.TrimPrefix(header.Name, stat.Name))
 
+		if verbose {
+			log.Println("Extracting: ", header.Name)
+		}
 		info := header.FileInfo()
 		if info.IsDir() {
 			if err = os.MkdirAll(path, info.Mode()); err != nil {
@@ -169,16 +180,16 @@ func extractTarArchive(reader io.Reader, target string, stat types.ContainerPath
 			continue
 		}
 
-		file, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
+		fp, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, info.Mode())
 		if err != nil {
 			return err
 		}
-		_, err = io.Copy(file, tarReader)
+		_, err = io.Copy(fp, tarReader)
 		if err != nil {
-			file.Close()
+			fp.Close()
 			return err
 		}
-		file.Close()
+		fp.Close()
 
 	}
 
