@@ -179,7 +179,7 @@ func main() {
 
 				envs := ctx.StringSlice("env")
 
-				if ctx.Bool("env") {
+				if ctx.Bool("dotenv") {
 					dotenvvMap, err := godotenv.Read(".env")
 					if err != nil {
 						return errors.Wrap(err, ".env error")
@@ -192,6 +192,10 @@ func main() {
 
 				resp, err := modokiClient.CreateContainer(context.Background(), modoki.CreateContainerPath(), image, ctx.String("name"), cmd, ctx.StringSlice("entrypoint"), envs, &sslRedirect, ctx.StringSlice("volumes"), workDir)
 
+				if err != nil {
+					return err
+				}
+
 				if resp.StatusCode != http.StatusOK {
 					res, err := modokiClient.DecodeErrorResponse(resp)
 
@@ -200,9 +204,6 @@ func main() {
 					}
 
 					return errors.Wrap(res, resp.Status)
-				}
-				if err != nil {
-					return err
 				}
 
 				res, err := modokiClient.DecodeGoaContainerCreateResults(resp)
@@ -321,7 +322,7 @@ func main() {
 		cli.Command{
 			Name:      "inspect",
 			ArgsUsage: "[id or name]",
-			Usage:     "Sho inspection of a container",
+			Usage:     "Show the inspection of a container",
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "json",
@@ -534,6 +535,8 @@ func main() {
 				followLink := ctx.Bool("follow-link")
 
 				if ctx.NArg() != 2 {
+					cli.ShowSubcommandHelp(ctx)
+
 					return errors.New("The source and destination paths must be specified")
 				}
 				fromContainer, from := splitCpArg(ctx.Args()[0])
