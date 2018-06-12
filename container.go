@@ -134,7 +134,9 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			config.WorkingDir = *ctx.WorkingDir
 		}
 
-		hostConfig := &container.HostConfig{}
+		hostConfig := &container.HostConfig{
+			Resources: container.Resources{},
+		}
 
 		networkingConfig := &network.NetworkingConfig{}
 
@@ -288,7 +290,7 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+	rows, err := c.DB.Query("SELECT id, cid, status FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
@@ -298,28 +300,31 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 
 	var id int
 	var cid sql.NullString
-	if err := rows.Scan(&id, &cid); err != nil {
+	var status string
+	if err := rows.Scan(&id, &cid, &status); err != nil {
 		rows.Close()
 		return ctx.NotFound()
 	}
 	rows.Close()
 
-	if !cid.Valid {
-		return ctx.NotFound()
-	}
+	if status != "Error" {
+		if !cid.Valid {
+			return ctx.NotFound()
+		}
 
-	if err := c.DockerClient.ContainerRemove(
-		context.Background(),
-		cid.String,
-		types.ContainerRemoveOptions{
-			RemoveVolumes: true,
-			Force:         ctx.Force,
-		},
-	); err != nil {
-		if strings.Contains(err.Error(), "You cannot remove a running container") {
-			return ctx.RunningContainer()
-		} else {
-			return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Docker API Error")))
+		if err := c.DockerClient.ContainerRemove(
+			context.Background(),
+			cid.String,
+			types.ContainerRemoveOptions{
+				RemoveVolumes: true,
+				Force:         ctx.Force,
+			},
+		); err != nil {
+			if strings.Contains(err.Error(), "You cannot remove a running container") {
+				return ctx.RunningContainer()
+			} else {
+				return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Docker API Error")))
+			}
 		}
 	}
 
