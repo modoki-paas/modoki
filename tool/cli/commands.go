@@ -168,7 +168,7 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	}
 	tmp3 := new(DownloadContainerCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v1/container/download"]`,
+		Use:   `container [("/api/v1/container/download"|"/api/v1/container/download")]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
 	}
@@ -310,9 +310,10 @@ Payload example:
 
 {
    "allowOverwrite": true,
-   "data": "Autem recusandae deleniti sunt aut facilis.jpg",
-   "id": "Dolorem non rerum similique enim est.",
-   "path": "At facilis."
+   "copyUIDGID": false,
+   "data": "Recusandae deleniti sunt.jpg",
+   "id": "Facilis nisi dolorem non rerum.",
+   "path": "Enim est omnis at facilis."
 }`,
 		RunE: func(cmd *cobra.Command, args []string) error { return tmp12.Run(c, args) },
 	}

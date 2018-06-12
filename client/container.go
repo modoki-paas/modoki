@@ -92,6 +92,12 @@ func DownloadContainerPath() string {
 	return fmt.Sprintf("/api/v1/container/download")
 }
 
+// DownloadContainerPath2 computes a request path to the download action of container.
+func DownloadContainerPath2() string {
+
+	return fmt.Sprintf("/api/v1/container/download")
+}
+
 // Copy files from the container
 func (c *Client) DownloadContainer(ctx context.Context, path string, id string, internalPath string) (*http.Response, error) {
 	req, err := c.NewDownloadContainerRequest(ctx, path, id, internalPath)
@@ -384,6 +390,16 @@ func (c *Client) NewUploadContainerRequest(ctx context.Context, path string, pay
 			return nil, err
 		}
 		s := strconv.FormatBool(payload.AllowOverwrite)
+		if _, err := fw.Write([]byte(s)); err != nil {
+			return nil, err
+		}
+	}
+	{
+		fw, err := w.CreateFormField("copyUIDGID")
+		if err != nil {
+			return nil, err
+		}
+		s := strconv.FormatBool(payload.CopyUIDGID)
 		if _, err := fw.Write([]byte(s)); err != nil {
 			return nil, err
 		}

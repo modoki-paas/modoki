@@ -185,6 +185,8 @@ func (ut *SigninPayload) Validate() (err error) {
 type uploadPayload struct {
 	// Allow for a existing directory to be replaced by a file
 	AllowOverwrite *bool `form:"allowOverwrite,omitempty" json:"allowOverwrite,omitempty" xml:"allowOverwrite,omitempty"`
+	// Copy all uid/gid information
+	CopyUIDGID *bool `form:"copyUIDGID,omitempty" json:"copyUIDGID,omitempty" xml:"copyUIDGID,omitempty"`
 	// File tar archive
 	Data *string `form:"data,omitempty" json:"data,omitempty" xml:"data,omitempty"`
 	// ID or name
@@ -199,6 +201,10 @@ func (ut *uploadPayload) Finalize() {
 	if ut.AllowOverwrite == nil {
 		ut.AllowOverwrite = &defaultAllowOverwrite
 	}
+	var defaultCopyUIDGID = false
+	if ut.CopyUIDGID == nil {
+		ut.CopyUIDGID = &defaultCopyUIDGID
+	}
 }
 
 // Validate validates the uploadPayload type instance.
@@ -212,6 +218,9 @@ func (ut *uploadPayload) Validate() (err error) {
 	if ut.Data == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "data"))
 	}
+	if ut.CopyUIDGID == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "copyUIDGID"))
+	}
 	return
 }
 
@@ -220,6 +229,9 @@ func (ut *uploadPayload) Publicize() *UploadPayload {
 	var pub UploadPayload
 	if ut.AllowOverwrite != nil {
 		pub.AllowOverwrite = *ut.AllowOverwrite
+	}
+	if ut.CopyUIDGID != nil {
+		pub.CopyUIDGID = *ut.CopyUIDGID
 	}
 	if ut.Data != nil {
 		pub.Data = *ut.Data
@@ -237,6 +249,8 @@ func (ut *uploadPayload) Publicize() *UploadPayload {
 type UploadPayload struct {
 	// Allow for a existing directory to be replaced by a file
 	AllowOverwrite bool `form:"allowOverwrite" json:"allowOverwrite" xml:"allowOverwrite"`
+	// Copy all uid/gid information
+	CopyUIDGID bool `form:"copyUIDGID" json:"copyUIDGID" xml:"copyUIDGID"`
 	// File tar archive
 	Data string `form:"data" json:"data" xml:"data"`
 	// ID or name
@@ -256,5 +270,6 @@ func (ut *UploadPayload) Validate() (err error) {
 	if ut.Data == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "data"))
 	}
+
 	return
 }

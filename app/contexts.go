@@ -12,11 +12,12 @@ package app
 
 import (
 	"context"
-	"github.com/goadesign/goa"
 	"net/http"
 	"strconv"
 	"time"
 	"unicode/utf8"
+
+	"github.com/goadesign/goa"
 )
 
 // CreateContainerContext provides the container create action context.

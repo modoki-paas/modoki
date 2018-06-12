@@ -12,9 +12,10 @@ package app
 
 import (
 	"context"
-	"github.com/goadesign/goa"
 	"net/http"
 	"strconv"
+
+	"github.com/goadesign/goa"
 )
 
 // initService sets up the service encoders, decoders and mux.
@@ -82,6 +83,8 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v1/container/download", ctrl.MuxHandler("download", h, nil))
 	service.LogInfo("mount", "ctrl", "Container", "action", "Download", "route", "GET /api/v1/container/download", "security", "jwt")
+	service.Mux.Handle("HEAD", "/api/v1/container/download", ctrl.MuxHandler("download", h, nil))
+	service.LogInfo("mount", "ctrl", "Container", "action", "Download", "route", "HEAD /api/v1/container/download", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -212,6 +215,13 @@ func unmarshalUploadContainerPayload(ctx context.Context, service *goa.Service, 
 		payload.AllowOverwrite = tmp9
 	} else {
 		err = goa.MergeErrors(err, goa.InvalidParamTypeError("allowOverwrite", rawAllowOverwrite, "boolean"))
+	}
+	rawCopyUIDGID := req.FormValue("copyUIDGID")
+	if copyUIDGID, err2 := strconv.ParseBool(rawCopyUIDGID); err2 == nil {
+		tmp10 := &copyUIDGID
+		payload.CopyUIDGID = tmp10
+	} else {
+		err = goa.MergeErrors(err, goa.InvalidParamTypeError("copyUIDGID", rawCopyUIDGID, "boolean"))
 	}
 	_, rawData, err2 := req.FormFile("data")
 	if err2 == nil {

@@ -852,6 +852,42 @@ paths:
       summary: download container
       tags:
       - container
+    head:
+      description: Copy files from the container
+      operationId: container#download#1
+      parameters:
+      - description: ID or name
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: Path in the container to save files
+        in: query
+        name: internalPath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      - application/vnd.goa.error
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: download container
+      tags:
+      - container
   /container/inspect:
     get:
       description: Return details of a container
@@ -1076,6 +1112,12 @@ paths:
         in: formData
         name: allowOverwrite
         required: false
+        type: boolean
+      - default: false
+        description: Copy all uid/gid information
+        in: formData
+        name: copyUIDGID
+        required: true
         type: boolean
       - description: File tar archive
         in: formData

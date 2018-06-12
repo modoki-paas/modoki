@@ -243,6 +243,21 @@ func (c *ContainerController) Download(ctx *app.DownloadContainerContext) error 
 		return ctx.NotFound(goa.ErrNotFound(errors.New("No container found")))
 	}
 
+	if ctx.Method == "HEAD" {
+		stat, err := c.DockerClient.ContainerStatPath(ctx, cid.String, ctx.InternalPath)
+
+		if err != nil {
+			return ctx.NotFound(goa.ErrNotFound(err))
+		}
+
+		j, _ := json.Marshal(stat)
+		ctx.ResponseWriter.Header().Set("X-Docker-Container-Path-Stat", string(j))
+		ctx.ResponseWriter.Header().Set("Content-Type", "application/octet-stream")
+		ctx.ResponseWriter.WriteHeader(http.StatusOK)
+
+		return nil
+	}
+
 	rc, stat, err := c.DockerClient.CopyFromContainer(ctx, cid.String, ctx.InternalPath)
 
 	if err != nil {
@@ -669,6 +684,7 @@ func (c *ContainerController) Upload(ctx *app.UploadContainerContext) error {
 
 	if err := c.DockerClient.CopyToContainer(ctx, cid.String, ctx.Payload.Path, reader, types.CopyToContainerOptions{
 		AllowOverwriteDirWithFile: ctx.Payload.AllowOverwrite,
+		CopyUIDGID:                ctx.Payload.CopyUIDGID,
 	}); err != nil {
 		if strings.Contains(strings.ToLower(err.Error()), "not found") {
 			return ctx.NotFound(goa.ErrNotFound(errors.New("The path does not exist")))

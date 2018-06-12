@@ -9,12 +9,11 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/docker/docker/api/types"
+	"github.com/joho/godotenv"
 
 	modoki "github.com/cs3238-tsuzu/modoki/client"
 	"github.com/goadesign/goa/client"
@@ -155,6 +154,10 @@ func main() {
 					Name:  "ssl-redirect",
 					Usage: "Force clients to redirec to https",
 				},
+				cli.BoolFlag{
+					Name:  "dotenv",
+					Usage: "Use .env for environment variables",
+				},
 			},
 
 			Action: func(ctx *cli.Context) error {
@@ -174,7 +177,20 @@ func main() {
 					workDir = &s
 				}
 
-				resp, err := modokiClient.CreateContainer(context.Background(), modoki.CreateContainerPath(), image, ctx.String("name"), cmd, ctx.StringSlice("entrypoint"), ctx.StringSlice("env"), &sslRedirect, ctx.StringSlice("volumes"), workDir)
+				envs := ctx.StringSlice("env")
+
+				if ctx.Bool("env") {
+					dotenvvMap, err := godotenv.Read(".env")
+					if err != nil {
+						return errors.Wrap(err, ".env error")
+					}
+
+					for k, v := range dotenvvMap {
+						envs = append(envs, k+"="+v)
+					}
+				}
+
+				resp, err := modokiClient.CreateContainer(context.Background(), modoki.CreateContainerPath(), image, ctx.String("name"), cmd, ctx.StringSlice("entrypoint"), envs, &sslRedirect, ctx.StringSlice("volumes"), workDir)
 
 				if resp.StatusCode != http.StatusOK {
 					res, err := modokiClient.DecodeErrorResponse(resp)
@@ -505,159 +521,87 @@ func main() {
 			Description: "You cannot set 'container id/name' to both parameters",
 			Flags: []cli.Flag{
 				cli.BoolFlag{
-					Name:  "overwrite",
-					Usage: "(For only uploading) Allow for a existing directory to be replaced by a file",
+					Name:  "archive, a",
+					Usage: "Archive mode (copy all uid/gid information)",
 				},
 				cli.BoolFlag{
-					Name:  "raw",
-					Usage: "(For only downloading) Save a tar archive directly (not untarred)",
-				},
-				cli.BoolFlag{
-					Name:  "verbose, v",
-					Usage: "Show verbose",
+					Name:  "follow-link, L",
+					Usage: "Always follow symbol link in SRC_PATH",
 				},
 			},
 			Action: func(ctx *cli.Context) error {
-				overwrite := ctx.Bool("overwrite")
-				raw := ctx.Bool("raw")
-				verbose := ctx.Bool("verbose")
+				copyUIDGID := ctx.Bool("archive")
+				followLink := ctx.Bool("follow-link")
 
 				if ctx.NArg() != 2 {
 					return errors.New("The source and destination paths must be specified")
 				}
-				from := ctx.Args()[0]
-				to := ctx.Args()[1]
+				fromContainer, from := splitCpArg(ctx.Args()[0])
+				toContainer, to := splitCpArg(ctx.Args()[1])
 
-				if strings.Contains(from, ":") {
-					if strings.Contains(to, ":") {
-						return errors.New("Use 'cp' command instead")
-					}
+				if fromContainer != "" && toContainer != "" {
+					return errors.New("Copying between containers is not supported")
+				}
 
-					arr := strings.SplitN(from, ":", 2)
-					id := arr[0]
-					from = arr[1]
+				if fromContainer == "" && toContainer == "" {
+					return errors.New("Use 'cp' command instead")
+				}
 
-					resp, err := modokiClient.DownloadContainer(context.Background(), modoki.DownloadContainerPath(), id, from)
+				if fromContainer != "" {
+					return copyFromContainer(context.Background(), modokiClient, cpConfig{
+						followLink: followLink,
+						copyUIDGID: copyUIDGID,
+						sourcePath: from,
+						destPath:   to,
+						container:  fromContainer,
+					})
+				}
 
-					if err != nil {
-						return err
-					}
+				return copyToContainer(context.Background(), modokiClient, cpConfig{
+					followLink: followLink,
+					copyUIDGID: copyUIDGID,
+					sourcePath: from,
+					destPath:   to,
+					container:  toContainer,
+				})
 
-					switch resp.StatusCode {
-					case http.StatusOK:
-						var stat types.ContainerPathStat
-						if err := json.Unmarshal([]byte(resp.Header.Get("X-Docker-Container-Path-Stat")), &stat); err != nil {
-							return err
-						}
+			},
+		},
 
-						defer resp.Body.Close()
+		cli.Command{
+			Name:  "config",
+			Usage: "Change the config",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:  "signin",
+					Usage: "Set token in the config file",
+					Action: func(ctx *cli.Context) error {
+						fmt.Print("Token: ")
+						var token string
+						fmt.Scan(&token)
+						config.Token = token
 
-						if raw {
-							_, name := filepath.Split(from)
+						fmt.Println("OK")
 
-							fp, err := os.Create(filepath.Join(to, name+".tar"))
-
-							if err != nil {
-								return err
-							}
-							defer fp.Close()
-
-							if _, err := io.Copy(fp, resp.Body); err != nil {
-								return err
-							}
-
-							return nil
-						}
-
-						if err := extractTarArchive(resp.Body, to, stat, verbose); err != nil {
-							return err
-						}
-
-					default:
-						res, err := modokiClient.DecodeErrorResponse(resp)
-
-						if err != nil {
-							return errors.Wrap(err, resp.Status)
-						}
-
-						return errors.Wrap(res, resp.Status)
-					}
-				} else {
-					if !strings.Contains(to, ":") {
-						return errors.New("You cannot transfer files from one container to another container")
-					}
-
-					arr := strings.SplitN(to, ":", 2)
-					id := arr[0]
-					to = arr[1]
-
-					path, err := createTarArchive(from)
-
-					if err != nil {
-						return errors.Wrap(err, "Failed to create a tar archive")
-					}
-
-					defer os.Remove(path)
-
-					payload := modoki.UploadPayload{
-						AllowOverwrite: overwrite,
-						Data:           path,
-						ID:             id,
-						Path:           to,
-					}
-
-					resp, err := modokiClient.UploadContainer(context.Background(), modoki.UploadContainerPath(), &payload, "multipart/form-data")
-
-					if err != nil {
-						return err
-					}
-
-					switch resp.StatusCode {
-					case http.StatusNoContent:
 						return nil
-					case http.StatusRequestEntityTooLarge:
-						return errors.New("Too large files")
-					default:
-						res, err := modokiClient.DecodeErrorResponse(resp)
-
-						if err != nil {
-							return errors.Wrap(err, resp.Status)
+					},
+				},
+				cli.Command{
+					Name:        "endpoint",
+					Usage:       "Set scheme and host in the config file",
+					Description: "Websocket API: http->ws, https->wss",
+					ArgsUsage:   " [scheme(http/https)] [host]",
+					Action: func(ctx *cli.Context) error {
+						if ctx.NArg() < 2 {
+							return cli.ShowSubcommandHelp(ctx)
 						}
 
-						return errors.Wrap(res, resp.Status)
-					}
-				}
+						config.Scheme = ctx.Args()[0]
+						config.Host = ctx.Args()[1]
 
-				return nil
-			},
-		},
-		cli.Command{
-			Name:  "signin",
-			Usage: "Set token in the config file",
-			Action: func(ctx *cli.Context) error {
-				fmt.Print("Token: ")
-				var token string
-				fmt.Scan(&token)
-				config.Token = token
-
-				fmt.Println("OK")
-
-				return nil
-			},
-		},
-		cli.Command{
-			Name:      "endpoint",
-			Usage:     "Set scheme and host in the config file",
-			ArgsUsage: " [scheme(http/https)] [host]",
-			Action: func(ctx *cli.Context) error {
-				if ctx.NArg() < 2 {
-					return errors.New("Scheme and host are not specified ")
-				}
-
-				config.Scheme = ctx.Args()[0]
-				config.Host = ctx.Args()[1]
-
-				return nil
+						return nil
+					},
+				},
 			},
 		},
 	}

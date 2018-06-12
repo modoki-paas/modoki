@@ -140,7 +140,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 	})
 
 	Action("download", func() {
-		Routing(GET("/download"))
+		Routing(GET("/download"), HEAD("/download"))
 		Description("Copy files from the container")
 		Params(func() {
 			Param("id", String, "ID or name")
@@ -197,6 +197,10 @@ var UploadPayload = Type("UploadPayload", func() {
 		Description("Allow for a existing directory to be replaced by a file")
 		Default(false)
 	})
+	Attribute("copyUIDGID", Boolean, func() {
+		Description("Copy all uid/gid information")
+		Default(false)
+	})
 
-	Required("id", "path", "data")
+	Required("id", "path", "data", "copyUIDGID")
 })
