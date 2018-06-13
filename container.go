@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"code.cloudfoundry.org/bytefmt"
+
 	"golang.org/x/net/websocket"
 
 	"github.com/k0kubun/pp"
@@ -134,8 +136,47 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			config.WorkingDir = *ctx.WorkingDir
 		}
 
-		hostConfig := &container.HostConfig{
-			Resources: container.Resources{},
+		cpuMaxUsage := 100
+		pair, err := c.Consul.Client.Get("modoki/cpu/max_usage")
+
+		if err == nil {
+			if c, err := strconv.Atoi(string(pair.Value)); err == nil {
+				cpuMaxUsage = c
+			}
+		}
+
+		var memMaxUsage int64
+		pair, err = c.Consul.Client.Get("modoki/memory/max_usage")
+
+		if err == nil {
+			if u, err := bytefmt.ToBytes(string(pair.Value)); err == nil {
+				memMaxUsage = int64(u)
+			}
+		}
+
+		var storageMaxSize string
+		pair, err = c.Consul.Client.Get("modoki/storage/max_usage")
+
+		if err == nil {
+			if _, err := bytefmt.ToBytes(string(pair.Value)); err == nil {
+				storageMaxSize = string(pair.Value)
+			}
+		}
+
+		hostConfig := &container.HostConfig{}
+
+		if cpuMaxUsage != 100 {
+			hostConfig.Resources.CPUPeriod = 100000
+			hostConfig.Resources.CPUQuota = int64(cpuMaxUsage)
+		}
+		if memMaxUsage != 0 {
+			hostConfig.Resources.Memory = int64(memMaxUsage)
+		}
+
+		if storageMaxSize != "" {
+			hostConfig.StorageOpt = map[string]string{
+				"size": storageMaxSize,
+			}
 		}
 
 		networkingConfig := &network.NetworkingConfig{}
