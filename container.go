@@ -136,12 +136,12 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			config.WorkingDir = *ctx.WorkingDir
 		}
 
-		cpuMaxUsage := 100
+		var cpuMaxUsage int64 = 100
 		pair, err := c.Consul.Client.Get("modoki/cpu/max_usage")
 
 		if err == nil {
-			if c, err := strconv.Atoi(string(pair.Value)); err == nil {
-				cpuMaxUsage = c
+			if c, err := strconv.Atoi(string(pair.Value)); err == nil && c > 0 && c <= 100 {
+				cpuMaxUsage = int64(c)
 			}
 		}
 
@@ -149,7 +149,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		pair, err = c.Consul.Client.Get("modoki/memory/max_usage")
 
 		if err == nil {
-			if u, err := bytefmt.ToBytes(string(pair.Value)); err == nil {
+			if u, err := bytefmt.ToBytes(string(pair.Value)); err == nil && u > 0 {
 				memMaxUsage = int64(u)
 			}
 		}
@@ -158,7 +158,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 		pair, err = c.Consul.Client.Get("modoki/storage/max_usage")
 
 		if err == nil {
-			if _, err := bytefmt.ToBytes(string(pair.Value)); err == nil {
+			if v, err := bytefmt.ToBytes(string(pair.Value)); err == nil && v > 0 {
 				storageMaxSize = string(pair.Value)
 			}
 		}
@@ -167,10 +167,10 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 
 		if cpuMaxUsage != 100 {
 			hostConfig.Resources.CPUPeriod = 100000
-			hostConfig.Resources.CPUQuota = int64(cpuMaxUsage)
+			hostConfig.Resources.CPUQuota = cpuMaxUsage * 1000
 		}
 		if memMaxUsage != 0 {
-			hostConfig.Resources.Memory = int64(memMaxUsage)
+			hostConfig.Resources.Memory = memMaxUsage
 		}
 
 		if storageMaxSize != "" {
