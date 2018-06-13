@@ -126,9 +126,10 @@ func main() {
 
 	app.Commands = []cli.Command{
 		cli.Command{
-			Name:      "create",
-			ArgsUsage: "[options] [iamge name] [commands...]",
-			Usage:     "Create a new container",
+			Name:           "create",
+			ArgsUsage:      "[options] [iamge name] [commands...]",
+			Usage:          "Create a new container",
+			SkipArgReorder: true,
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "name",

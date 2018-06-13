@@ -823,12 +823,6 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, cid str
 		return errors.Wrap(err, "Container Inspect Error")
 	}
 
-	n := "bridge"
-
-	if networkName != nil {
-		n = *networkName
-	}
-
 	var id int
 	if idStr, ok := j.Config.Labels[DockerLabelModokiID]; !ok {
 		return errors.New("This container is not maintained by modoki")
@@ -840,13 +834,27 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, cid str
 		}
 	}
 
+	if j.State.Error != "" {
+		if err := c.updateStatus(ctx, "Error", j.State.Error, id); err != nil {
+			return errors.Wrap(err, "DB Update error")
+		}
+	}
+
+	n := "bridge"
+
+	if networkName != nil { // command arguments
+		n = *networkName
+	}
+
 	addr := j.NetworkSettings.Networks[n].IPAddress
 
 	backendName := fmt.Sprintf(BackendFormat, id)
 
 	if addr == "" {
 		if err := c.Consul.DeleteBackend(backendName); err != nil {
-			return errors.Wrap(err, "Traefik Unregisteration Error")
+			if !strings.Contains(err.Error(), "Key not found") {
+				return errors.Wrap(err, "Traefik Unregisteration Error")
+			}
 		}
 	} else {
 		if err := c.Consul.NewBackend(backendName, ServerName, "http://"+addr); err != nil {
