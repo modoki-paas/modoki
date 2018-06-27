@@ -13,27 +13,20 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/bytefmt"
-
-	"golang.org/x/net/websocket"
-
-	"github.com/k0kubun/pp"
-
-	"github.com/docker/docker/api/types/filters"
-
-	"github.com/cs3238-tsuzu/modoki/consul_traefik"
-
-	"github.com/docker/docker/client"
-
-	"github.com/jmoiron/sqlx"
-
 	"github.com/cs3238-tsuzu/modoki/app"
+	"github.com/cs3238-tsuzu/modoki/consul_traefik"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
+	"github.com/docker/docker/client"
 	"github.com/docker/libkv/store"
 	"github.com/goadesign/goa"
+	"github.com/jmoiron/sqlx"
+	"github.com/k0kubun/pp"
 	"github.com/pkg/errors"
+	"golang.org/x/net/websocket"
 )
 
 // ContainerController implements the container resource.
@@ -701,7 +694,7 @@ func (c *ContainerController) Upload(ctx *app.UploadContainerContext) error {
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.Payload.ID, ctx.Payload.ID)
+	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Database Error")))
@@ -802,6 +795,67 @@ func (c *ContainerController) Logs(ctx *app.LogsContainerContext) error {
 	handler.ServeHTTP(ctx.ResponseWriter, ctx.Request)
 	return nil
 	// ContainerController_Logs: end_implement
+}
+
+// SetConfig runs the setConfig action.
+func (c *ContainerController) SetConfig(ctx *app.SetConfigContainerContext) error {
+	// ContainerController_SetConfig: start_implement
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	var setQuery []string
+	placeholders := []interface{}{uid, ctx.ID, ctx.ID}
+
+	if ctx.Payload.DefaultShell != nil {
+		setQuery = append(setQuery, "defaultShell=?")
+		placeholders = append(placeholders, *ctx.Payload.DefaultShell)
+	}
+
+	res, err := c.DB.Exec("UPDATE containers SET "+strings.Join(setQuery, " ")+" WHERE uid=? AND (id=? OR name=?)", placeholders...)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	if r, _ := res.RowsAffected(); r == 0 {
+		return ctx.NotFound()
+	}
+
+	return ctx.NoContent()
+
+	// ContainerController_SetConfig: end_implement
+}
+
+// GetConfig runs the getConfig action.
+func (c *ContainerController) GetConfig(ctx *app.GetConfigContainerContext) error {
+	// ContainerController_SetConfig: start_implement
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	rows, err := c.DB.Query("SELECT defaultShell FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	defer rows.Close()
+	rows.Next()
+
+	var config app.GoaContainerConfig
+	if err := rows.Scan(&config); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.OK(&config)
+	// ContainerController_SetConfig: end_implement
 }
 
 func (c *ContainerController) updateStatus(ctx context.Context, status, msg string, id int) error {

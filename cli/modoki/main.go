@@ -228,7 +228,7 @@ func main() {
 					return errors.New("ID or name is not specified")
 				}
 
-				resp, err := modokiClient.StartContainer(context.Background(), modoki.StartContainerPath(), ctx.Args()[0])
+				resp, err := modokiClient.StartContainer(context.Background(), modoki.StartContainerPath(ctx.Args()[0]))
 
 				if err != nil {
 					return err
@@ -259,7 +259,7 @@ func main() {
 					return errors.New("ID or name is not specified")
 				}
 
-				resp, err := modokiClient.StopContainer(context.Background(), modoki.StopContainerPath(), ctx.Args()[0])
+				resp, err := modokiClient.StopContainer(context.Background(), modoki.StopContainerPath(ctx.Args()[0]))
 
 				if err != nil {
 					return err
@@ -298,7 +298,7 @@ func main() {
 					return errors.New("ID or name is not specified")
 				}
 
-				resp, err := modokiClient.RemoveContainer(context.Background(), modoki.RemoveContainerPath(), ctx.Bool("force"), ctx.Args()[0])
+				resp, err := modokiClient.RemoveContainer(context.Background(), modoki.RemoveContainerPath(ctx.Args()[0]), ctx.Bool("force"))
 
 				if err != nil {
 					return err
@@ -335,7 +335,7 @@ func main() {
 					return errors.New("ID or name is not specified")
 				}
 
-				resp, err := modokiClient.InspectContainer(context.Background(), modoki.InspectContainerPath(), ctx.Args()[0])
+				resp, err := modokiClient.InspectContainer(context.Background(), modoki.InspectContainerPath(ctx.Args()[0]))
 
 				if err != nil {
 					return err
@@ -504,7 +504,7 @@ func main() {
 					modokiClient.Scheme = prevScheme
 				}()
 
-				conn, err := modokiLogsContainer(modokiClient, context.Background(), modoki.LogsContainerPath(), ctx.Args()[0], follow, since, &stderr, &stdout, tail, timestamps, until)
+				conn, err := modokiLogsContainer(modokiClient, context.Background(), modoki.LogsContainerPath(ctx.Args()[0]), follow, since, &stderr, &stdout, tail, timestamps, until)
 
 				if err != nil {
 					return err

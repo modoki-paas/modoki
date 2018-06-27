@@ -9,7 +9,7 @@ var _ = API("Modoki API", func() {
 	Title("Modoki API Documentation")
 	Scheme("http", "https")
 	Host("localhost:4434")
-	BasePath("/api/v1")
+	BasePath("/api/v2")
 	Security(JWT)
 })
 
@@ -59,7 +59,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 	})
 
 	Action("start", func() {
-		Routing(GET("/start"))
+		Routing(GET("/:id/start"))
 		Description("start a container")
 		Params(func() {
 			Param("id", String, "id or name")
@@ -72,7 +72,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 	})
 
 	Action("stop", func() {
-		Routing(GET("/stop"))
+		Routing(GET("/:id/stop"))
 		Description("stop a container")
 		Params(func() {
 			Param("id", String, "id or name")
@@ -85,7 +85,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 	})
 
 	Action("remove", func() {
-		Routing(GET("/remove"))
+		Routing(GET("/:id/remove"))
 		Description("remove a container")
 		Params(func() {
 			Param("id", String, "id or name")
@@ -106,7 +106,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 	})
 
 	Action("inspect", func() {
-		Routing(GET("/inspect"))
+		Routing(GET("/:id/inspect"))
 		Description("Return details of a container")
 
 		Params(func() {
@@ -127,10 +127,16 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		Response(InternalServerError, ErrorMedia)
 	})
 	Action("upload", func() {
-		Routing(POST("/upload"))
+		Routing(POST("/:id/upload"))
 		Description("Copy files to the container")
 		MultipartForm()
 		Payload(UploadPayload)
+
+		Params(func() {
+			Param("id", String, "ID or name")
+
+			Required("id")
+		})
 
 		Response(NoContent)
 		Response(NotFound, ErrorMedia)
@@ -140,7 +146,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 	})
 
 	Action("download", func() {
-		Routing(GET("/download"), HEAD("/download"))
+		Routing(GET("/:id/download"), HEAD("/download"))
 		Description("Copy files from the container")
 		Params(func() {
 			Param("id", String, "ID or name")
@@ -155,7 +161,7 @@ var _ = Resource("container", func() { // Defines the Operands resource
 	})
 
 	Action("logs", func() { // WebSocket API
-		Routing(GET("/logs"))
+		Routing(GET("/:id/logs"))
 		Scheme("ws")
 		Description("Get stdout and stderr logs from a container.")
 
@@ -187,10 +193,37 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		Response(NotFound, ErrorMedia)
 		Response(InternalServerError, ErrorMedia)
 	})
+
+	Action("getConfig", func() {
+		Routing(GET("/:id/config"))
+		Description("Get the config of a container")
+
+		Params(func() {
+			Param("id", String, "id or name")
+		})
+		Response(OK, ContainerConfigOK)
+		Response(NotFound)
+		Response(InternalServerError, ErrorMedia)
+	})
+
+	Action("setConfig", func() {
+		Routing(POST("/:id/config"))
+		Description("Change the config of a container")
+
+		Payload(ContainerConfig)
+		Params(func() {
+			Param("id", String, "id or name")
+
+			Required("id")
+		})
+
+		Response(NoContent)
+		Response(NotFound)
+		Response(InternalServerError, ErrorMedia)
+	})
 })
 
 var UploadPayload = Type("UploadPayload", func() {
-	Attribute("id", String, "ID or name")
 	Attribute("path", String, "Path in the container to save files")
 	Attribute("data", File, "File tar archive")
 	Attribute("allowOverwrite", Boolean, func() {
@@ -202,5 +235,5 @@ var UploadPayload = Type("UploadPayload", func() {
 		Default(false)
 	})
 
-	Required("id", "path", "data", "copyUIDGID")
+	Required("path", "data", "copyUIDGID")
 })

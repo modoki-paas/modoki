@@ -1,8 +1,7 @@
 package main
 
-const jwtKeyUID = "uid"
-
 const (
+	jwtKeyUID           = "uid"
 	TraefikFrontendName = "modoki"
 	TraefikBackendName  = "modoki_backend"
 
@@ -23,6 +22,7 @@ CREATE TABLE IF NOT EXISTS containers (
 	uid INT NOT NULL,
 	status VARCHAR(32),
 	message TEXT,
+	defaultShell TEXT,
 	PRIMARY KEY (id),
 	INDEX(cid, name, uid)
 );`

@@ -15,8 +15,8 @@ import (
 )
 
 // Copy files from the container
-func downloadContainerHEAD(ctx context.Context, c *modoki.Client, path string, id string, internalPath string) (*http.Response, error) {
-	req, err := newDownloadContainerRequestHEAD(ctx, c, path, id, internalPath)
+func downloadContainerHEAD(ctx context.Context, c *modoki.Client, path string, internalPath string) (*http.Response, error) {
+	req, err := newDownloadContainerRequestHEAD(ctx, c, path, internalPath)
 	if err != nil {
 		return nil, err
 	}
@@ -24,14 +24,13 @@ func downloadContainerHEAD(ctx context.Context, c *modoki.Client, path string, i
 }
 
 // newDownloadContainerRequestHEAD create the request corresponding to the download action endpoint of the container resource.
-func newDownloadContainerRequestHEAD(ctx context.Context, c *modoki.Client, path string, id string, internalPath string) (*http.Request, error) {
+func newDownloadContainerRequestHEAD(ctx context.Context, c *modoki.Client, path string, internalPath string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	values.Set("id", id)
 	values.Set("internalPath", internalPath)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("HEAD", u.String(), nil)
@@ -47,14 +46,13 @@ func newDownloadContainerRequestHEAD(ctx context.Context, c *modoki.Client, path
 }
 
 // Get stdout and stderr logs from a container.
-func modokiLogsContainer(c *modoki.Client, ctx context.Context, path string, id string, follow *bool, since *time.Time, stderr *bool, stdout *bool, tail *string, timestamps *bool, until *time.Time) (*websocket.Conn, error) {
+func modokiLogsContainer(c *modoki.Client, ctx context.Context, path string, follow *bool, since *time.Time, stderr *bool, stdout *bool, tail *string, timestamps *bool, until *time.Time) (*websocket.Conn, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "ws"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	values.Set("id", id)
 	if follow != nil {
 		tmp26 := strconv.FormatBool(*follow)
 		values.Set("follow", tmp26)
@@ -145,16 +143,6 @@ func newUploadContainerRequest(ctx context.Context, c *modoki.Client, path strin
 			return nil, err
 		}
 		if _, err := io.Copy(fw, reader); err != nil {
-			return nil, err
-		}
-	}
-	{
-		fw, err := w.CreateFormField("id")
-		if err != nil {
-			return nil, err
-		}
-		s := payload.ID
-		if _, err := fw.Write([]byte(s)); err != nil {
 			return nil, err
 		}
 	}

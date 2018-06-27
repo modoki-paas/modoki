@@ -49,7 +49,7 @@ func AuthtypeVironOK(t goatest.TInterface, ctx context.Context, service *goa.Ser
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/viron_authtype"),
+		Path: fmt.Sprintf("/api/v2/viron_authtype"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -122,7 +122,7 @@ func GetVironOK(t goatest.TInterface, ctx context.Context, service *goa.Service,
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/viron"),
+		Path: fmt.Sprintf("/api/v2/viron"),
 	}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -205,7 +205,7 @@ func SigninVironInternalServerError(t goatest.TInterface, ctx context.Context, s
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/signin"),
+		Path: fmt.Sprintf("/api/v2/signin"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -277,7 +277,7 @@ func SigninVironNoContent(t goatest.TInterface, ctx context.Context, service *go
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/signin"),
+		Path: fmt.Sprintf("/api/v2/signin"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {
@@ -349,7 +349,7 @@ func SigninVironUnauthorized(t goatest.TInterface, ctx context.Context, service 
 	// Setup request context
 	rw := httptest.NewRecorder()
 	u := &url.URL{
-		Path: fmt.Sprintf("/api/v1/signin"),
+		Path: fmt.Sprintf("/api/v2/signin"),
 	}
 	req, _err := http.NewRequest("POST", u.String(), nil)
 	if _err != nil {

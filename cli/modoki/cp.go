@@ -394,7 +394,7 @@ func splitCpArg(arg string) (container, path string) {
 }
 
 func modokiDownloadContainer(ctx context.Context, client *modoki.Client, id, from string) (io.ReadCloser, *types.ContainerPathStat, error) {
-	resp, err := client.DownloadContainer(context.Background(), modoki.DownloadContainerPath(), id, from)
+	resp, err := client.DownloadContainer(context.Background(), modoki.DownloadContainerPath(id), from)
 
 	if err != nil {
 		return nil, nil, err
@@ -422,7 +422,7 @@ func modokiDownloadContainer(ctx context.Context, client *modoki.Client, id, fro
 }
 
 func modokiStatPathContainer(ctx context.Context, client *modoki.Client, id, from string) (*types.ContainerPathStat, error) {
-	resp, err := downloadContainerHEAD(ctx, client, modoki.DownloadContainerPath(), id, from)
+	resp, err := downloadContainerHEAD(ctx, client, modoki.DownloadContainerPath(id), from)
 
 	if err != nil {
 		return nil, err
@@ -455,11 +455,10 @@ func modokiUploadContainer(ctx context.Context, client *modoki.Client, id, dstPa
 	payload := modoki.UploadPayload{
 		AllowOverwrite: false,
 		Data:           "", // Unnecessary
-		ID:             id,
 		Path:           dstPath,
 	}
 
-	resp, err := uploadContainer(ctx, client, modoki.UploadContainerPath(), &payload, "multipart/form-data", reader, "archive.tar")
+	resp, err := uploadContainer(ctx, client, modoki.UploadContainerPath(id), &payload, "multipart/form-data", reader, "archive.tar")
 
 	if err != nil {
 		return err

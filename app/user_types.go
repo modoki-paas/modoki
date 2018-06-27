@@ -17,6 +17,25 @@ import (
 	"unicode/utf8"
 )
 
+// containerConfig user type.
+type containerConfig struct {
+	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+}
+
+// Publicize creates ContainerConfig from containerConfig
+func (ut *containerConfig) Publicize() *ContainerConfig {
+	var pub ContainerConfig
+	if ut.DefaultShell != nil {
+		pub.DefaultShell = ut.DefaultShell
+	}
+	return &pub
+}
+
+// ContainerConfig user type.
+type ContainerConfig struct {
+	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+}
+
 // postPayload user type.
 type postPayload struct {
 	// contents
@@ -190,8 +209,6 @@ type uploadPayload struct {
 	CopyUIDGID *bool `form:"copyUIDGID,omitempty" json:"copyUIDGID,omitempty" xml:"copyUIDGID,omitempty"`
 	// File tar archive
 	Data *multipart.FileHeader `form:"data,omitempty" json:"data,omitempty" xml:"data,omitempty"`
-	// ID or name
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
 	// Path in the container to save files
 	Path *string `form:"path,omitempty" json:"path,omitempty" xml:"path,omitempty"`
 }
@@ -210,9 +227,6 @@ func (ut *uploadPayload) Finalize() {
 
 // Validate validates the uploadPayload type instance.
 func (ut *uploadPayload) Validate() (err error) {
-	if ut.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "id"))
-	}
 	if ut.Path == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "path"))
 	}
@@ -237,9 +251,6 @@ func (ut *uploadPayload) Publicize() *UploadPayload {
 	if ut.Data != nil {
 		pub.Data = ut.Data
 	}
-	if ut.ID != nil {
-		pub.ID = *ut.ID
-	}
 	if ut.Path != nil {
 		pub.Path = *ut.Path
 	}
@@ -254,17 +265,12 @@ type UploadPayload struct {
 	CopyUIDGID bool `form:"copyUIDGID" json:"copyUIDGID" xml:"copyUIDGID"`
 	// File tar archive
 	Data *multipart.FileHeader `form:"data" json:"data" xml:"data"`
-	// ID or name
-	ID string `form:"id" json:"id" xml:"id"`
 	// Path in the container to save files
 	Path string `form:"path" json:"path" xml:"path"`
 }
 
 // Validate validates the UploadPayload type instance.
 func (ut *UploadPayload) Validate() (err error) {
-	if ut.ID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "id"))
-	}
 	if ut.Path == "" {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "path"))
 	}

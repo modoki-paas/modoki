@@ -1,10 +1,29 @@
-basePath: /api/v1
+basePath: /api/v2
 consumes:
 - application/json
 - application/xml
 - application/gob
 - application/x-gob
 definitions:
+  ContainerConfig:
+    example:
+      defaultShell: Voluptatem autem.
+    properties:
+      defaultShell:
+        example: Voluptatem autem.
+        type: string
+    title: ContainerConfig
+    type: object
+  GoaContainerConfig:
+    description: GoaContainerConfig media type (default view)
+    example:
+      defaultShell: Eos aut rerum dolorem.
+    properties:
+      defaultShell:
+        example: Eos aut rerum dolorem.
+        type: string
+    title: 'Mediatype identifier: vpn.application/goa.container.config; view=default'
+    type: object
   GoaContainerCreateResults:
     description: The results of container creation (default view)
     example:
@@ -35,15 +54,15 @@ definitions:
     description: GoaContainerInspect media type (default view)
     example:
       args:
-      - Aut nobis saepe.
-      - Aut nobis saepe.
-      - Aut nobis saepe.
-      created: "2001-09-08T00:38:05Z"
-      id: 8.573946150583195e+18
-      image: Quas omnis tenetur ut laudantium.
-      imageID: Aut officia inventore consequatur ex et.
-      name: Quo aut.
-      path: Ex totam et dolores quae sapiente.
+      - Ipsam alias.
+      - Ipsam alias.
+      - Ipsam alias.
+      created: "1994-08-20T09:15:42Z"
+      id: 6.072454594864785e+18
+      image: Ut laudantium fugit aut officia.
+      imageID: Consequatur ex et nostrum.
+      name: Aut recusandae ex totam et dolores.
+      path: Sapiente animi enim sapiente.
       raw_state:
         dead: true
         exitCode: 9.010558457491618e+18
@@ -55,47 +74,46 @@ definitions:
         running: false
         startedAt: "1976-08-09T23:40:57Z"
         status: running
-      status: Created
+      status: Error
       volumes:
-      - Delectus libero non asperiores neque ut possimus.
-      - Delectus libero non asperiores neque ut possimus.
-      - Delectus libero non asperiores neque ut possimus.
+      - Asperiores neque ut possimus magni.
+      - Asperiores neque ut possimus magni.
     properties:
       args:
         description: The arguments to the command being run
         example:
-        - Aut nobis saepe.
-        - Aut nobis saepe.
-        - Aut nobis saepe.
+        - Ipsam alias.
+        - Ipsam alias.
+        - Ipsam alias.
         items:
-          example: Aut nobis saepe.
+          example: Ipsam alias.
           type: string
         type: array
       created:
         description: The time the container was created
-        example: "2001-09-08T00:38:05Z"
+        example: "1994-08-20T09:15:42Z"
         format: date-time
         type: string
       id:
         description: ID
-        example: 8.573946150583195e+18
+        example: 6.072454594864785e+18
         format: int64
         type: integer
       image:
         description: The name of the image to use when creating the container
-        example: Quas omnis tenetur ut laudantium.
+        example: Ut laudantium fugit aut officia.
         type: string
       imageID:
         description: The container's image ID
-        example: Aut officia inventore consequatur ex et.
+        example: Consequatur ex et nostrum.
         type: string
       name:
         description: Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
-        example: Quo aut.
+        example: Aut recusandae ex totam et dolores.
         type: string
       path:
         description: The path to the command being run
-        example: Ex totam et dolores quae sapiente.
+        example: Sapiente animi enim sapiente.
         type: string
       raw_state:
         $ref: '#/definitions/GoaContainerInspectRaw_state'
@@ -106,16 +124,15 @@ definitions:
         - Running
         - Stopped
         - Error
-        example: Created
+        example: Error
         type: string
       volumes:
         description: Paths to mount volumes in
         example:
-        - Delectus libero non asperiores neque ut possimus.
-        - Delectus libero non asperiores neque ut possimus.
-        - Delectus libero non asperiores neque ut possimus.
+        - Asperiores neque ut possimus magni.
+        - Asperiores neque ut possimus magni.
         items:
-          example: Delectus libero non asperiores neque ut possimus.
+          example: Asperiores neque ut possimus magni.
           type: string
         type: array
     required:
@@ -204,7 +221,7 @@ definitions:
   GoaContainerListEach:
     description: GoaContainerListEach media type (default view)
     example:
-      command: Beatae culpa quia nisi dolore ut nisi.
+      command: Culpa quia nisi dolore ut nisi.
       created: "2007-03-31T16:57:21Z"
       id: 4.875770818045676e+18
       image: Odio quia voluptate explicabo.
@@ -216,7 +233,7 @@ definitions:
     properties:
       command:
         description: Command to run when starting the container
-        example: Beatae culpa quia nisi dolore ut nisi.
+        example: Culpa quia nisi dolore ut nisi.
         type: string
       created:
         description: The time the container was created
@@ -272,7 +289,7 @@ definitions:
     description: GoaContainerListEachCollection is the media type for an array of
       GoaContainerListEach (default view)
     example:
-    - command: Beatae culpa quia nisi dolore ut nisi.
+    - command: Culpa quia nisi dolore ut nisi.
       created: "2007-03-31T16:57:21Z"
       id: 4.875770818045676e+18
       image: Odio quia voluptate explicabo.
@@ -281,7 +298,7 @@ definitions:
       status: Created
       volumes:
       - Et a dicta fugit qui quis.
-    - command: Beatae culpa quia nisi dolore ut nisi.
+    - command: Culpa quia nisi dolore ut nisi.
       created: "2007-03-31T16:57:21Z"
       id: 4.875770818045676e+18
       image: Odio quia voluptate explicabo.
@@ -290,7 +307,7 @@ definitions:
       status: Created
       volumes:
       - Et a dicta fugit qui quis.
-    - command: Beatae culpa quia nisi dolore ut nisi.
+    - command: Culpa quia nisi dolore ut nisi.
       created: "2007-03-31T16:57:21Z"
       id: 4.875770818045676e+18
       image: Odio quia voluptate explicabo.
@@ -726,6 +743,357 @@ info:
   title: Modoki API Documentation
   version: ""
 paths:
+  /container/{id}/config:
+    get:
+      description: Get the config of a container
+      operationId: container#getConfig
+      parameters:
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.container.config
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaContainerConfig'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: getConfig container
+      tags:
+      - container
+    post:
+      description: Change the config of a container
+      operationId: container#setConfig
+      parameters:
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/ContainerConfig'
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: setConfig container
+      tags:
+      - container
+  /container/{id}/download:
+    get:
+      description: Copy files from the container
+      operationId: container#download
+      parameters:
+      - description: ID or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Path in the container to save files
+        in: query
+        name: internalPath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      - application/vnd.goa.error
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: download container
+      tags:
+      - container
+  /container/{id}/inspect:
+    get:
+      description: Return details of a container
+      operationId: container#inspect
+      parameters:
+      - description: ID or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.container.inspect
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaContainerInspect'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: inspect container
+      tags:
+      - container
+  /container/{id}/logs:
+    get:
+      description: Get stdout and stderr logs from a container.
+      operationId: container#logs
+      parameters:
+      - default: false
+        in: query
+        name: follow
+        required: false
+        type: boolean
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: since
+        required: false
+        type: string
+      - default: false
+        in: query
+        name: stderr
+        required: false
+        type: boolean
+      - default: false
+        in: query
+        name: stdout
+        required: false
+        type: boolean
+      - default: all
+        in: query
+        name: tail
+        required: false
+        type: string
+      - default: false
+        in: query
+        name: timestamps
+        required: false
+        type: boolean
+      - in: query
+        name: until
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "101":
+          description: Switching Protocols
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - ws
+      security:
+      - jwt: []
+      summary: logs container
+      tags:
+      - container
+  /container/{id}/remove:
+    get:
+      description: remove a container
+      operationId: container#remove
+      parameters:
+      - default: false
+        description: If the container is running, kill it before removing it.
+        in: query
+        name: force
+        required: true
+        type: boolean
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "409":
+          description: You cannot remove a running container
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: remove container
+      tags:
+      - container
+  /container/{id}/start:
+    get:
+      description: start a container
+      operationId: container#start
+      parameters:
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: start container
+      tags:
+      - container
+  /container/{id}/stop:
+    get:
+      description: stop a container
+      operationId: container#stop
+      parameters:
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: stop container
+      tags:
+      - container
+  /container/{id}/upload:
+    post:
+      description: Copy files to the container
+      operationId: container#upload
+      parameters:
+      - description: ID or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - default: false
+        description: Allow for a existing directory to be replaced by a file
+        in: formData
+        name: allowOverwrite
+        required: false
+        type: boolean
+      - default: false
+        description: Copy all uid/gid information
+        in: formData
+        name: copyUIDGID
+        required: true
+        type: boolean
+      - description: File tar archive
+        in: formData
+        name: data
+        required: true
+        type: file
+      - description: Path in the container to save files
+        in: formData
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "413":
+          description: Request Entity Too Large
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: upload container
+      tags:
+      - container
   /container/create:
     get:
       description: create a new container
@@ -816,42 +1184,6 @@ paths:
       tags:
       - container
   /container/download:
-    get:
-      description: Copy files from the container
-      operationId: container#download
-      parameters:
-      - description: ID or name
-        in: query
-        name: id
-        required: true
-        type: string
-      - description: Path in the container to save files
-        in: query
-        name: internalPath
-        required: true
-        type: string
-      produces:
-      - application/octet-stream
-      - application/vnd.goa.error
-      responses:
-        "200":
-          description: OK
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      - https
-      security:
-      - jwt: []
-      summary: download container
-      tags:
-      - container
     head:
       description: Copy files from the container
       operationId: container#download#1
@@ -859,7 +1191,7 @@ paths:
       - description: ID or name
         in: query
         name: id
-        required: true
+        required: false
         type: string
       - description: Path in the container to save files
         in: query
@@ -886,38 +1218,6 @@ paths:
       security:
       - jwt: []
       summary: download container
-      tags:
-      - container
-  /container/inspect:
-    get:
-      description: Return details of a container
-      operationId: container#inspect
-      parameters:
-      - description: ID or name
-        in: query
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/vnd.goa.error
-      - vpn.application/goa.container.inspect
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/GoaContainerInspect'
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      - https
-      security:
-      - jwt: []
-      summary: inspect container
       tags:
       - container
   /container/list:
@@ -942,223 +1242,6 @@ paths:
       security:
       - jwt: []
       summary: list container
-      tags:
-      - container
-  /container/logs:
-    get:
-      description: Get stdout and stderr logs from a container.
-      operationId: container#logs
-      parameters:
-      - default: false
-        in: query
-        name: follow
-        required: false
-        type: boolean
-      - description: id or name
-        in: query
-        name: id
-        required: true
-        type: string
-      - in: query
-        name: since
-        required: false
-        type: string
-      - default: false
-        in: query
-        name: stderr
-        required: false
-        type: boolean
-      - default: false
-        in: query
-        name: stdout
-        required: false
-        type: boolean
-      - default: all
-        in: query
-        name: tail
-        required: false
-        type: string
-      - default: false
-        in: query
-        name: timestamps
-        required: false
-        type: boolean
-      - in: query
-        name: until
-        required: false
-        type: string
-      produces:
-      - application/vnd.goa.error
-      responses:
-        "101":
-          description: Switching Protocols
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - ws
-      security:
-      - jwt: []
-      summary: logs container
-      tags:
-      - container
-  /container/remove:
-    get:
-      description: remove a container
-      operationId: container#remove
-      parameters:
-      - default: false
-        description: If the container is running, kill it before removing it.
-        in: query
-        name: force
-        required: true
-        type: boolean
-      - description: id or name
-        in: query
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/vnd.goa.error
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-        "409":
-          description: You cannot remove a running container
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      - https
-      security:
-      - jwt: []
-      summary: remove container
-      tags:
-      - container
-  /container/start:
-    get:
-      description: start a container
-      operationId: container#start
-      parameters:
-      - description: id or name
-        in: query
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/vnd.goa.error
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      - https
-      security:
-      - jwt: []
-      summary: start container
-      tags:
-      - container
-  /container/stop:
-    get:
-      description: stop a container
-      operationId: container#stop
-      parameters:
-      - description: id or name
-        in: query
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/vnd.goa.error
-      responses:
-        "204":
-          description: No Content
-        "404":
-          description: Not Found
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      - https
-      security:
-      - jwt: []
-      summary: stop container
-      tags:
-      - container
-  /container/upload:
-    post:
-      description: Copy files to the container
-      operationId: container#upload
-      parameters:
-      - default: false
-        description: Allow for a existing directory to be replaced by a file
-        in: formData
-        name: allowOverwrite
-        required: false
-        type: boolean
-      - default: false
-        description: Copy all uid/gid information
-        in: formData
-        name: copyUIDGID
-        required: true
-        type: boolean
-      - description: File tar archive
-        in: formData
-        name: data
-        required: true
-        type: file
-      - description: ID or name
-        in: formData
-        name: id
-        required: true
-        type: string
-      - description: Path in the container to save files
-        in: formData
-        name: path
-        required: true
-        type: string
-      produces:
-      - application/vnd.goa.error
-      responses:
-        "204":
-          description: No Content
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/error'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/error'
-        "413":
-          description: Request Entity Too Large
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      - https
-      security:
-      - jwt: []
-      summary: upload container
       tags:
       - container
   /signin:

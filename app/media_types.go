@@ -291,6 +291,13 @@ func (mt *GoaContainerInspectRawState) Validate() (err error) {
 	return
 }
 
+// GoaContainerConfig media type (default view)
+//
+// Identifier: vpn.application/goa.container.config; view=default
+type GoaContainerConfig struct {
+	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+}
+
 // GoaContainerDownloadResult media type (default view)
 //
 // Identifier: vpn.application/goa.container.download.result; view=default

@@ -362,6 +362,20 @@ func (c *Client) DecodeGoaContainerInspectRawState(resp *http.Response) (*GoaCon
 	return &decoded, err
 }
 
+// GoaContainerConfig media type (default view)
+//
+// Identifier: vpn.application/goa.container.config; view=default
+type GoaContainerConfig struct {
+	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+}
+
+// DecodeGoaContainerConfig decodes the GoaContainerConfig instance encoded in resp body.
+func (c *Client) DecodeGoaContainerConfig(resp *http.Response) (*GoaContainerConfig, error) {
+	var decoded GoaContainerConfig
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // GoaContainerDownloadResult media type (default view)
 //
 // Identifier: vpn.application/goa.container.download.result; view=default

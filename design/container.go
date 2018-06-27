@@ -122,3 +122,18 @@ var ContainerDownloadOK = MediaType("vpn.application/goa.container.download.resu
 		Attribute("file")
 	})
 })
+
+var ContainerConfig = Type("ContainerConfig", func() {
+	Attribute("defaultShell", String)
+})
+
+var ContainerConfigOK = MediaType("vpn.application/goa.container.config", func() {
+	Reference(ContainerConfig)
+	Attributes(func() {
+		Attribute("defaultShell")
+	})
+
+	View("default", func() {
+		Attribute("defaultShell")
+	})
+})

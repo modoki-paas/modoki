@@ -12,12 +12,11 @@ package app
 
 import (
 	"context"
+	"github.com/goadesign/goa"
 	"net/http"
 	"strconv"
 	"time"
 	"unicode/utf8"
-
-	"github.com/goadesign/goa"
 )
 
 // CreateContainerContext provides the container create action context.
@@ -154,9 +153,7 @@ func NewDownloadContainerContext(ctx context.Context, r *http.Request, service *
 	req.Request = r
 	rctx := DownloadContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
-	if len(paramID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("id"))
-	} else {
+	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
 	}
@@ -196,6 +193,53 @@ func (ctx *DownloadContainerContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// GetConfigContainerContext provides the container getConfig action context.
+type GetConfigContainerContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewGetConfigContainerContext parses the incoming request URL and body, performs validations and creates the
+// context used by the container controller getConfig action.
+func NewGetConfigContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetConfigContainerContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetConfigContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetConfigContainerContext) OK(r *GoaContainerConfig) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.config")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *GetConfigContainerContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetConfigContainerContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // InspectContainerContext provides the container inspect action context.
 type InspectContainerContext struct {
 	context.Context
@@ -214,9 +258,7 @@ func NewInspectContainerContext(ctx context.Context, r *http.Request, service *g
 	req.Request = r
 	rctx := InspectContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
-	if len(paramID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("id"))
-	} else {
+	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
 	}
@@ -319,9 +361,7 @@ func NewLogsContainerContext(ctx context.Context, r *http.Request, service *goa.
 		}
 	}
 	paramID := req.Params["id"]
-	if len(paramID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("id"))
-	} else {
+	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
 	}
@@ -434,9 +474,7 @@ func NewRemoveContainerContext(ctx context.Context, r *http.Request, service *go
 		}
 	}
 	paramID := req.Params["id"]
-	if len(paramID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("id"))
-	} else {
+	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
 	}
@@ -469,6 +507,52 @@ func (ctx *RemoveContainerContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// SetConfigContainerContext provides the container setConfig action context.
+type SetConfigContainerContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID      string
+	Payload *ContainerConfig
+}
+
+// NewSetConfigContainerContext parses the incoming request URL and body, performs validations and creates the
+// context used by the container controller setConfig action.
+func NewSetConfigContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetConfigContainerContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := SetConfigContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *SetConfigContainerContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *SetConfigContainerContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *SetConfigContainerContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // StartContainerContext provides the container start action context.
 type StartContainerContext struct {
 	context.Context
@@ -487,9 +571,7 @@ func NewStartContainerContext(ctx context.Context, r *http.Request, service *goa
 	req.Request = r
 	rctx := StartContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
-	if len(paramID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("id"))
-	} else {
+	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
 	}
@@ -534,9 +616,7 @@ func NewStopContainerContext(ctx context.Context, r *http.Request, service *goa.
 	req.Request = r
 	rctx := StopContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
-	if len(paramID) == 0 {
-		err = goa.MergeErrors(err, goa.MissingParamError("id"))
-	} else {
+	if len(paramID) > 0 {
 		rawID := paramID[0]
 		rctx.ID = rawID
 	}
@@ -568,6 +648,7 @@ type UploadContainerContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
+	ID      string
 	Payload *UploadPayload
 }
 
@@ -580,6 +661,11 @@ func NewUploadContainerContext(ctx context.Context, r *http.Request, service *go
 	req := goa.ContextRequest(ctx)
 	req.Request = r
 	rctx := UploadContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
 	return &rctx, err
 }
 

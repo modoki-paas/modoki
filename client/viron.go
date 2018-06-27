@@ -21,7 +21,7 @@ import (
 // AuthtypeVironPath computes a request path to the authtype action of viron.
 func AuthtypeVironPath() string {
 
-	return fmt.Sprintf("/api/v1/viron_authtype")
+	return fmt.Sprintf("/api/v2/viron_authtype")
 }
 
 // Get viron authtype
@@ -50,7 +50,7 @@ func (c *Client) NewAuthtypeVironRequest(ctx context.Context, path string) (*htt
 // GetVironPath computes a request path to the get action of viron.
 func GetVironPath() string {
 
-	return fmt.Sprintf("/api/v1/viron")
+	return fmt.Sprintf("/api/v2/viron")
 }
 
 // Get viron menu
@@ -84,7 +84,7 @@ func (c *Client) NewGetVironRequest(ctx context.Context, path string) (*http.Req
 // SigninVironPath computes a request path to the signin action of viron.
 func SigninVironPath() string {
 
-	return fmt.Sprintf("/api/v1/signin")
+	return fmt.Sprintf("/api/v2/signin")
 }
 
 // Creates a valid JWT

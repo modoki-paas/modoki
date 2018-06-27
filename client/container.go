@@ -28,7 +28,7 @@ import (
 // CreateContainerPath computes a request path to the create action of container.
 func CreateContainerPath() string {
 
-	return fmt.Sprintf("/api/v1/container/create")
+	return fmt.Sprintf("/api/v2/container/create")
 }
 
 // create a new container
@@ -51,24 +51,24 @@ func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, ima
 	values.Set("image", image)
 	values.Set("name", name)
 	for _, p := range command {
-		tmp21 := p
-		values.Add("command", tmp21)
+		tmp23 := p
+		values.Add("command", tmp23)
 	}
 	for _, p := range entrypoint {
-		tmp22 := p
-		values.Add("entrypoint", tmp22)
+		tmp24 := p
+		values.Add("entrypoint", tmp24)
 	}
 	for _, p := range env {
-		tmp23 := p
-		values.Add("env", tmp23)
+		tmp25 := p
+		values.Add("env", tmp25)
 	}
 	if sslRedirect != nil {
-		tmp24 := strconv.FormatBool(*sslRedirect)
-		values.Set("sslRedirect", tmp24)
+		tmp26 := strconv.FormatBool(*sslRedirect)
+		values.Set("sslRedirect", tmp26)
 	}
 	for _, p := range volumes {
-		tmp25 := p
-		values.Add("volumes", tmp25)
+		tmp27 := p
+		values.Add("volumes", tmp27)
 	}
 	if workingDir != nil {
 		values.Set("workingDir", *workingDir)
@@ -87,20 +87,21 @@ func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, ima
 }
 
 // DownloadContainerPath computes a request path to the download action of container.
-func DownloadContainerPath() string {
+func DownloadContainerPath(id string) string {
+	param0 := id
 
-	return fmt.Sprintf("/api/v1/container/download")
+	return fmt.Sprintf("/api/v2/container/%s/download", param0)
 }
 
 // DownloadContainerPath2 computes a request path to the download action of container.
 func DownloadContainerPath2() string {
 
-	return fmt.Sprintf("/api/v1/container/download")
+	return fmt.Sprintf("/api/v2/container/download")
 }
 
 // Copy files from the container
-func (c *Client) DownloadContainer(ctx context.Context, path string, id string, internalPath string) (*http.Response, error) {
-	req, err := c.NewDownloadContainerRequest(ctx, path, id, internalPath)
+func (c *Client) DownloadContainer(ctx context.Context, path string, internalPath string) (*http.Response, error) {
+	req, err := c.NewDownloadContainerRequest(ctx, path, internalPath)
 	if err != nil {
 		return nil, err
 	}
@@ -108,14 +109,13 @@ func (c *Client) DownloadContainer(ctx context.Context, path string, id string, 
 }
 
 // NewDownloadContainerRequest create the request corresponding to the download action endpoint of the container resource.
-func (c *Client) NewDownloadContainerRequest(ctx context.Context, path string, id string, internalPath string) (*http.Request, error) {
+func (c *Client) NewDownloadContainerRequest(ctx context.Context, path string, internalPath string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	values.Set("id", id)
 	values.Set("internalPath", internalPath)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
@@ -130,15 +130,51 @@ func (c *Client) NewDownloadContainerRequest(ctx context.Context, path string, i
 	return req, nil
 }
 
-// InspectContainerPath computes a request path to the inspect action of container.
-func InspectContainerPath() string {
+// GetConfigContainerPath computes a request path to the getConfig action of container.
+func GetConfigContainerPath(id string) string {
+	param0 := id
 
-	return fmt.Sprintf("/api/v1/container/inspect")
+	return fmt.Sprintf("/api/v2/container/%s/config", param0)
+}
+
+// Get the config of a container
+func (c *Client) GetConfigContainer(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewGetConfigContainerRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewGetConfigContainerRequest create the request corresponding to the getConfig action endpoint of the container resource.
+func (c *Client) NewGetConfigContainerRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "https"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// InspectContainerPath computes a request path to the inspect action of container.
+func InspectContainerPath(id string) string {
+	param0 := id
+
+	return fmt.Sprintf("/api/v2/container/%s/inspect", param0)
 }
 
 // Return details of a container
-func (c *Client) InspectContainer(ctx context.Context, path string, id string) (*http.Response, error) {
-	req, err := c.NewInspectContainerRequest(ctx, path, id)
+func (c *Client) InspectContainer(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewInspectContainerRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -146,15 +182,12 @@ func (c *Client) InspectContainer(ctx context.Context, path string, id string) (
 }
 
 // NewInspectContainerRequest create the request corresponding to the inspect action endpoint of the container resource.
-func (c *Client) NewInspectContainerRequest(ctx context.Context, path string, id string) (*http.Request, error) {
+func (c *Client) NewInspectContainerRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("id", id)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -170,7 +203,7 @@ func (c *Client) NewInspectContainerRequest(ctx context.Context, path string, id
 // ListContainerPath computes a request path to the list action of container.
 func ListContainerPath() string {
 
-	return fmt.Sprintf("/api/v1/container/list")
+	return fmt.Sprintf("/api/v2/container/list")
 }
 
 // Return a list of containers
@@ -202,46 +235,46 @@ func (c *Client) NewListContainerRequest(ctx context.Context, path string) (*htt
 }
 
 // LogsContainerPath computes a request path to the logs action of container.
-func LogsContainerPath() string {
+func LogsContainerPath(id string) string {
+	param0 := id
 
-	return fmt.Sprintf("/api/v1/container/logs")
+	return fmt.Sprintf("/api/v2/container/%s/logs", param0)
 }
 
 // Get stdout and stderr logs from a container.
-func (c *Client) LogsContainer(ctx context.Context, path string, id string, follow *bool, since *time.Time, stderr *bool, stdout *bool, tail *string, timestamps *bool, until *time.Time) (*websocket.Conn, error) {
+func (c *Client) LogsContainer(ctx context.Context, path string, follow *bool, since *time.Time, stderr *bool, stdout *bool, tail *string, timestamps *bool, until *time.Time) (*websocket.Conn, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "ws"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	values.Set("id", id)
 	if follow != nil {
-		tmp26 := strconv.FormatBool(*follow)
-		values.Set("follow", tmp26)
+		tmp28 := strconv.FormatBool(*follow)
+		values.Set("follow", tmp28)
 	}
 	if since != nil {
-		tmp27 := since.Format(time.RFC3339)
-		values.Set("since", tmp27)
+		tmp29 := since.Format(time.RFC3339)
+		values.Set("since", tmp29)
 	}
 	if stderr != nil {
-		tmp28 := strconv.FormatBool(*stderr)
-		values.Set("stderr", tmp28)
+		tmp30 := strconv.FormatBool(*stderr)
+		values.Set("stderr", tmp30)
 	}
 	if stdout != nil {
-		tmp29 := strconv.FormatBool(*stdout)
-		values.Set("stdout", tmp29)
+		tmp31 := strconv.FormatBool(*stdout)
+		values.Set("stdout", tmp31)
 	}
 	if tail != nil {
 		values.Set("tail", *tail)
 	}
 	if timestamps != nil {
-		tmp30 := strconv.FormatBool(*timestamps)
-		values.Set("timestamps", tmp30)
+		tmp32 := strconv.FormatBool(*timestamps)
+		values.Set("timestamps", tmp32)
 	}
 	if until != nil {
-		tmp31 := until.Format(time.RFC3339)
-		values.Set("until", tmp31)
+		tmp33 := until.Format(time.RFC3339)
+		values.Set("until", tmp33)
 	}
 	u.RawQuery = values.Encode()
 	url_ := u.String()
@@ -253,14 +286,15 @@ func (c *Client) LogsContainer(ctx context.Context, path string, id string, foll
 }
 
 // RemoveContainerPath computes a request path to the remove action of container.
-func RemoveContainerPath() string {
+func RemoveContainerPath(id string) string {
+	param0 := id
 
-	return fmt.Sprintf("/api/v1/container/remove")
+	return fmt.Sprintf("/api/v2/container/%s/remove", param0)
 }
 
 // remove a container
-func (c *Client) RemoveContainer(ctx context.Context, path string, force bool, id string) (*http.Response, error) {
-	req, err := c.NewRemoveContainerRequest(ctx, path, force, id)
+func (c *Client) RemoveContainer(ctx context.Context, path string, force bool) (*http.Response, error) {
+	req, err := c.NewRemoveContainerRequest(ctx, path, force)
 	if err != nil {
 		return nil, err
 	}
@@ -268,16 +302,15 @@ func (c *Client) RemoveContainer(ctx context.Context, path string, force bool, i
 }
 
 // NewRemoveContainerRequest create the request corresponding to the remove action endpoint of the container resource.
-func (c *Client) NewRemoveContainerRequest(ctx context.Context, path string, force bool, id string) (*http.Request, error) {
+func (c *Client) NewRemoveContainerRequest(ctx context.Context, path string, force bool) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	tmp32 := strconv.FormatBool(force)
-	values.Set("force", tmp32)
-	values.Set("id", id)
+	tmp34 := strconv.FormatBool(force)
+	values.Set("force", tmp34)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
@@ -291,15 +324,65 @@ func (c *Client) NewRemoveContainerRequest(ctx context.Context, path string, for
 	return req, nil
 }
 
-// StartContainerPath computes a request path to the start action of container.
-func StartContainerPath() string {
+// SetConfigContainerPath computes a request path to the setConfig action of container.
+func SetConfigContainerPath(id string) string {
+	param0 := id
 
-	return fmt.Sprintf("/api/v1/container/start")
+	return fmt.Sprintf("/api/v2/container/%s/config", param0)
+}
+
+// Change the config of a container
+func (c *Client) SetConfigContainer(ctx context.Context, path string, payload *ContainerConfig, contentType string) (*http.Response, error) {
+	req, err := c.NewSetConfigContainerRequest(ctx, path, payload, contentType)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewSetConfigContainerRequest create the request corresponding to the setConfig action endpoint of the container resource.
+func (c *Client) NewSetConfigContainerRequest(ctx context.Context, path string, payload *ContainerConfig, contentType string) (*http.Request, error) {
+	var body bytes.Buffer
+	if contentType == "" {
+		contentType = "*/*" // Use default encoder
+	}
+	err := c.Encoder.Encode(payload, &body, contentType)
+	if err != nil {
+		return nil, fmt.Errorf("failed to encode body: %s", err)
+	}
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "https"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("POST", u.String(), &body)
+	if err != nil {
+		return nil, err
+	}
+	header := req.Header
+	if contentType == "*/*" {
+		header.Set("Content-Type", "application/json")
+	} else {
+		header.Set("Content-Type", contentType)
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
+// StartContainerPath computes a request path to the start action of container.
+func StartContainerPath(id string) string {
+	param0 := id
+
+	return fmt.Sprintf("/api/v2/container/%s/start", param0)
 }
 
 // start a container
-func (c *Client) StartContainer(ctx context.Context, path string, id string) (*http.Response, error) {
-	req, err := c.NewStartContainerRequest(ctx, path, id)
+func (c *Client) StartContainer(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewStartContainerRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -307,15 +390,12 @@ func (c *Client) StartContainer(ctx context.Context, path string, id string) (*h
 }
 
 // NewStartContainerRequest create the request corresponding to the start action endpoint of the container resource.
-func (c *Client) NewStartContainerRequest(ctx context.Context, path string, id string) (*http.Request, error) {
+func (c *Client) NewStartContainerRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("id", id)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -329,14 +409,15 @@ func (c *Client) NewStartContainerRequest(ctx context.Context, path string, id s
 }
 
 // StopContainerPath computes a request path to the stop action of container.
-func StopContainerPath() string {
+func StopContainerPath(id string) string {
+	param0 := id
 
-	return fmt.Sprintf("/api/v1/container/stop")
+	return fmt.Sprintf("/api/v2/container/%s/stop", param0)
 }
 
 // stop a container
-func (c *Client) StopContainer(ctx context.Context, path string, id string) (*http.Response, error) {
-	req, err := c.NewStopContainerRequest(ctx, path, id)
+func (c *Client) StopContainer(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewStopContainerRequest(ctx, path)
 	if err != nil {
 		return nil, err
 	}
@@ -344,15 +425,12 @@ func (c *Client) StopContainer(ctx context.Context, path string, id string) (*ht
 }
 
 // NewStopContainerRequest create the request corresponding to the stop action endpoint of the container resource.
-func (c *Client) NewStopContainerRequest(ctx context.Context, path string, id string) (*http.Request, error) {
+func (c *Client) NewStopContainerRequest(ctx context.Context, path string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	values := u.Query()
-	values.Set("id", id)
-	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, err
@@ -366,9 +444,10 @@ func (c *Client) NewStopContainerRequest(ctx context.Context, path string, id st
 }
 
 // UploadContainerPath computes a request path to the upload action of container.
-func UploadContainerPath() string {
+func UploadContainerPath(id string) string {
+	param0 := id
 
-	return fmt.Sprintf("/api/v1/container/upload")
+	return fmt.Sprintf("/api/v2/container/%s/upload", param0)
 }
 
 // Copy files to the container
@@ -416,16 +495,6 @@ func (c *Client) NewUploadContainerRequest(ctx context.Context, path string, pay
 		}
 		defer fh.Close()
 		if _, err := io.Copy(fw, fh); err != nil {
-			return nil, err
-		}
-	}
-	{
-		fw, err := w.CreateFormField("id")
-		if err != nil {
-			return nil, err
-		}
-		s := payload.ID
-		if _, err := fw.Write([]byte(s)); err != nil {
 			return nil, err
 		}
 	}
