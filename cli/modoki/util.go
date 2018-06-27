@@ -37,6 +37,10 @@ func newJWTSigner(key string) goaclient.Signer {
 
 }
 
+func stringPtr(s string) *string {
+	return &s
+}
+
 func createTarArchive(src string) (string, error) {
 	if _, err := os.Stat(src); err != nil {
 		return "", err
