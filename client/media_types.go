@@ -11,10 +11,12 @@
 package client
 
 import (
-	"github.com/goadesign/goa"
+	"mime/multipart"
 	"net/http"
 	"time"
 	"unicode/utf8"
+
+	"github.com/goadesign/goa"
 )
 
 // DecodeErrorResponse decodes the ErrorResponse instance encoded in resp body.

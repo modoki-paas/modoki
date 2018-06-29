@@ -107,5 +107,4 @@ var _ = Resource("user", func() {
 		Response(NotFound)
 		Response(InternalServerError, ErrorMedia)
 	})
-
 })
