@@ -63,7 +63,6 @@ services:
             - --consul=consul:8500
             - --docker-api=v1.37
             - --traefikAddr=http://modoki
-            - --jwtkey=/usr/local/modoki/cred/jwt.key
             - --jwtpub=/usr/local/modoki/cred/jwt.key.pub
             - --net=modoki_paas-bridge
 
