@@ -355,3 +355,25 @@ func (c *Client) DecodeGoaUserConfig(resp *http.Response) (*GoaUserConfig, error
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }
+
+// GoaUserDefaultshell media type (default view)
+//
+// Identifier: vpn.application/goa.user.defaultshell; view=default
+type GoaUserDefaultshell struct {
+	DefaultShell string `form:"defaultShell" json:"defaultShell" xml:"defaultShell"`
+}
+
+// Validate validates the GoaUserDefaultshell media type instance.
+func (mt *GoaUserDefaultshell) Validate() (err error) {
+	if mt.DefaultShell == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "defaultShell"))
+	}
+	return
+}
+
+// DecodeGoaUserDefaultshell decodes the GoaUserDefaultshell instance encoded in resp body.
+func (c *Client) DecodeGoaUserDefaultshell(resp *http.Response) (*GoaUserDefaultshell, error) {
+	var decoded GoaUserDefaultshell
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}

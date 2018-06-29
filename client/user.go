@@ -100,6 +100,40 @@ func (c *Client) NewGetConfigUserRequest(ctx context.Context, path string) (*htt
 	return req, nil
 }
 
+// GetDefaultShellUserPath computes a request path to the getDefaultShell action of user.
+func GetDefaultShellUserPath() string {
+
+	return fmt.Sprintf("/api/v2/user/config/defaultShell")
+}
+
+// GetDefaultShellUser makes a request to the getDefaultShell action endpoint of the user resource
+func (c *Client) GetDefaultShellUser(ctx context.Context, path string) (*http.Response, error) {
+	req, err := c.NewGetDefaultShellUserRequest(ctx, path)
+	if err != nil {
+		return nil, err
+	}
+	return c.Client.Do(ctx, req)
+}
+
+// NewGetDefaultShellUserRequest create the request corresponding to the getDefaultShell action endpoint of the user resource.
+func (c *Client) NewGetDefaultShellUserRequest(ctx context.Context, path string) (*http.Request, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "https"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	if c.JWTSigner != nil {
+		if err := c.JWTSigner.Sign(req); err != nil {
+			return nil, err
+		}
+	}
+	return req, nil
+}
+
 // ListAuthorizedKeysUserPath computes a request path to the listAuthorizedKeys action of user.
 func ListAuthorizedKeysUserPath() string {
 
@@ -222,45 +256,34 @@ func (c *Client) NewSetAuthorizedKeysUserRequest(ctx context.Context, path strin
 	return req, nil
 }
 
-// SetConfigUserPath computes a request path to the setConfig action of user.
-func SetConfigUserPath() string {
+// SetDefaultShellUserPath computes a request path to the setDefaultShell action of user.
+func SetDefaultShellUserPath() string {
 
-	return fmt.Sprintf("/api/v2/user/config")
+	return fmt.Sprintf("/api/v2/user/config/defaultShell")
 }
 
-// SetConfigUser makes a request to the setConfig action endpoint of the user resource
-func (c *Client) SetConfigUser(ctx context.Context, path string, payload *UserConfig, contentType string) (*http.Response, error) {
-	req, err := c.NewSetConfigUserRequest(ctx, path, payload, contentType)
+// SetDefaultShellUser makes a request to the setDefaultShell action endpoint of the user resource
+func (c *Client) SetDefaultShellUser(ctx context.Context, path string, defaultShell string) (*http.Response, error) {
+	req, err := c.NewSetDefaultShellUserRequest(ctx, path, defaultShell)
 	if err != nil {
 		return nil, err
 	}
 	return c.Client.Do(ctx, req)
 }
 
-// NewSetConfigUserRequest create the request corresponding to the setConfig action endpoint of the user resource.
-func (c *Client) NewSetConfigUserRequest(ctx context.Context, path string, payload *UserConfig, contentType string) (*http.Request, error) {
-	var body bytes.Buffer
-	if contentType == "" {
-		contentType = "*/*" // Use default encoder
-	}
-	err := c.Encoder.Encode(payload, &body, contentType)
-	if err != nil {
-		return nil, fmt.Errorf("failed to encode body: %s", err)
-	}
+// NewSetDefaultShellUserRequest create the request corresponding to the setDefaultShell action endpoint of the user resource.
+func (c *Client) NewSetDefaultShellUserRequest(ctx context.Context, path string, defaultShell string) (*http.Request, error) {
 	scheme := c.Scheme
 	if scheme == "" {
 		scheme = "https"
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
-	req, err := http.NewRequest("POST", u.String(), &body)
+	values := u.Query()
+	values.Set("defaultShell", defaultShell)
+	u.RawQuery = values.Encode()
+	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
 		return nil, err
-	}
-	header := req.Header
-	if contentType == "*/*" {
-		header.Set("Content-Type", "application/json")
-	} else {
-		header.Set("Content-Type", contentType)
 	}
 	if c.JWTSigner != nil {
 		if err := c.JWTSigner.Sign(req); err != nil {

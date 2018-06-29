@@ -297,10 +297,11 @@ type UserController interface {
 	goa.Muxer
 	AddAuthorizedKeys(*AddAuthorizedKeysUserContext) error
 	GetConfig(*GetConfigUserContext) error
+	GetDefaultShell(*GetDefaultShellUserContext) error
 	ListAuthorizedKeys(*ListAuthorizedKeysUserContext) error
 	RemoveAuthorizedKeys(*RemoveAuthorizedKeysUserContext) error
 	SetAuthorizedKeys(*SetAuthorizedKeysUserContext) error
-	SetConfig(*SetConfigUserContext) error
+	SetDefaultShell(*SetDefaultShellUserContext) error
 }
 
 // MountUserController "mounts" a User resource controller on the given service.
@@ -345,6 +346,22 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/user/config", ctrl.MuxHandler("getConfig", h, nil))
 	service.LogInfo("mount", "ctrl", "User", "action", "GetConfig", "route", "GET /api/v2/user/config", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetDefaultShellUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetDefaultShell(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/api/v2/user/config/defaultShell", ctrl.MuxHandler("getDefaultShell", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "GetDefaultShell", "route", "GET /api/v2/user/config/defaultShell", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -406,21 +423,15 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewSetConfigUserContext(ctx, req, service)
+		rctx, err := NewSetDefaultShellUserContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
-		// Build the payload
-		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*UserConfig)
-		} else {
-			return goa.MissingPayloadError()
-		}
-		return ctrl.SetConfig(rctx)
+		return ctrl.SetDefaultShell(rctx)
 	}
 	h = handleSecurity("jwt", h)
-	service.Mux.Handle("POST", "/api/v2/user/config", ctrl.MuxHandler("setConfig", h, unmarshalSetConfigUserPayload))
-	service.LogInfo("mount", "ctrl", "User", "action", "SetConfig", "route", "POST /api/v2/user/config", "security", "jwt")
+	service.Mux.Handle("POST", "/api/v2/user/config/defaultShell", ctrl.MuxHandler("setDefaultShell", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "SetDefaultShell", "route", "POST /api/v2/user/config/defaultShell", "security", "jwt")
 }
 
 // unmarshalAddAuthorizedKeysUserPayload unmarshals the request body into the context request data Payload field.
@@ -450,20 +461,5 @@ func unmarshalSetAuthorizedKeysUserPayload(ctx context.Context, service *goa.Ser
 		return err
 	}
 	goa.ContextRequest(ctx).Payload = payload
-	return nil
-}
-
-// unmarshalSetConfigUserPayload unmarshals the request body into the context request data Payload field.
-func unmarshalSetConfigUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &userConfig{}
-	if err := service.DecodeRequest(req, payload); err != nil {
-		return err
-	}
-	if err := payload.Validate(); err != nil {
-		// Initialize payload with private data structure so it can be logged
-		goa.ContextRequest(ctx).Payload = payload
-		return err
-	}
-	goa.ContextRequest(ctx).Payload = payload.Publicize()
 	return nil
 }

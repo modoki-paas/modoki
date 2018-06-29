@@ -51,6 +51,18 @@ var UserConfigOK = MediaType("vpn.application/goa.user.config", func() {
 	})
 })
 
+var UserDefaultShellOK = MediaType("vpn.application/goa.user.defaultShell", func() {
+	Attributes(func() {
+		Attribute("defaultShell", String)
+
+		Required("defaultShell")
+	})
+
+	View("default", func() {
+		Attribute("defaultShell")
+	})
+})
+
 var _ = Resource("user", func() {
 	Security(JWT)
 	BasePath("/user")
@@ -62,10 +74,21 @@ var _ = Resource("user", func() {
 		Response(InternalServerError, ErrorMedia)
 	})
 
-	Action("setConfig", func() {
-		Routing(POST("/config"))
+	Action("getDefaultShell", func() {
+		Routing(GET("/config/defaultShell"))
 
-		Payload(UserConfig)
+		Response(OK, UserDefaultShellOK)
+		Response(InternalServerError, ErrorMedia)
+	})
+
+	Action("setDefaultShell", func() {
+		Routing(POST("/config/defaultShell"))
+
+		Params(func() {
+			Param("defaultShell", String)
+
+			Required("defaultShell")
+		})
 
 		Response(NoContent)
 		Response(InternalServerError, ErrorMedia)

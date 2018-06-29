@@ -124,7 +124,7 @@ func main() {
 		return err
 	}
 
-	app.Commands = []cli.Command{
+	containerExposedCommands := []cli.Command{
 		cli.Command{
 			Name:           "create",
 			ArgsUsage:      "[options] [iamge name] [commands...]",
@@ -571,6 +571,10 @@ func main() {
 
 			},
 		},
+	}
+
+	containerCommands := append(
+		containerExposedCommands,
 		cli.Command{
 			Name:           "config",
 			Usage:          "Change the config of a container",
@@ -646,11 +650,102 @@ func main() {
 					return errors.Wrap(res, resp.Status)
 				}
 			},
+		})
+
+	userCommands := []cli.Command{
+		cli.Command{
+			Name:           "config",
+			Usage:          "Change the config of the user",
+			SkipArgReorder: true,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name: "defaultShell",
+				},
+				cli.BoolFlag{
+					Name: "show",
+				},
+			},
+			Action: func(ctx *cli.Context) error {
+				if ctx.NArg() < 1 {
+					return errors.New("ID or name is not specified")
+				}
+
+				if ctx.Bool("show") {
+					resp, err := modokiClient.GetConfigContainer(context.Background(), modoki.GetConfigContainerPath(ctx.Args()[0]))
+
+					if err != nil {
+						return err
+					}
+
+					switch resp.StatusCode {
+					case http.StatusOK:
+						res, err := modokiClient.DecodeGoaContainerConfig(resp)
+
+						if err != nil {
+							return err
+						}
+
+						pp.Println(res)
+
+						return nil
+					case http.StatusNotFound:
+						return errors.New("No such container")
+					default:
+						res, err := modokiClient.DecodeErrorResponse(resp)
+
+						if err != nil {
+							return errors.Wrap(err, resp.Status)
+						}
+
+						return errors.Wrap(res, resp.Status)
+					}
+				}
+
+				var config modoki.ContainerConfig
+
+				if ctx.IsSet("defaultShell") {
+					config.DefaultShell = stringPtr(ctx.String("defaultShell"))
+				}
+
+				resp, err := modokiClient.SetConfigContainer(context.Background(), modoki.SetConfigContainerPath(ctx.Args()[0]), &config, "application/json")
+
+				if err != nil {
+					return err
+				}
+
+				switch resp.StatusCode {
+				case http.StatusNoContent:
+					return nil
+				case http.StatusNotFound:
+					return errors.New("No such container")
+				default:
+					res, err := modokiClient.DecodeErrorResponse(resp)
+
+					if err != nil {
+						return errors.Wrap(err, resp.Status)
+					}
+
+					return errors.Wrap(res, resp.Status)
+				}
+			},
+		},
+	}
+
+	app.Commands = []cli.Command{
+		cli.Command{
+			Name:        "container",
+			Usage:       "container subcommands",
+			Subcommands: containerCommands,
+		},
+		cli.Command{
+			Name:        "container",
+			Usage:       "container subcommands",
+			Subcommands: containerCommands,
 		},
 
 		cli.Command{
-			Name:  "setting",
-			Usage: "Change the local config",
+			Name:  "config",
+			Usage: "Change the LOCAL config",
 			Subcommands: []cli.Command{
 				cli.Command{
 					Name:  "signin",

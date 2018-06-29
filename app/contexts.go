@@ -777,6 +777,41 @@ func (ctx *GetConfigUserContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// GetDefaultShellUserContext provides the user getDefaultShell action context.
+type GetDefaultShellUserContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewGetDefaultShellUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller getDefaultShell action.
+func NewGetDefaultShellUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetDefaultShellUserContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetDefaultShellUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetDefaultShellUserContext) OK(r *GoaUserDefaultshell) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.defaultshell")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetDefaultShellUserContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // ListAuthorizedKeysUserContext provides the user listAuthorizedKeys action context.
 type ListAuthorizedKeysUserContext struct {
 	context.Context
@@ -917,34 +952,41 @@ func (ctx *SetAuthorizedKeysUserContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// SetConfigUserContext provides the user setConfig action context.
-type SetConfigUserContext struct {
+// SetDefaultShellUserContext provides the user setDefaultShell action context.
+type SetDefaultShellUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Payload *UserConfig
+	DefaultShell string
 }
 
-// NewSetConfigUserContext parses the incoming request URL and body, performs validations and creates the
-// context used by the user controller setConfig action.
-func NewSetConfigUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetConfigUserContext, error) {
+// NewSetDefaultShellUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller setDefaultShell action.
+func NewSetDefaultShellUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetDefaultShellUserContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := SetConfigUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := SetDefaultShellUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramDefaultShell := req.Params["defaultShell"]
+	if len(paramDefaultShell) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("defaultShell"))
+	} else {
+		rawDefaultShell := paramDefaultShell[0]
+		rctx.DefaultShell = rawDefaultShell
+	}
 	return &rctx, err
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *SetConfigUserContext) NoContent() error {
+func (ctx *SetDefaultShellUserContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *SetConfigUserContext) InternalServerError(r error) error {
+func (ctx *SetDefaultShellUserContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}

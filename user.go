@@ -57,38 +57,6 @@ func (c *UserController) GetConfig(ctx *app.GetConfigUserContext) error {
 	// UserController_GetConfig: end_implement
 }
 
-// SetConfig runs the setConfig action.
-func (c *UserController) SetConfig(ctx *app.SetConfigUserContext) error {
-	// UserController_SetConfig: start_implement
-
-	uid, err := GetUIDFromJWT(ctx)
-
-	if err != nil {
-		return ctx.InternalServerError(goa.ErrInternal(err))
-	}
-
-	if ctx.Payload.DefaultShell != nil {
-		if err := c.Consul.Client.Put(fmt.Sprint(defaultShellKVFormat, uid), []byte(*ctx.Payload.DefaultShell), nil); err != nil {
-			return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "consul error")))
-		}
-	}
-
-	if ctx.Payload.AuthorizedKeys != nil {
-		for i := range ctx.Payload.AuthorizedKeys {
-			if ctx.Payload.AuthorizedKeys[i] != nil {
-				_, err := c.DB.Exec("INSERT INTO authorizedKeys (label, `key`, uid) VALUES (?, ?, ?)", ctx.Payload.AuthorizedKeys[i].Label, ctx.Payload.AuthorizedKeys[i].Key, uid)
-
-				if err != nil {
-					return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "DB error")))
-				}
-			}
-		}
-	}
-
-	return ctx.NoContent()
-	// UserController_SetConfig: end_implement
-}
-
 // AddAuthorizedKeys runs the addAuthorizedKeys action.
 func (c *UserController) AddAuthorizedKeys(ctx *app.AddAuthorizedKeysUserContext) error {
 	// UserController_AddAuthorizedKeys: start_implement
@@ -182,4 +150,44 @@ func (c *UserController) SetAuthorizedKeys(ctx *app.SetAuthorizedKeysUserContext
 
 	return ctx.NoContent()
 	// UserController_SetAuthorizedKeys: end_implement
+}
+
+// GetDefaultShell runs the getDefaultShell action.
+func (c *UserController) GetDefaultShell(ctx *app.GetDefaultShellUserContext) error {
+	// UserController_GetDefaultShell: start_implement
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	if p, err := c.Consul.Client.Get(fmt.Sprint(defaultShellKVFormat, uid)); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "consul error")))
+	} else {
+		res := &app.GoaUserDefaultshell{
+			DefaultShell: string(p.Value),
+		}
+		return ctx.OK(res)
+	}
+
+	// UserController_GetDefaultShell: end_implement
+}
+
+// SetDefaultShell runs the setDefaultShell action.
+func (c *UserController) SetDefaultShell(ctx *app.SetDefaultShellUserContext) error {
+	// UserController_SetDefaultShell: start_implement
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	if err := c.Consul.Client.Put(fmt.Sprint(defaultShellKVFormat, uid), []byte(ctx.DefaultShell), nil); err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "consul error")))
+	}
+
+	return ctx.NoContent()
+	// UserController_SetDefaultShell: end_implement
 }

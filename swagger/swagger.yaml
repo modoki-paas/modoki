@@ -7,10 +7,10 @@ consumes:
 definitions:
   ContainerConfig:
     example:
-      defaultShell: Eos aut rerum dolorem.
+      defaultShell: Aut nobis saepe.
     properties:
       defaultShell:
-        example: Eos aut rerum dolorem.
+        example: Aut nobis saepe.
         type: string
     title: ContainerConfig
     type: object
@@ -296,6 +296,24 @@ definitions:
       status: Stopped
       volumes:
       - Aut quia omnis ut illum assumenda omnis.
+    - command: Voluptatibus excepturi sapiente debitis quia alias.
+      created: "1982-11-10T20:38:32Z"
+      id: 8.702585886642135e+18
+      image: Doloremque reiciendis ducimus.
+      imageID: Labore odio.
+      name: Perferendis excepturi.
+      status: Stopped
+      volumes:
+      - Aut quia omnis ut illum assumenda omnis.
+    - command: Voluptatibus excepturi sapiente debitis quia alias.
+      created: "1982-11-10T20:38:32Z"
+      id: 8.702585886642135e+18
+      image: Doloremque reiciendis ducimus.
+      imageID: Labore odio.
+      name: Perferendis excepturi.
+      status: Stopped
+      volumes:
+      - Aut quia omnis ut illum assumenda omnis.
     items:
       $ref: '#/definitions/GoaContainerListEach'
     title: 'Mediatype identifier: vpn.application/goa.container.list.each; type=collection;
@@ -345,8 +363,6 @@ definitions:
         label: 7u3
       - key: j3etmw10ir
         label: 7u3
-      - key: j3etmw10ir
-        label: 7u3
       defaultShell: Sed nam est commodi reiciendis.
     properties:
       authorizedKeys:
@@ -358,6 +374,18 @@ definitions:
     - defaultShell
     - authorizedKeys
     title: 'Mediatype identifier: vpn.application/goa.user.config; view=default'
+    type: object
+  GoaUserDefaultshell:
+    description: GoaUserDefaultshell media type (default view)
+    example:
+      defaultShell: Eos aut rerum dolorem.
+    properties:
+      defaultShell:
+        example: Eos aut rerum dolorem.
+        type: string
+    required:
+    - defaultShell
+    title: 'Mediatype identifier: vpn.application/goa.user.defaultshell; view=default'
     type: object
   SetAuthorizedKeysUserPayload:
     example:
@@ -388,33 +416,6 @@ definitions:
     - key
     - label
     title: UserAuthorizedKey
-    type: object
-  UserConfig:
-    example:
-      authorizedKeys:
-      - key: nufwk5tf2z
-        label: "74"
-      - key: nufwk5tf2z
-        label: "74"
-      - key: nufwk5tf2z
-        label: "74"
-      defaultShell: Delectus libero non asperiores neque ut possimus.
-    properties:
-      authorizedKeys:
-        example:
-        - key: nufwk5tf2z
-          label: "74"
-        - key: nufwk5tf2z
-          label: "74"
-        - key: nufwk5tf2z
-          label: "74"
-        items:
-          $ref: '#/definitions/UserAuthorizedKey'
-        type: array
-      defaultShell:
-        example: Delectus libero non asperiores neque ut possimus.
-        type: string
-    title: UserConfig
     type: object
   error:
     description: Error response media type (default view)
@@ -983,31 +984,6 @@ paths:
       summary: getConfig user
       tags:
       - user
-    post:
-      operationId: user#setConfig
-      parameters:
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/UserConfig'
-      produces:
-      - application/vnd.goa.error
-      responses:
-        "204":
-          description: No Content
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/error'
-      schemes:
-      - http
-      - https
-      security:
-      - jwt: []
-      summary: setConfig user
-      tags:
-      - user
   /user/config/authorizedKeys:
     delete:
       operationId: user#removeAuthorizedKeys
@@ -1107,6 +1083,53 @@ paths:
       security:
       - jwt: []
       summary: addAuthorizedKeys user
+      tags:
+      - user
+  /user/config/defaultShell:
+    get:
+      operationId: user#getDefaultShell
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.user.defaultshell
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaUserDefaultshell'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: getDefaultShell user
+      tags:
+      - user
+    post:
+      operationId: user#setDefaultShell
+      parameters:
+      - in: query
+        name: defaultShell
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: setDefaultShell user
       tags:
       - user
 produces:

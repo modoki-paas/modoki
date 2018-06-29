@@ -316,6 +316,147 @@ func GetConfigUserOK(t goatest.TInterface, ctx context.Context, service *goa.Ser
 	return rw, mt
 }
 
+// GetDefaultShellUserInternalServerError runs the method GetDefaultShell of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GetDefaultShellUserInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, error) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v2/user/config/defaultShell"),
+	}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "UserTest"), rw, req, prms)
+	getDefaultShellCtx, _err := app.NewGetDefaultShellUserContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		return nil, e
+	}
+
+	// Perform action
+	_err = ctrl.GetDefaultShell(getDefaultShellCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 500 {
+		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
+	}
+	var mt error
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
+// GetDefaultShellUserOK runs the method GetDefaultShell of the given controller with the given parameters.
+// It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
+// If ctx is nil then context.Background() is used.
+// If service is nil then a default service is created.
+func GetDefaultShellUserOK(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController) (http.ResponseWriter, *app.GoaUserDefaultshell) {
+	// Setup service
+	var (
+		logBuf bytes.Buffer
+		resp   interface{}
+
+		respSetter goatest.ResponseSetterFunc = func(r interface{}) { resp = r }
+	)
+	if service == nil {
+		service = goatest.Service(&logBuf, respSetter)
+	} else {
+		logger := log.New(&logBuf, "", log.Ltime)
+		service.WithLogger(goa.NewLogger(logger))
+		newEncoder := func(io.Writer) goa.Encoder { return respSetter }
+		service.Encoder = goa.NewHTTPEncoder() // Make sure the code ends up using this decoder
+		service.Encoder.Register(newEncoder, "*/*")
+	}
+
+	// Setup request context
+	rw := httptest.NewRecorder()
+	u := &url.URL{
+		Path: fmt.Sprintf("/api/v2/user/config/defaultShell"),
+	}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+	if ctx == nil {
+		ctx = context.Background()
+	}
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "UserTest"), rw, req, prms)
+	getDefaultShellCtx, _err := app.NewGetDefaultShellUserContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
+		}
+		t.Errorf("unexpected parameter validation error: %+v", e)
+		return nil, nil
+	}
+
+	// Perform action
+	_err = ctrl.GetDefaultShell(getDefaultShellCtx)
+
+	// Validate response
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
+	}
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+	var mt *app.GoaUserDefaultshell
+	if resp != nil {
+		var _ok bool
+		mt, _ok = resp.(*app.GoaUserDefaultshell)
+		if !_ok {
+			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of app.GoaUserDefaultshell", resp, resp)
+		}
+		_err = mt.Validate()
+		if _err != nil {
+			t.Errorf("invalid response media type: %s", _err)
+		}
+	}
+
+	// Return results
+	return rw, mt
+}
+
 // ListAuthorizedKeysUserInternalServerError runs the method ListAuthorizedKeys of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
@@ -886,11 +1027,11 @@ func SetAuthorizedKeysUserNoContent(t goatest.TInterface, ctx context.Context, s
 	return rw
 }
 
-// SetConfigUserInternalServerError runs the method SetConfig of the given controller with the given parameters and payload.
+// SetDefaultShellUserInternalServerError runs the method SetDefaultShell of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers and the media type struct written to the response.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func SetConfigUserInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, payload *app.UserConfig) (http.ResponseWriter, error) {
+func SetDefaultShellUserInternalServerError(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, defaultShell string) (http.ResponseWriter, error) {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -908,55 +1049,54 @@ func SetConfigUserInternalServerError(t goatest.TInterface, ctx context.Context,
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
-	// Validate payload
-	err := payload.Validate()
-	if err != nil {
-		e, ok := err.(goa.ServiceError)
-		if !ok {
-			panic(err) // bug
-		}
-		return nil, e
-	}
-
 	// Setup request context
 	rw := httptest.NewRecorder()
-	u := &url.URL{
-		Path: fmt.Sprintf("/api/v2/user/config"),
+	query := url.Values{}
+	{
+		sliceVal := []string{defaultShell}
+		query["defaultShell"] = sliceVal
 	}
-	req, _err := http.NewRequest("POST", u.String(), nil)
-	if _err != nil {
-		panic("invalid test " + _err.Error()) // bug
+	u := &url.URL{
+		Path:     fmt.Sprintf("/api/v2/user/config/defaultShell"),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	{
+		sliceVal := []string{defaultShell}
+		prms["defaultShell"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "UserTest"), rw, req, prms)
-	setConfigCtx, __err := app.NewSetConfigUserContext(goaCtx, req, service)
-	if __err != nil {
-		_e, _ok := __err.(goa.ServiceError)
-		if !_ok {
-			panic("invalid test data " + __err.Error()) // bug
+	setDefaultShellCtx, _err := app.NewSetDefaultShellUserContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
 		}
-		return nil, _e
+		return nil, e
 	}
-	setConfigCtx.Payload = payload
 
 	// Perform action
-	__err = ctrl.SetConfig(setConfigCtx)
+	_err = ctrl.SetDefaultShell(setDefaultShellCtx)
 
 	// Validate response
-	if __err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
 	}
 	if rw.Code != 500 {
 		t.Errorf("invalid response status code: got %+v, expected 500", rw.Code)
 	}
 	var mt error
 	if resp != nil {
-		var __ok bool
-		mt, __ok = resp.(error)
-		if !__ok {
+		var _ok bool
+		mt, _ok = resp.(error)
+		if !_ok {
 			t.Fatalf("invalid response media: got variable of type %T, value %+v, expected instance of error", resp, resp)
 		}
 	}
@@ -965,11 +1105,11 @@ func SetConfigUserInternalServerError(t goatest.TInterface, ctx context.Context,
 	return rw, mt
 }
 
-// SetConfigUserNoContent runs the method SetConfig of the given controller with the given parameters and payload.
+// SetDefaultShellUserNoContent runs the method SetDefaultShell of the given controller with the given parameters.
 // It returns the response writer so it's possible to inspect the response headers.
 // If ctx is nil then context.Background() is used.
 // If service is nil then a default service is created.
-func SetConfigUserNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, payload *app.UserConfig) http.ResponseWriter {
+func SetDefaultShellUserNoContent(t goatest.TInterface, ctx context.Context, service *goa.Service, ctrl app.UserController, defaultShell string) http.ResponseWriter {
 	// Setup service
 	var (
 		logBuf bytes.Buffer
@@ -986,48 +1126,46 @@ func SetConfigUserNoContent(t goatest.TInterface, ctx context.Context, service *
 		service.Encoder.Register(newEncoder, "*/*")
 	}
 
-	// Validate payload
-	err := payload.Validate()
-	if err != nil {
-		e, ok := err.(goa.ServiceError)
-		if !ok {
-			panic(err) // bug
-		}
-		t.Errorf("unexpected payload validation error: %+v", e)
-		return nil
-	}
-
 	// Setup request context
 	rw := httptest.NewRecorder()
-	u := &url.URL{
-		Path: fmt.Sprintf("/api/v2/user/config"),
+	query := url.Values{}
+	{
+		sliceVal := []string{defaultShell}
+		query["defaultShell"] = sliceVal
 	}
-	req, _err := http.NewRequest("POST", u.String(), nil)
-	if _err != nil {
-		panic("invalid test " + _err.Error()) // bug
+	u := &url.URL{
+		Path:     fmt.Sprintf("/api/v2/user/config/defaultShell"),
+		RawQuery: query.Encode(),
+	}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
 	}
 	prms := url.Values{}
+	{
+		sliceVal := []string{defaultShell}
+		prms["defaultShell"] = sliceVal
+	}
 	if ctx == nil {
 		ctx = context.Background()
 	}
 	goaCtx := goa.NewContext(goa.WithAction(ctx, "UserTest"), rw, req, prms)
-	setConfigCtx, __err := app.NewSetConfigUserContext(goaCtx, req, service)
-	if __err != nil {
-		_e, _ok := __err.(goa.ServiceError)
-		if !_ok {
-			panic("invalid test data " + __err.Error()) // bug
+	setDefaultShellCtx, _err := app.NewSetDefaultShellUserContext(goaCtx, req, service)
+	if _err != nil {
+		e, ok := _err.(goa.ServiceError)
+		if !ok {
+			panic("invalid test data " + _err.Error()) // bug
 		}
-		t.Errorf("unexpected parameter validation error: %+v", _e)
+		t.Errorf("unexpected parameter validation error: %+v", e)
 		return nil
 	}
-	setConfigCtx.Payload = payload
 
 	// Perform action
-	__err = ctrl.SetConfig(setConfigCtx)
+	_err = ctrl.SetDefaultShell(setDefaultShellCtx)
 
 	// Validate response
-	if __err != nil {
-		t.Fatalf("controller returned %+v, logs:\n%s", __err, logBuf.String())
+	if _err != nil {
+		t.Fatalf("controller returned %+v, logs:\n%s", _err, logBuf.String())
 	}
 	if rw.Code != 204 {
 		t.Errorf("invalid response status code: got %+v, expected 204", rw.Code)
