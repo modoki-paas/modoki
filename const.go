@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS containers (
 
 const authorizedKeysSchema = `
 CREATE TABLE IF NOT EXISTS authorizedKeys (
-	id INT NOT NULL AUTO_INCREMENT,
+	id INT NOT NULL PRIMARY KEY,
 	uid INT NOT NULL,
 	label VARCHAR(32),
 	` + "`key`" + ` TEXT,
