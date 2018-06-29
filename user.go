@@ -76,7 +76,7 @@ func (c *UserController) SetConfig(ctx *app.SetConfigUserContext) error {
 	if ctx.Payload.AuthorizedKeys != nil {
 		for i := range ctx.Payload.AuthorizedKeys {
 			if ctx.Payload.AuthorizedKeys[i] != nil {
-				_, err := c.DB.Exec("INSERT INTO authorizedKeys (label, key, uid) VALUES (?, ?, ?)", ctx.Payload.AuthorizedKeys[i].Label, ctx.Payload.AuthorizedKeys[i].Key, uid)
+				_, err := c.DB.Exec("INSERT INTO authorizedKeys (label, `key`, uid) VALUES (?, ?, ?)", ctx.Payload.AuthorizedKeys[i].Label, ctx.Payload.AuthorizedKeys[i].Key, uid)
 
 				if err != nil {
 					return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "DB error")))
@@ -99,7 +99,7 @@ func (c *UserController) AddAuthorizedKeys(ctx *app.AddAuthorizedKeysUserContext
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	_, err = c.DB.Exec("INSERT INTO authorizedKeys (label, key, uid) VALUES (?, ?, uid)", ctx.Payload.Label, ctx.Payload.Key, uid)
+	_, err = c.DB.Exec("INSERT INTO authorizedKeys (label, `key`, uid) VALUES (?, ?, uid)", ctx.Payload.Label, ctx.Payload.Key, uid)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "DB error")))
@@ -172,7 +172,7 @@ func (c *UserController) SetAuthorizedKeys(ctx *app.SetAuthorizedKeysUserContext
 
 	for i := range ctx.Payload {
 		if ctx.Payload[i] != nil {
-			_, err := c.DB.Exec("INSERT INTO authorizedKeys (label, key, uid) VALUES (?, ?, ?)", ctx.Payload[i].Label, ctx.Payload[i].Key, uid)
+			_, err := c.DB.Exec("INSERT INTO authorizedKeys (label, `key`, uid) VALUES (?, ?, ?)", ctx.Payload[i].Label, ctx.Payload[i].Key, uid)
 
 			if err != nil {
 				return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "DB error")))

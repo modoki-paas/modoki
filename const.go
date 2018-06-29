@@ -35,6 +35,6 @@ CREATE TABLE IF NOT EXISTS authorizedKeys (
 	id INT NOT NULL AUTO_INCREMENT,
 	uid INT NOT NULL,
 	label VARCHAR(32),
-	key TEXT,
+	` + "`key`" + ` TEXT,
 	INDEX(uid, label)
 );`
