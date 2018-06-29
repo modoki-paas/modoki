@@ -46,7 +46,7 @@ func (c *UserController) GetConfig(ctx *app.GetConfigUserContext) error {
 
 	var keys []*app.GoaUserAuthorizedkey
 
-	if err := c.DB.Select(&keys, "SELECT * FROM authorizedKeys WHERE uid=?", uid); err != nil {
+	if err := c.DB.Select(&keys, "SELECT `key`, label FROM authorizedKeys WHERE uid=?", uid); err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "DB error")))
 	}
 
@@ -89,7 +89,7 @@ func (c *UserController) ListAuthorizedKeys(ctx *app.ListAuthorizedKeysUserConte
 
 	var keys []*app.GoaUserAuthorizedkey
 
-	if err := c.DB.Select(&keys, "SELECT * FROM authorizedKeys WHERE uid=?", uid); err != nil {
+	if err := c.DB.Select(&keys, "SELECT `key`, label FROM authorizedKeys WHERE uid=?", uid); err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "DB error")))
 	}
 
