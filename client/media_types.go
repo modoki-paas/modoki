@@ -11,292 +11,15 @@
 package client
 
 import (
-	"mime/multipart"
+	"github.com/goadesign/goa"
 	"net/http"
 	"time"
-
-	"github.com/goadesign/goa"
+	"unicode/utf8"
 )
 
 // DecodeErrorResponse decodes the ErrorResponse instance encoded in resp body.
 func (c *Client) DecodeErrorResponse(resp *http.Response) (*goa.ErrorResponse, error) {
 	var decoded goa.ErrorResponse
-	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
-	return &decoded, err
-}
-
-// viron query (default view)
-//
-// Identifier: application/vnd.query+json; view=default
-type Query struct {
-	// key
-	Key string `form:"key" json:"key" xml:"key"`
-	// type
-	Type string `form:"type" json:"type" xml:"type"`
-}
-
-// Validate validates the Query media type instance.
-func (mt *Query) Validate() (err error) {
-	if mt.Key == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "key"))
-	}
-	if mt.Type == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "type"))
-	}
-	return
-}
-
-// DecodeQuery decodes the Query instance encoded in resp body.
-func (c *Client) DecodeQuery(resp *http.Response) (*Query, error) {
-	var decoded Query
-	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
-	return &decoded, err
-}
-
-// viron api (default view)
-//
-// Identifier: application/vnd.vironapi+json; view=default
-type Vironapi struct {
-	// name
-	Method string `form:"method" json:"method" xml:"method"`
-	// path
-	Path string `form:"path" json:"path" xml:"path"`
-}
-
-// Validate validates the Vironapi media type instance.
-func (mt *Vironapi) Validate() (err error) {
-	if mt.Method == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "method"))
-	}
-	if mt.Path == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "path"))
-	}
-	return
-}
-
-// DecodeVironapi decodes the Vironapi instance encoded in resp body.
-func (c *Client) DecodeVironapi(resp *http.Response) (*Vironapi, error) {
-	var decoded Vironapi
-	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
-	return &decoded, err
-}
-
-// viron authtype media (default view)
-//
-// Identifier: application/vnd.vironauthtype+json; view=default
-type Vironauthtype struct {
-	// method
-	Method string `form:"method" json:"method" xml:"method"`
-	// auth provider
-	Provider string `form:"provider" json:"provider" xml:"provider"`
-	// auth type
-	Type string `form:"type" json:"type" xml:"type"`
-	// url
-	URL string `form:"url" json:"url" xml:"url"`
-}
-
-// Validate validates the Vironauthtype media type instance.
-func (mt *Vironauthtype) Validate() (err error) {
-	if mt.Type == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "type"))
-	}
-	if mt.Provider == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "provider"))
-	}
-	if mt.URL == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "url"))
-	}
-	if mt.Method == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "method"))
-	}
-	return
-}
-
-// DecodeVironauthtype decodes the Vironauthtype instance encoded in resp body.
-func (c *Client) DecodeVironauthtype(resp *http.Response) (*Vironauthtype, error) {
-	var decoded Vironauthtype
-	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
-	return &decoded, err
-}
-
-// VironauthtypeCollection is the media type for an array of Vironauthtype (default view)
-//
-// Identifier: application/vnd.vironauthtype+json; type=collection; view=default
-type VironauthtypeCollection []*Vironauthtype
-
-// Validate validates the VironauthtypeCollection media type instance.
-func (mt VironauthtypeCollection) Validate() (err error) {
-	for _, e := range mt {
-		if e != nil {
-			if err2 := e.Validate(); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
-	return
-}
-
-// DecodeVironauthtypeCollection decodes the VironauthtypeCollection instance encoded in resp body.
-func (c *Client) DecodeVironauthtypeCollection(resp *http.Response) (VironauthtypeCollection, error) {
-	var decoded VironauthtypeCollection
-	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
-	return decoded, err
-}
-
-// viron component (default view)
-//
-// Identifier: application/vnd.vironcomponent+json; view=default
-type Vironcomponent struct {
-	// api
-	API *Vironapi `form:"api" json:"api" xml:"api"`
-	// name
-	Name string `form:"name" json:"name" xml:"name"`
-	// pagination
-	Pagination *bool `form:"pagination,omitempty" json:"pagination,omitempty" xml:"pagination,omitempty"`
-	// primary key
-	Primary *string `form:"primary,omitempty" json:"primary,omitempty" xml:"primary,omitempty"`
-	// query
-	Query []*Query `form:"query,omitempty" json:"query,omitempty" xml:"query,omitempty"`
-	// style
-	Style string `form:"style" json:"style" xml:"style"`
-	// table label
-	TableLabels []string `form:"table_labels,omitempty" json:"table_labels,omitempty" xml:"table_labels,omitempty"`
-}
-
-// Validate validates the Vironcomponent media type instance.
-func (mt *Vironcomponent) Validate() (err error) {
-	if mt.Name == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
-	}
-	if mt.Style == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "style"))
-	}
-	if mt.API == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "api"))
-	}
-	if mt.API != nil {
-		if err2 := mt.API.Validate(); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	for _, e := range mt.Query {
-		if e != nil {
-			if err2 := e.Validate(); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
-	return
-}
-
-// DecodeVironcomponent decodes the Vironcomponent instance encoded in resp body.
-func (c *Client) DecodeVironcomponent(resp *http.Response) (*Vironcomponent, error) {
-	var decoded Vironcomponent
-	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
-	return &decoded, err
-}
-
-// viron page (default view)
-//
-// Identifier: application/vnd.vironpage+json; view=default
-type Vironpage struct {
-	// pages
-	Components []*Vironcomponent `form:"components" json:"components" xml:"components"`
-	// group
-	Group string `form:"group" json:"group" xml:"group"`
-	// id
-	ID string `form:"id" json:"id" xml:"id"`
-	// name
-	Name string `form:"name" json:"name" xml:"name"`
-	// section
-	Section string `form:"section" json:"section" xml:"section"`
-}
-
-// Validate validates the Vironpage media type instance.
-func (mt *Vironpage) Validate() (err error) {
-	if mt.ID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "id"))
-	}
-	if mt.Name == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
-	}
-	if mt.Section == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "section"))
-	}
-	if mt.Group == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "group"))
-	}
-	if mt.Components == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "components"))
-	}
-	for _, e := range mt.Components {
-		if e != nil {
-			if err2 := e.Validate(); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
-	return
-}
-
-// DecodeVironpage decodes the Vironpage instance encoded in resp body.
-func (c *Client) DecodeVironpage(resp *http.Response) (*Vironpage, error) {
-	var decoded Vironpage
-	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
-	return &decoded, err
-}
-
-// viron setting (default view)
-//
-// Identifier: application/vnd.vironsetting+json; view=default
-type Vironsetting struct {
-	// color
-	Color string `form:"color" json:"color" xml:"color"`
-	// name
-	Name string `form:"name" json:"name" xml:"name"`
-	// pages
-	Pages []*Vironpage `form:"pages" json:"pages" xml:"pages"`
-	// tags
-	Tags []string `form:"tags" json:"tags" xml:"tags"`
-	// theme
-	Theme string `form:"theme" json:"theme" xml:"theme"`
-	// thumbnail
-	Thumbnail string `form:"thumbnail" json:"thumbnail" xml:"thumbnail"`
-}
-
-// Validate validates the Vironsetting media type instance.
-func (mt *Vironsetting) Validate() (err error) {
-	if mt.Name == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "name"))
-	}
-	if mt.Color == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "color"))
-	}
-	if mt.Theme == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "theme"))
-	}
-	if mt.Pages == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "pages"))
-	}
-	if mt.Tags == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "tags"))
-	}
-	if mt.Thumbnail == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "thumbnail"))
-	}
-	for _, e := range mt.Pages {
-		if e != nil {
-			if err2 := e.Validate(); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
-	return
-}
-
-// DecodeVironsetting decodes the Vironsetting instance encoded in resp body.
-func (c *Client) DecodeVironsetting(resp *http.Response) (*Vironsetting, error) {
-	var decoded Vironsetting
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return &decoded, err
 }
@@ -538,4 +261,95 @@ func (c *Client) DecodeGoaContainerListEachCollection(resp *http.Response) (GoaC
 	var decoded GoaContainerListEachCollection
 	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
 	return decoded, err
+}
+
+// GoaUserAuthorizedkey media type (default view)
+//
+// Identifier: vpn.application/goa.user.authorizedkey; view=default
+type GoaUserAuthorizedkey struct {
+	Key   string `form:"key" json:"key" xml:"key"`
+	Label string `form:"label" json:"label" xml:"label"`
+}
+
+// Validate validates the GoaUserAuthorizedkey media type instance.
+func (mt *GoaUserAuthorizedkey) Validate() (err error) {
+	if mt.Key == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "key"))
+	}
+	if mt.Label == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "label"))
+	}
+	if utf8.RuneCountInString(mt.Key) > 2048 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.key`, mt.Key, utf8.RuneCountInString(mt.Key), 2048, false))
+	}
+	if ok := goa.ValidatePattern(`^[a-zA-Z0-9_]+$`, mt.Label); !ok {
+		err = goa.MergeErrors(err, goa.InvalidPatternError(`response.label`, mt.Label, `^[a-zA-Z0-9_]+$`))
+	}
+	if utf8.RuneCountInString(mt.Label) < 1 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.label`, mt.Label, utf8.RuneCountInString(mt.Label), 1, true))
+	}
+	if utf8.RuneCountInString(mt.Label) > 32 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`response.label`, mt.Label, utf8.RuneCountInString(mt.Label), 32, false))
+	}
+	return
+}
+
+// DecodeGoaUserAuthorizedkey decodes the GoaUserAuthorizedkey instance encoded in resp body.
+func (c *Client) DecodeGoaUserAuthorizedkey(resp *http.Response) (*GoaUserAuthorizedkey, error) {
+	var decoded GoaUserAuthorizedkey
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
+// GoaUserAuthorizedkeyCollection is the media type for an array of GoaUserAuthorizedkey (default view)
+//
+// Identifier: vpn.application/goa.user.authorizedkey; type=collection; view=default
+type GoaUserAuthorizedkeyCollection []*GoaUserAuthorizedkey
+
+// Validate validates the GoaUserAuthorizedkeyCollection media type instance.
+func (mt GoaUserAuthorizedkeyCollection) Validate() (err error) {
+	for _, e := range mt {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// DecodeGoaUserAuthorizedkeyCollection decodes the GoaUserAuthorizedkeyCollection instance encoded in resp body.
+func (c *Client) DecodeGoaUserAuthorizedkeyCollection(resp *http.Response) (GoaUserAuthorizedkeyCollection, error) {
+	var decoded GoaUserAuthorizedkeyCollection
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return decoded, err
+}
+
+// GoaUserConfig media type (default view)
+//
+// Identifier: vpn.application/goa.user.config; view=default
+type GoaUserConfig struct {
+	AuthorizedKeys GoaUserAuthorizedkeyCollection `form:"authorizedKeys" json:"authorizedKeys" xml:"authorizedKeys"`
+	DefaultShell   string                         `form:"defaultShell" json:"defaultShell" xml:"defaultShell"`
+}
+
+// Validate validates the GoaUserConfig media type instance.
+func (mt *GoaUserConfig) Validate() (err error) {
+	if mt.DefaultShell == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "defaultShell"))
+	}
+	if mt.AuthorizedKeys == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "authorizedKeys"))
+	}
+	if err2 := mt.AuthorizedKeys.Validate(); err2 != nil {
+		err = goa.MergeErrors(err, err2)
+	}
+	return
+}
+
+// DecodeGoaUserConfig decodes the GoaUserConfig instance encoded in resp body.
+func (c *Client) DecodeGoaUserConfig(resp *http.Response) (*GoaUserConfig, error) {
+	var decoded GoaUserConfig
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
 }

@@ -292,16 +292,19 @@ func unmarshalUploadContainerPayload(ctx context.Context, service *goa.Service, 
 	return nil
 }
 
-// VironController is the controller interface for the Viron actions.
-type VironController interface {
+// UserController is the controller interface for the User actions.
+type UserController interface {
 	goa.Muxer
-	Authtype(*AuthtypeVironContext) error
-	Get(*GetVironContext) error
-	Signin(*SigninVironContext) error
+	AddAuthorizedKeys(*AddAuthorizedKeysUserContext) error
+	GetConfig(*GetConfigUserContext) error
+	ListAuthorizedKeys(*ListAuthorizedKeysUserContext) error
+	RemoveAuthorizedKeys(*RemoveAuthorizedKeysUserContext) error
+	SetAuthorizedKeys(*SetAuthorizedKeysUserContext) error
+	SetConfig(*SetConfigUserContext) error
 }
 
-// MountVironController "mounts" a Viron resource controller on the given service.
-func MountVironController(service *goa.Service, ctrl VironController) {
+// MountUserController "mounts" a User resource controller on the given service.
+func MountUserController(service *goa.Service, ctrl UserController) {
 	initService(service)
 	var h goa.Handler
 
@@ -311,56 +314,148 @@ func MountVironController(service *goa.Service, ctrl VironController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewAuthtypeVironContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		return ctrl.Authtype(rctx)
-	}
-	service.Mux.Handle("GET", "/api/v2/viron_authtype", ctrl.MuxHandler("authtype", h, nil))
-	service.LogInfo("mount", "ctrl", "Viron", "action", "Authtype", "route", "GET /api/v2/viron_authtype")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewGetVironContext(ctx, req, service)
-		if err != nil {
-			return err
-		}
-		return ctrl.Get(rctx)
-	}
-	h = handleSecurity("jwt", h)
-	service.Mux.Handle("GET", "/api/v2/viron", ctrl.MuxHandler("get", h, nil))
-	service.LogInfo("mount", "ctrl", "Viron", "action", "Get", "route", "GET /api/v2/viron", "security", "jwt")
-
-	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
-		// Check if there was an error loading the request
-		if err := goa.ContextError(ctx); err != nil {
-			return err
-		}
-		// Build the context
-		rctx, err := NewSigninVironContext(ctx, req, service)
+		rctx, err := NewAddAuthorizedKeysUserContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
 		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(*SigninPayload)
+			rctx.Payload = rawPayload.(*UserAuthorizedKey)
 		} else {
 			return goa.MissingPayloadError()
 		}
-		return ctrl.Signin(rctx)
+		return ctrl.AddAuthorizedKeys(rctx)
 	}
-	service.Mux.Handle("POST", "/api/v2/signin", ctrl.MuxHandler("signin", h, unmarshalSigninVironPayload))
-	service.LogInfo("mount", "ctrl", "Viron", "action", "Signin", "route", "POST /api/v2/signin")
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("PUT", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("addAuthorizedKeys", h, unmarshalAddAuthorizedKeysUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "AddAuthorizedKeys", "route", "PUT /api/v2/user/config/authorizedKeys", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetConfigUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetConfig(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/api/v2/user/config", ctrl.MuxHandler("getConfig", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "GetConfig", "route", "GET /api/v2/user/config", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewListAuthorizedKeysUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ListAuthorizedKeys(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("listAuthorizedKeys", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "ListAuthorizedKeys", "route", "GET /api/v2/user/config/authorizedKeys", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewRemoveAuthorizedKeysUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.RemoveAuthorizedKeys(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("DELETE", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("removeAuthorizedKeys", h, nil))
+	service.LogInfo("mount", "ctrl", "User", "action", "RemoveAuthorizedKeys", "route", "DELETE /api/v2/user/config/authorizedKeys", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewSetAuthorizedKeysUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(SetAuthorizedKeysUserPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.SetAuthorizedKeys(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("POST", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("setAuthorizedKeys", h, unmarshalSetAuthorizedKeysUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "SetAuthorizedKeys", "route", "POST /api/v2/user/config/authorizedKeys", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewSetConfigUserContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*UserConfig)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.SetConfig(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("POST", "/api/v2/user/config", ctrl.MuxHandler("setConfig", h, unmarshalSetConfigUserPayload))
+	service.LogInfo("mount", "ctrl", "User", "action", "SetConfig", "route", "POST /api/v2/user/config", "security", "jwt")
 }
 
-// unmarshalSigninVironPayload unmarshals the request body into the context request data Payload field.
-func unmarshalSigninVironPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	payload := &signinPayload{}
+// unmarshalAddAuthorizedKeysUserPayload unmarshals the request body into the context request data Payload field.
+func unmarshalAddAuthorizedKeysUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &userAuthorizedKey{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalSetAuthorizedKeysUserPayload unmarshals the request body into the context request data Payload field.
+func unmarshalSetAuthorizedKeysUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	var payload SetAuthorizedKeysUserPayload
+	if err := service.DecodeRequest(req, &payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload
+	return nil
+}
+
+// unmarshalSetConfigUserPayload unmarshals the request body into the context request data Payload field.
+func unmarshalSetConfigUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &userConfig{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}

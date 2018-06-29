@@ -12,7 +12,6 @@ package client
 
 import (
 	"github.com/goadesign/goa"
-	"time"
 	"unicode/utf8"
 )
 
@@ -33,171 +32,6 @@ func (ut *containerConfig) Publicize() *ContainerConfig {
 // ContainerConfig user type.
 type ContainerConfig struct {
 	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
-}
-
-// postPayload user type.
-type postPayload struct {
-	// contents
-	Contents *string `form:"contents,omitempty" json:"contents,omitempty" xml:"contents,omitempty"`
-	// published_at
-	PublishedAt *time.Time `form:"published_at,omitempty" json:"published_at,omitempty" xml:"published_at,omitempty"`
-	// status
-	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	// title
-	Title *string `form:"title,omitempty" json:"title,omitempty" xml:"title,omitempty"`
-	// url name
-	URLName *string `form:"url_name,omitempty" json:"url_name,omitempty" xml:"url_name,omitempty"`
-}
-
-// Validate validates the postPayload type instance.
-func (ut *postPayload) Validate() (err error) {
-	if ut.URLName == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "url_name"))
-	}
-	if ut.Title == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "title"))
-	}
-	if ut.Contents == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "contents"))
-	}
-	if ut.Status == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "status"))
-	}
-	if ut.Contents != nil {
-		if utf8.RuneCountInString(*ut.Contents) > 120 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.contents`, *ut.Contents, utf8.RuneCountInString(*ut.Contents), 120, false))
-		}
-	}
-	if ut.Status != nil {
-		if !(*ut.Status == "draft" || *ut.Status == "published") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError(`request.status`, *ut.Status, []interface{}{"draft", "published"}))
-		}
-	}
-	if ut.Title != nil {
-		if utf8.RuneCountInString(*ut.Title) > 120 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.title`, *ut.Title, utf8.RuneCountInString(*ut.Title), 120, false))
-		}
-	}
-	return
-}
-
-// Publicize creates PostPayload from postPayload
-func (ut *postPayload) Publicize() *PostPayload {
-	var pub PostPayload
-	if ut.Contents != nil {
-		pub.Contents = *ut.Contents
-	}
-	if ut.PublishedAt != nil {
-		pub.PublishedAt = ut.PublishedAt
-	}
-	if ut.Status != nil {
-		pub.Status = *ut.Status
-	}
-	if ut.Title != nil {
-		pub.Title = *ut.Title
-	}
-	if ut.URLName != nil {
-		pub.URLName = *ut.URLName
-	}
-	return &pub
-}
-
-// PostPayload user type.
-type PostPayload struct {
-	// contents
-	Contents string `form:"contents" json:"contents" xml:"contents"`
-	// published_at
-	PublishedAt *time.Time `form:"published_at,omitempty" json:"published_at,omitempty" xml:"published_at,omitempty"`
-	// status
-	Status string `form:"status" json:"status" xml:"status"`
-	// title
-	Title string `form:"title" json:"title" xml:"title"`
-	// url name
-	URLName string `form:"url_name" json:"url_name" xml:"url_name"`
-}
-
-// Validate validates the PostPayload type instance.
-func (ut *PostPayload) Validate() (err error) {
-	if ut.URLName == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "url_name"))
-	}
-	if ut.Title == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "title"))
-	}
-	if ut.Contents == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "contents"))
-	}
-	if ut.Status == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "status"))
-	}
-	if utf8.RuneCountInString(ut.Contents) > 120 {
-		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.contents`, ut.Contents, utf8.RuneCountInString(ut.Contents), 120, false))
-	}
-	if !(ut.Status == "draft" || ut.Status == "published") {
-		err = goa.MergeErrors(err, goa.InvalidEnumValueError(`type.status`, ut.Status, []interface{}{"draft", "published"}))
-	}
-	if utf8.RuneCountInString(ut.Title) > 120 {
-		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.title`, ut.Title, utf8.RuneCountInString(ut.Title), 120, false))
-	}
-	return
-}
-
-// signinPayload user type.
-type signinPayload struct {
-	// ID or Email
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Password
-	Password *string `form:"password,omitempty" json:"password,omitempty" xml:"password,omitempty"`
-}
-
-// Validate validates the signinPayload type instance.
-func (ut *signinPayload) Validate() (err error) {
-	if ut.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "id"))
-	}
-	if ut.Password == nil {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "password"))
-	}
-	if ut.Password != nil {
-		if utf8.RuneCountInString(*ut.Password) > 256 {
-			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.password`, *ut.Password, utf8.RuneCountInString(*ut.Password), 256, false))
-		}
-	}
-	return
-}
-
-// Publicize creates SigninPayload from signinPayload
-func (ut *signinPayload) Publicize() *SigninPayload {
-	var pub SigninPayload
-	if ut.ID != nil {
-		pub.ID = *ut.ID
-	}
-	if ut.Password != nil {
-		pub.Password = *ut.Password
-	}
-	return &pub
-}
-
-// SigninPayload user type.
-type SigninPayload struct {
-	// ID or Email
-	ID string `form:"id" json:"id" xml:"id"`
-	// Password
-	Password string `form:"password" json:"password" xml:"password"`
-}
-
-// Validate validates the SigninPayload type instance.
-func (ut *SigninPayload) Validate() (err error) {
-	if ut.ID == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "id"))
-	}
-	if ut.Password == "" {
-		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "password"))
-	}
-	if utf8.RuneCountInString(ut.Password) > 256 {
-		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.password`, ut.Password, utf8.RuneCountInString(ut.Password), 256, false))
-	}
-	return
 }
 
 // uploadPayload user type.
@@ -277,5 +111,134 @@ func (ut *UploadPayload) Validate() (err error) {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "data"))
 	}
 
+	return
+}
+
+// userAuthorizedKey user type.
+type userAuthorizedKey struct {
+	Key   *string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty"`
+	Label *string `form:"label,omitempty" json:"label,omitempty" xml:"label,omitempty"`
+}
+
+// Validate validates the userAuthorizedKey type instance.
+func (ut *userAuthorizedKey) Validate() (err error) {
+	if ut.Key == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "key"))
+	}
+	if ut.Label == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "label"))
+	}
+	if ut.Key != nil {
+		if utf8.RuneCountInString(*ut.Key) > 2048 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.key`, *ut.Key, utf8.RuneCountInString(*ut.Key), 2048, false))
+		}
+	}
+	if ut.Label != nil {
+		if ok := goa.ValidatePattern(`^[a-zA-Z0-9_]+$`, *ut.Label); !ok {
+			err = goa.MergeErrors(err, goa.InvalidPatternError(`request.label`, *ut.Label, `^[a-zA-Z0-9_]+$`))
+		}
+	}
+	if ut.Label != nil {
+		if utf8.RuneCountInString(*ut.Label) < 1 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.label`, *ut.Label, utf8.RuneCountInString(*ut.Label), 1, true))
+		}
+	}
+	if ut.Label != nil {
+		if utf8.RuneCountInString(*ut.Label) > 32 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`request.label`, *ut.Label, utf8.RuneCountInString(*ut.Label), 32, false))
+		}
+	}
+	return
+}
+
+// Publicize creates UserAuthorizedKey from userAuthorizedKey
+func (ut *userAuthorizedKey) Publicize() *UserAuthorizedKey {
+	var pub UserAuthorizedKey
+	if ut.Key != nil {
+		pub.Key = *ut.Key
+	}
+	if ut.Label != nil {
+		pub.Label = *ut.Label
+	}
+	return &pub
+}
+
+// UserAuthorizedKey user type.
+type UserAuthorizedKey struct {
+	Key   string `form:"key" json:"key" xml:"key"`
+	Label string `form:"label" json:"label" xml:"label"`
+}
+
+// Validate validates the UserAuthorizedKey type instance.
+func (ut *UserAuthorizedKey) Validate() (err error) {
+	if ut.Key == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "key"))
+	}
+	if ut.Label == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`type`, "label"))
+	}
+	if utf8.RuneCountInString(ut.Key) > 2048 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.key`, ut.Key, utf8.RuneCountInString(ut.Key), 2048, false))
+	}
+	if ok := goa.ValidatePattern(`^[a-zA-Z0-9_]+$`, ut.Label); !ok {
+		err = goa.MergeErrors(err, goa.InvalidPatternError(`type.label`, ut.Label, `^[a-zA-Z0-9_]+$`))
+	}
+	if utf8.RuneCountInString(ut.Label) < 1 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.label`, ut.Label, utf8.RuneCountInString(ut.Label), 1, true))
+	}
+	if utf8.RuneCountInString(ut.Label) > 32 {
+		err = goa.MergeErrors(err, goa.InvalidLengthError(`type.label`, ut.Label, utf8.RuneCountInString(ut.Label), 32, false))
+	}
+	return
+}
+
+// userConfig user type.
+type userConfig struct {
+	AuthorizedKeys []*userAuthorizedKey `form:"authorizedKeys,omitempty" json:"authorizedKeys,omitempty" xml:"authorizedKeys,omitempty"`
+	DefaultShell   *string              `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+}
+
+// Validate validates the userConfig type instance.
+func (ut *userConfig) Validate() (err error) {
+	for _, e := range ut.AuthorizedKeys {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// Publicize creates UserConfig from userConfig
+func (ut *userConfig) Publicize() *UserConfig {
+	var pub UserConfig
+	if ut.AuthorizedKeys != nil {
+		pub.AuthorizedKeys = make([]*UserAuthorizedKey, len(ut.AuthorizedKeys))
+		for i2, elem2 := range ut.AuthorizedKeys {
+			pub.AuthorizedKeys[i2] = elem2.Publicize()
+		}
+	}
+	if ut.DefaultShell != nil {
+		pub.DefaultShell = ut.DefaultShell
+	}
+	return &pub
+}
+
+// UserConfig user type.
+type UserConfig struct {
+	AuthorizedKeys []*UserAuthorizedKey `form:"authorizedKeys,omitempty" json:"authorizedKeys,omitempty" xml:"authorizedKeys,omitempty"`
+	DefaultShell   *string              `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+}
+
+// Validate validates the UserConfig type instance.
+func (ut *UserConfig) Validate() (err error) {
+	for _, e := range ut.AuthorizedKeys {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
 	return
 }

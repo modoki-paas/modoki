@@ -119,9 +119,9 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			Env:        ctx.Env,
 			Volumes:    volumesMap,
 			Labels: map[string]string{
-				DockerLabelModokiID:   strconv.Itoa(id),
-				DockerLabelModokiUID:  strconv.Itoa(uid),
-				DockerLabelModokiName: ctx.Name,
+				dockerLabelModokiID:   strconv.Itoa(id),
+				dockerLabelModokiUID:  strconv.Itoa(uid),
+				dockerLabelModokiName: ctx.Name,
 			},
 		}
 
@@ -196,8 +196,8 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			return
 		}
 
-		frontendName := fmt.Sprintf(FrontendFormat, id)
-		backendName := fmt.Sprintf(BackendFormat, id)
+		frontendName := fmt.Sprintf(frontendFormat, id)
+		backendName := fmt.Sprintf(backendFormat, id)
 		if err := c.Consul.NewFrontend(frontendName, "Host: "+ctx.Name+"."+*publicAddr); err != nil {
 			c.must(c.updateStatus(context.Background(), "Error", fmt.Sprintf("Update traefik error: %v", err), id))
 
@@ -366,8 +366,8 @@ func (c *ContainerController) Remove(ctx *app.RemoveContainerContext) error {
 		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "Deletion From Database Error")))
 	}
 
-	frontendName := fmt.Sprintf(FrontendFormat, id)
-	backendName := fmt.Sprintf(BackendFormat, id)
+	frontendName := fmt.Sprintf(frontendFormat, id)
+	backendName := fmt.Sprintf(backendFormat, id)
 
 	if err := c.Consul.DeleteBackend(backendName); err != nil {
 		if err != store.ErrKeyNotFound {
@@ -606,7 +606,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 
 	filter := filters.NewArgs()
 
-	filter.Add("label", DockerLabelModokiUID+"="+strconv.Itoa(uid))
+	filter.Add("label", dockerLabelModokiUID+"="+strconv.Itoa(uid))
 
 	list, err := c.DockerClient.ContainerList(ctx, types.ContainerListOptions{
 		All:     true,
@@ -652,8 +652,8 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 		}
 
 		t := time.Unix(j.Created, 0)
-		id, _ := strconv.Atoi(j.Labels[DockerLabelModokiID])
-		name := j.Labels[DockerLabelModokiName]
+		id, _ := strconv.Atoi(j.Labels[dockerLabelModokiID])
+		name := j.Labels[dockerLabelModokiName]
 
 		var state string
 
@@ -840,17 +840,10 @@ func (c *ContainerController) GetConfig(ctx *app.GetConfigContainerContext) erro
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	rows, err := c.DB.Query("SELECT defaultShell FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+	var config app.GoaContainerConfig
+	err = c.DB.Select(&config, "SELECT defaultShell FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
-		return ctx.InternalServerError(goa.ErrInternal(err))
-	}
-
-	defer rows.Close()
-	rows.Next()
-
-	var config app.GoaContainerConfig
-	if err := rows.Scan(&config); err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
@@ -878,7 +871,7 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, cid str
 	}
 
 	var id int
-	if idStr, ok := j.Config.Labels[DockerLabelModokiID]; !ok {
+	if idStr, ok := j.Config.Labels[dockerLabelModokiID]; !ok {
 		return errors.New("This container is not maintained by modoki")
 	} else {
 		id, err = strconv.Atoi(idStr)
@@ -902,7 +895,7 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, cid str
 
 	addr := j.NetworkSettings.Networks[n].IPAddress
 
-	backendName := fmt.Sprintf(BackendFormat, id)
+	backendName := fmt.Sprintf(backendFormat, id)
 
 	if addr == "" {
 		if err := c.Consul.DeleteBackend(backendName); err != nil {
@@ -911,7 +904,7 @@ func (c *ContainerController) updateContainerStatus(ctx context.Context, cid str
 			}
 		}
 	} else {
-		if err := c.Consul.NewBackend(backendName, ServerName, "http://"+addr); err != nil {
+		if err := c.Consul.NewBackend(backendName, serverName, "http://"+addr); err != nil {
 			return errors.Wrap(err, "Traefik Registeration Error")
 		}
 	}

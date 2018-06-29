@@ -2,16 +2,19 @@ package main
 
 const (
 	jwtKeyUID           = "uid"
-	TraefikFrontendName = "modoki"
-	TraefikBackendName  = "modoki_backend"
+	traefikFrontendName = "modoki"
+	traefikBackendName  = "modoki_backend"
 
-	FrontendFormat = "modokif_%d"
-	BackendFormat  = "modokib_%d"
-	ServerName     = "main"
+	frontendFormat = "modokif_%d"
+	backendFormat  = "modokib_%d"
+	serverName     = "main"
 
-	DockerLabelModokiID   = "com.cs3238.modoki.id"
-	DockerLabelModokiUID  = "com.cs3238.modoki.uid"
-	DockerLabelModokiName = "com.cs3238.modoki.name"
+	dockerLabelModokiID   = "com.cs3238.modoki.id"
+	dockerLabelModokiUID  = "com.cs3238.modoki.uid"
+	dockerLabelModokiName = "com.cs3238.modoki.name"
+
+	// user.go
+	defaultShellKVFormat = "modoki/users/%d/defaultShell"
 )
 
 const containerSchema = `
@@ -25,4 +28,13 @@ CREATE TABLE IF NOT EXISTS containers (
 	defaultShell TEXT,
 	PRIMARY KEY (id),
 	INDEX(cid, name, uid)
+);`
+
+const authorizedKeysSchema = `
+CREATE TABLE IF NOT EXISTS authorizedKeys (
+	id INT NOT NULL AUTO_INCREMENT,
+	uid INT NOT NULL,
+	label VARCHAR(32),
+	key TEXT,
+	INDEX(uid, label)
 );`

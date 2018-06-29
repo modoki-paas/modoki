@@ -7,20 +7,20 @@ consumes:
 definitions:
   ContainerConfig:
     example:
-      defaultShell: Voluptatem autem.
+      defaultShell: Eos aut rerum dolorem.
     properties:
       defaultShell:
-        example: Voluptatem autem.
+        example: Eos aut rerum dolorem.
         type: string
     title: ContainerConfig
     type: object
   GoaContainerConfig:
     description: GoaContainerConfig media type (default view)
     example:
-      defaultShell: Eos aut rerum dolorem.
+      defaultShell: Autem nisi autem numquam illo dignissimos.
     properties:
       defaultShell:
-        example: Eos aut rerum dolorem.
+        example: Autem nisi autem numquam illo dignissimos.
         type: string
     title: 'Mediatype identifier: vpn.application/goa.container.config; view=default'
     type: object
@@ -28,20 +28,22 @@ definitions:
     description: The results of container creation (default view)
     example:
       endpoints:
-      - Autem voluptas.
-      id: 1.794563140867684e+18
+      - Fugiat qui nulla ipsa praesentium.
+      - Fugiat qui nulla ipsa praesentium.
+      id: 8.386783749986592e+18
     properties:
       endpoints:
         description: endpoint URL
         example:
-        - Autem voluptas.
+        - Fugiat qui nulla ipsa praesentium.
+        - Fugiat qui nulla ipsa praesentium.
         items:
-          example: Autem voluptas.
+          example: Fugiat qui nulla ipsa praesentium.
           type: string
         type: array
       id:
         description: container id
-        example: 1.794563140867684e+18
+        example: 8.386783749986592e+18
         format: int64
         type: integer
     required:
@@ -54,66 +56,62 @@ definitions:
     description: GoaContainerInspect media type (default view)
     example:
       args:
-      - Ipsam alias.
-      - Ipsam alias.
-      - Ipsam alias.
-      created: "1994-08-20T09:15:42Z"
-      id: 6.072454594864785e+18
-      image: Ut laudantium fugit aut officia.
-      imageID: Consequatur ex et nostrum.
-      name: Aut recusandae ex totam et dolores.
-      path: Sapiente animi enim sapiente.
+      - Rem reprehenderit quis qui aut.
+      created: "2001-09-07T09:25:15Z"
+      id: 6.484416406069874e+17
+      image: Quae aut quis blanditiis aut.
+      imageID: Magni aut dolore similique.
+      name: Et quibusdam natus.
+      path: Doloremque laudantium velit iure eum doloribus laudantium.
       raw_state:
         dead: true
-        exitCode: 9.010558457491618e+18
-        finishedAt: "1972-07-23T17:34:47Z"
+        exitCode: 4.668068959149211e+18
+        finishedAt: "1976-03-20T09:36:12Z"
         oomKilled: false
-        paused: false
-        pid: 7.966749366891489e+17
+        paused: true
+        pid: 8.952344527173846e+18
         restarting: false
         running: false
-        startedAt: "1976-08-09T23:40:57Z"
-        status: running
-      status: Error
+        startedAt: "1974-08-30T06:11:34Z"
+        status: removing
+      status: Created
       volumes:
-      - Asperiores neque ut possimus magni.
-      - Asperiores neque ut possimus magni.
+      - Sint et modi qui voluptatem.
+      - Sint et modi qui voluptatem.
     properties:
       args:
         description: The arguments to the command being run
         example:
-        - Ipsam alias.
-        - Ipsam alias.
-        - Ipsam alias.
+        - Rem reprehenderit quis qui aut.
         items:
-          example: Ipsam alias.
+          example: Rem reprehenderit quis qui aut.
           type: string
         type: array
       created:
         description: The time the container was created
-        example: "1994-08-20T09:15:42Z"
+        example: "2001-09-07T09:25:15Z"
         format: date-time
         type: string
       id:
         description: ID
-        example: 6.072454594864785e+18
+        example: 6.484416406069874e+17
         format: int64
         type: integer
       image:
         description: The name of the image to use when creating the container
-        example: Ut laudantium fugit aut officia.
+        example: Quae aut quis blanditiis aut.
         type: string
       imageID:
         description: The container's image ID
-        example: Consequatur ex et nostrum.
+        example: Magni aut dolore similique.
         type: string
       name:
         description: Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
-        example: Aut recusandae ex totam et dolores.
+        example: Et quibusdam natus.
         type: string
       path:
         description: The path to the command being run
-        example: Sapiente animi enim sapiente.
+        example: Doloremque laudantium velit iure eum doloribus laudantium.
         type: string
       raw_state:
         $ref: '#/definitions/GoaContainerInspectRaw_state'
@@ -124,15 +122,15 @@ definitions:
         - Running
         - Stopped
         - Error
-        example: Error
+        example: Created
         type: string
       volumes:
         description: Paths to mount volumes in
         example:
-        - Asperiores neque ut possimus magni.
-        - Asperiores neque ut possimus magni.
+        - Sint et modi qui voluptatem.
+        - Sint et modi qui voluptatem.
         items:
-          example: Asperiores neque ut possimus magni.
+          example: Sint et modi qui voluptatem.
           type: string
         type: array
     required:
@@ -152,35 +150,35 @@ definitions:
     description: GoaContainerInspectRaw_state media type (default view)
     example:
       dead: true
-      exitCode: 9.010558457491618e+18
-      finishedAt: "1972-07-23T17:34:47Z"
+      exitCode: 4.668068959149211e+18
+      finishedAt: "1976-03-20T09:36:12Z"
       oomKilled: false
-      paused: false
-      pid: 7.966749366891489e+17
+      paused: true
+      pid: 8.952344527173846e+18
       restarting: false
       running: false
-      startedAt: "1976-08-09T23:40:57Z"
-      status: running
+      startedAt: "1974-08-30T06:11:34Z"
+      status: removing
     properties:
       dead:
         example: true
         type: boolean
       exitCode:
-        example: 9.010558457491618e+18
+        example: 4.668068959149211e+18
         format: int64
         type: integer
       finishedAt:
-        example: "1972-07-23T17:34:47Z"
+        example: "1976-03-20T09:36:12Z"
         format: date-time
         type: string
       oomKilled:
         example: false
         type: boolean
       paused:
-        example: false
+        example: true
         type: boolean
       pid:
-        example: 7.966749366891489e+17
+        example: 8.952344527173846e+18
         format: int64
         type: integer
       restarting:
@@ -190,7 +188,7 @@ definitions:
         example: false
         type: boolean
       startedAt:
-        example: "1976-08-09T23:40:57Z"
+        example: "1974-08-30T06:11:34Z"
         format: date-time
         type: string
       status:
@@ -202,7 +200,7 @@ definitions:
         - removing
         - exited
         - dead
-        example: running
+        example: removing
         type: string
     required:
     - exitCode
@@ -221,41 +219,41 @@ definitions:
   GoaContainerListEach:
     description: GoaContainerListEach media type (default view)
     example:
-      command: Culpa quia nisi dolore ut nisi.
-      created: "2007-03-31T16:57:21Z"
-      id: 4.875770818045676e+18
-      image: Odio quia voluptate explicabo.
-      imageID: Accusantium cumque nihil amet laborum suscipit.
-      name: Consequatur aut neque quas cupiditate.
-      status: Created
+      command: Voluptatibus excepturi sapiente debitis quia alias.
+      created: "1982-11-10T20:38:32Z"
+      id: 8.702585886642135e+18
+      image: Doloremque reiciendis ducimus.
+      imageID: Labore odio.
+      name: Perferendis excepturi.
+      status: Stopped
       volumes:
-      - Et a dicta fugit qui quis.
+      - Aut quia omnis ut illum assumenda omnis.
     properties:
       command:
         description: Command to run when starting the container
-        example: Culpa quia nisi dolore ut nisi.
+        example: Voluptatibus excepturi sapiente debitis quia alias.
         type: string
       created:
         description: The time the container was created
-        example: "2007-03-31T16:57:21Z"
+        example: "1982-11-10T20:38:32Z"
         format: date-time
         type: string
       id:
         description: ID
-        example: 4.875770818045676e+18
+        example: 8.702585886642135e+18
         format: int64
         type: integer
       image:
         description: The name of the image to use when creating the container
-        example: Odio quia voluptate explicabo.
+        example: Doloremque reiciendis ducimus.
         type: string
       imageID:
         description: The container's image ID
-        example: Accusantium cumque nihil amet laborum suscipit.
+        example: Labore odio.
         type: string
       name:
         description: Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
-        example: Consequatur aut neque quas cupiditate.
+        example: Perferendis excepturi.
         type: string
       status:
         enum:
@@ -264,14 +262,14 @@ definitions:
         - Running
         - Stopped
         - Error
-        example: Created
+        example: Stopped
         type: string
       volumes:
         description: Paths to mount volumes in
         example:
-        - Et a dicta fugit qui quis.
+        - Aut quia omnis ut illum assumenda omnis.
         items:
-          example: Et a dicta fugit qui quis.
+          example: Aut quia omnis ut illum assumenda omnis.
           type: string
         type: array
     required:
@@ -289,417 +287,134 @@ definitions:
     description: GoaContainerListEachCollection is the media type for an array of
       GoaContainerListEach (default view)
     example:
-    - command: Culpa quia nisi dolore ut nisi.
-      created: "2007-03-31T16:57:21Z"
-      id: 4.875770818045676e+18
-      image: Odio quia voluptate explicabo.
-      imageID: Accusantium cumque nihil amet laborum suscipit.
-      name: Consequatur aut neque quas cupiditate.
-      status: Created
+    - command: Voluptatibus excepturi sapiente debitis quia alias.
+      created: "1982-11-10T20:38:32Z"
+      id: 8.702585886642135e+18
+      image: Doloremque reiciendis ducimus.
+      imageID: Labore odio.
+      name: Perferendis excepturi.
+      status: Stopped
       volumes:
-      - Et a dicta fugit qui quis.
-    - command: Culpa quia nisi dolore ut nisi.
-      created: "2007-03-31T16:57:21Z"
-      id: 4.875770818045676e+18
-      image: Odio quia voluptate explicabo.
-      imageID: Accusantium cumque nihil amet laborum suscipit.
-      name: Consequatur aut neque quas cupiditate.
-      status: Created
-      volumes:
-      - Et a dicta fugit qui quis.
-    - command: Culpa quia nisi dolore ut nisi.
-      created: "2007-03-31T16:57:21Z"
-      id: 4.875770818045676e+18
-      image: Odio quia voluptate explicabo.
-      imageID: Accusantium cumque nihil amet laborum suscipit.
-      name: Consequatur aut neque quas cupiditate.
-      status: Created
-      volumes:
-      - Et a dicta fugit qui quis.
+      - Aut quia omnis ut illum assumenda omnis.
     items:
       $ref: '#/definitions/GoaContainerListEach'
     title: 'Mediatype identifier: vpn.application/goa.container.list.each; type=collection;
       view=default'
     type: array
-  Query:
-    description: viron query (default view)
+  GoaUserAuthorizedkey:
+    description: GoaUserAuthorizedkey media type (default view)
     example:
-      key: Delectus fugiat qui nulla ipsa.
-      type: Quo aut facere consequatur dolor.
+      key: j3etmw10ir
+      label: 7u3
     properties:
       key:
-        description: key
-        example: Delectus fugiat qui nulla ipsa.
+        example: j3etmw10ir
+        maxLength: 2048
         type: string
-      type:
-        description: type
-        example: Quo aut facere consequatur dolor.
+      label:
+        example: 7u3
+        maxLength: 32
+        minLength: 1
+        pattern: ^[a-zA-Z0-9_]+$
         type: string
     required:
     - key
-    - type
-    title: 'Mediatype identifier: application/vnd.query+json; view=default'
+    - label
+    title: 'Mediatype identifier: vpn.application/goa.user.authorizedkey; view=default'
     type: object
-  SigninPayload:
+  GoaUserAuthorizedkeyCollection:
+    description: GoaUserAuthorizedkeyCollection is the media type for an array of
+      GoaUserAuthorizedkey (default view)
     example:
-      id: identify key
-      password: ckqvt8597d
-    properties:
-      id:
-        description: ID or Email
-        example: identify key
-        type: string
-      password:
-        description: Password
-        example: ckqvt8597d
-        maxLength: 256
-        type: string
-    required:
-    - id
-    - password
-    title: SigninPayload
-    type: object
-  Vironapi:
-    description: viron api (default view)
-    example:
-      method: Sunt facilis.
-      path: Quam assumenda voluptatem autem nisi autem numquam.
-    properties:
-      method:
-        description: name
-        example: Sunt facilis.
-        type: string
-      path:
-        description: path
-        example: Quam assumenda voluptatem autem nisi autem numquam.
-        type: string
-    required:
-    - method
-    - path
-    title: 'Mediatype identifier: application/vnd.vironapi+json; view=default'
-    type: object
-  Vironauthtype:
-    description: viron authtype media (default view)
-    example:
-      method: POST
-      provider: ""
-      type: signin
-      url: /signin
-    properties:
-      method:
-        description: method
-        example: POST
-        type: string
-      provider:
-        description: auth provider
-        example: ""
-        type: string
-      type:
-        description: auth type
-        example: signin
-        type: string
-      url:
-        description: url
-        example: /signin
-        type: string
-    required:
-    - type
-    - provider
-    - url
-    - method
-    title: 'Mediatype identifier: application/vnd.vironauthtype+json; view=default'
-    type: object
-  VironauthtypeCollection:
-    description: VironauthtypeCollection is the media type for an array of Vironauthtype
-      (default view)
-    example:
-    - method: POST
-      provider: ""
-      type: signin
-      url: /signin
-    - method: POST
-      provider: ""
-      type: signin
-      url: /signin
-    - method: POST
-      provider: ""
-      type: signin
-      url: /signin
+    - key: j3etmw10ir
+      label: 7u3
+    - key: j3etmw10ir
+      label: 7u3
+    - key: j3etmw10ir
+      label: 7u3
     items:
-      $ref: '#/definitions/Vironauthtype'
-    title: 'Mediatype identifier: application/vnd.vironauthtype+json; type=collection;
+      $ref: '#/definitions/GoaUserAuthorizedkey'
+    title: 'Mediatype identifier: vpn.application/goa.user.authorizedkey; type=collection;
       view=default'
     type: array
-  Vironcomponent:
-    description: viron component (default view)
+  GoaUserConfig:
+    description: GoaUserConfig media type (default view)
     example:
-      api:
-        method: Sunt facilis.
-        path: Quam assumenda voluptatem autem nisi autem numquam.
-      name: Et similique veniam odio.
-      pagination: false
-      primary: Reprehenderit quis.
-      query:
-      - key: Delectus fugiat qui nulla ipsa.
-        type: Quo aut facere consequatur dolor.
-      - key: Delectus fugiat qui nulla ipsa.
-        type: Quo aut facere consequatur dolor.
-      style: Qui tempore omnis quae aut quis blanditiis.
-      table_labels:
-      - Magni aut dolore similique.
-      - Magni aut dolore similique.
-      - Magni aut dolore similique.
+      authorizedKeys:
+      - key: j3etmw10ir
+        label: 7u3
+      - key: j3etmw10ir
+        label: 7u3
+      - key: j3etmw10ir
+        label: 7u3
+      defaultShell: Sed nam est commodi reiciendis.
     properties:
-      api:
-        $ref: '#/definitions/Vironapi'
-      name:
-        description: name
-        example: Et similique veniam odio.
+      authorizedKeys:
+        $ref: '#/definitions/GoaUserAuthorizedkeyCollection'
+      defaultShell:
+        example: Sed nam est commodi reiciendis.
         type: string
-      pagination:
-        description: pagination
-        example: false
-        type: boolean
-      primary:
-        description: primary key
-        example: Reprehenderit quis.
-        type: string
-      query:
-        description: query
-        example:
-        - key: Delectus fugiat qui nulla ipsa.
-          type: Quo aut facere consequatur dolor.
-        - key: Delectus fugiat qui nulla ipsa.
-          type: Quo aut facere consequatur dolor.
-        items:
-          $ref: '#/definitions/Query'
-        type: array
-      style:
-        description: style
-        example: Qui tempore omnis quae aut quis blanditiis.
-        type: string
-      table_labels:
-        description: table label
-        example:
-        - Magni aut dolore similique.
-        - Magni aut dolore similique.
-        - Magni aut dolore similique.
-        items:
-          example: Magni aut dolore similique.
-          type: string
-        type: array
     required:
-    - name
-    - style
-    - api
-    title: 'Mediatype identifier: application/vnd.vironcomponent+json; view=default'
+    - defaultShell
+    - authorizedKeys
+    title: 'Mediatype identifier: vpn.application/goa.user.config; view=default'
     type: object
-  Vironpage:
-    description: viron page (default view)
+  SetAuthorizedKeysUserPayload:
     example:
-      components:
-      - api:
-          method: Sunt facilis.
-          path: Quam assumenda voluptatem autem nisi autem numquam.
-        name: Et similique veniam odio.
-        pagination: false
-        primary: Reprehenderit quis.
-        query:
-        - key: Delectus fugiat qui nulla ipsa.
-          type: Quo aut facere consequatur dolor.
-        - key: Delectus fugiat qui nulla ipsa.
-          type: Quo aut facere consequatur dolor.
-        style: Qui tempore omnis quae aut quis blanditiis.
-        table_labels:
-        - Magni aut dolore similique.
-        - Magni aut dolore similique.
-        - Magni aut dolore similique.
-      group: Quibusdam natus.
-      id: Doloremque laudantium velit iure eum doloribus laudantium.
-      name: Qui id sint et.
-      section: Qui voluptatem quo.
+    - key: nufwk5tf2z
+      label: "74"
+    - key: nufwk5tf2z
+      label: "74"
+    items:
+      $ref: '#/definitions/UserAuthorizedKey'
+    title: SetAuthorizedKeysUserPayload
+    type: array
+  UserAuthorizedKey:
+    example:
+      key: nufwk5tf2z
+      label: "74"
     properties:
-      components:
-        description: pages
-        example:
-        - api:
-            method: Sunt facilis.
-            path: Quam assumenda voluptatem autem nisi autem numquam.
-          name: Et similique veniam odio.
-          pagination: false
-          primary: Reprehenderit quis.
-          query:
-          - key: Delectus fugiat qui nulla ipsa.
-            type: Quo aut facere consequatur dolor.
-          - key: Delectus fugiat qui nulla ipsa.
-            type: Quo aut facere consequatur dolor.
-          style: Qui tempore omnis quae aut quis blanditiis.
-          table_labels:
-          - Magni aut dolore similique.
-          - Magni aut dolore similique.
-          - Magni aut dolore similique.
-        items:
-          $ref: '#/definitions/Vironcomponent'
-        type: array
-      group:
-        description: group
-        example: Quibusdam natus.
+      key:
+        example: nufwk5tf2z
+        maxLength: 2048
         type: string
-      id:
-        description: id
-        example: Doloremque laudantium velit iure eum doloribus laudantium.
-        type: string
-      name:
-        description: name
-        example: Qui id sint et.
-        type: string
-      section:
-        description: section
-        example: Qui voluptatem quo.
+      label:
+        example: "74"
+        maxLength: 32
+        minLength: 1
+        pattern: ^[a-zA-Z0-9_]+$
         type: string
     required:
-    - id
-    - name
-    - section
-    - group
-    - components
-    title: 'Mediatype identifier: application/vnd.vironpage+json; view=default'
+    - key
+    - label
+    title: UserAuthorizedKey
     type: object
-  Vironsetting:
-    description: viron setting (default view)
+  UserConfig:
     example:
-      color: Excepturi sapiente debitis quia alias ipsum.
-      name: Et doloremque reiciendis ducimus minima labore odio.
-      pages:
-      - components:
-        - api:
-            method: Sunt facilis.
-            path: Quam assumenda voluptatem autem nisi autem numquam.
-          name: Et similique veniam odio.
-          pagination: false
-          primary: Reprehenderit quis.
-          query:
-          - key: Delectus fugiat qui nulla ipsa.
-            type: Quo aut facere consequatur dolor.
-          - key: Delectus fugiat qui nulla ipsa.
-            type: Quo aut facere consequatur dolor.
-          style: Qui tempore omnis quae aut quis blanditiis.
-          table_labels:
-          - Magni aut dolore similique.
-          - Magni aut dolore similique.
-          - Magni aut dolore similique.
-        group: Quibusdam natus.
-        id: Doloremque laudantium velit iure eum doloribus laudantium.
-        name: Qui id sint et.
-        section: Qui voluptatem quo.
-      - components:
-        - api:
-            method: Sunt facilis.
-            path: Quam assumenda voluptatem autem nisi autem numquam.
-          name: Et similique veniam odio.
-          pagination: false
-          primary: Reprehenderit quis.
-          query:
-          - key: Delectus fugiat qui nulla ipsa.
-            type: Quo aut facere consequatur dolor.
-          - key: Delectus fugiat qui nulla ipsa.
-            type: Quo aut facere consequatur dolor.
-          style: Qui tempore omnis quae aut quis blanditiis.
-          table_labels:
-          - Magni aut dolore similique.
-          - Magni aut dolore similique.
-          - Magni aut dolore similique.
-        group: Quibusdam natus.
-        id: Doloremque laudantium velit iure eum doloribus laudantium.
-        name: Qui id sint et.
-        section: Qui voluptatem quo.
-      tags:
-      - Aut sunt minus aut quia omnis.
-      - Aut sunt minus aut quia omnis.
-      theme: Illum assumenda omnis tempora.
-      thumbnail: Debitis non illo et ut et cumque.
+      authorizedKeys:
+      - key: nufwk5tf2z
+        label: "74"
+      - key: nufwk5tf2z
+        label: "74"
+      - key: nufwk5tf2z
+        label: "74"
+      defaultShell: Delectus libero non asperiores neque ut possimus.
     properties:
-      color:
-        description: color
-        example: Excepturi sapiente debitis quia alias ipsum.
-        type: string
-      name:
-        description: name
-        example: Et doloremque reiciendis ducimus minima labore odio.
-        type: string
-      pages:
-        description: pages
+      authorizedKeys:
         example:
-        - components:
-          - api:
-              method: Sunt facilis.
-              path: Quam assumenda voluptatem autem nisi autem numquam.
-            name: Et similique veniam odio.
-            pagination: false
-            primary: Reprehenderit quis.
-            query:
-            - key: Delectus fugiat qui nulla ipsa.
-              type: Quo aut facere consequatur dolor.
-            - key: Delectus fugiat qui nulla ipsa.
-              type: Quo aut facere consequatur dolor.
-            style: Qui tempore omnis quae aut quis blanditiis.
-            table_labels:
-            - Magni aut dolore similique.
-            - Magni aut dolore similique.
-            - Magni aut dolore similique.
-          group: Quibusdam natus.
-          id: Doloremque laudantium velit iure eum doloribus laudantium.
-          name: Qui id sint et.
-          section: Qui voluptatem quo.
-        - components:
-          - api:
-              method: Sunt facilis.
-              path: Quam assumenda voluptatem autem nisi autem numquam.
-            name: Et similique veniam odio.
-            pagination: false
-            primary: Reprehenderit quis.
-            query:
-            - key: Delectus fugiat qui nulla ipsa.
-              type: Quo aut facere consequatur dolor.
-            - key: Delectus fugiat qui nulla ipsa.
-              type: Quo aut facere consequatur dolor.
-            style: Qui tempore omnis quae aut quis blanditiis.
-            table_labels:
-            - Magni aut dolore similique.
-            - Magni aut dolore similique.
-            - Magni aut dolore similique.
-          group: Quibusdam natus.
-          id: Doloremque laudantium velit iure eum doloribus laudantium.
-          name: Qui id sint et.
-          section: Qui voluptatem quo.
+        - key: nufwk5tf2z
+          label: "74"
+        - key: nufwk5tf2z
+          label: "74"
+        - key: nufwk5tf2z
+          label: "74"
         items:
-          $ref: '#/definitions/Vironpage'
+          $ref: '#/definitions/UserAuthorizedKey'
         type: array
-      tags:
-        description: tags
-        example:
-        - Aut sunt minus aut quia omnis.
-        - Aut sunt minus aut quia omnis.
-        items:
-          example: Aut sunt minus aut quia omnis.
-          type: string
-        type: array
-      theme:
-        description: theme
-        example: Illum assumenda omnis tempora.
+      defaultShell:
+        example: Delectus libero non asperiores neque ut possimus.
         type: string
-      thumbnail:
-        description: thumbnail
-        example: Debitis non illo et ut et cumque.
-        type: string
-    required:
-    - name
-    - color
-    - theme
-    - pages
-    - tags
-    - thumbnail
-    title: 'Mediatype identifier: application/vnd.vironsetting+json; view=default'
+    title: UserConfig
     type: object
   error:
     description: Error response media type (default view)
@@ -1132,6 +847,7 @@ paths:
       - description: Name of container and subdomain
         in: query
         maxLength: 64
+        minLength: 1
         name: name
         pattern: ^[a-zA-Z0-9_]+$
         required: true
@@ -1244,77 +960,161 @@ paths:
       summary: list container
       tags:
       - container
-  /signin:
-    post:
-      description: Creates a valid JWT
-      operationId: viron#signin
-      parameters:
-      - in: body
-        name: payload
-        required: true
-        schema:
-          $ref: '#/definitions/SigninPayload'
-      responses:
-        "204":
-          description: No Content
-          headers:
-            Authorization:
-              description: Generated JWT
-              type: string
-        "401":
-          description: Unauthorized
-        "500":
-          description: Internal Server Error
-      schemes:
-      - http
-      - https
-      summary: signin viron
-      tags:
-      - viron
-  /viron:
+  /user/config:
     get:
-      description: Get viron menu
-      operationId: viron#get
+      operationId: user#getConfig
       produces:
-      - application/vnd.vironsetting+json
+      - application/vnd.goa.error
+      - vpn.application/goa.user.config
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Vironsetting'
+            $ref: '#/definitions/GoaUserConfig'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
       schemes:
       - http
       - https
       security:
       - jwt: []
-      summary: get viron
+      summary: getConfig user
       tags:
-      - viron
-  /viron_authtype:
-    get:
-      description: Get viron authtype
-      operationId: viron#authtype
+      - user
+    post:
+      operationId: user#setConfig
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UserConfig'
       produces:
-      - application/vnd.vironauthtype+json; type=collection
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: setConfig user
+      tags:
+      - user
+  /user/config/authorizedKeys:
+    delete:
+      operationId: user#removeAuthorizedKeys
+      parameters:
+      - in: query
+        name: label
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: removeAuthorizedKeys user
+      tags:
+      - user
+    get:
+      operationId: user#listAuthorizedKeys
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.user.authorizedkey; type=collection
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/VironauthtypeCollection'
+            $ref: '#/definitions/GoaUserAuthorizedkeyCollection'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
       schemes:
       - http
       - https
-      summary: authtype viron
+      security:
+      - jwt: []
+      summary: listAuthorizedKeys user
       tags:
-      - viron
+      - user
+    post:
+      operationId: user#setAuthorizedKeys
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/SetAuthorizedKeysUserPayload'
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: setAuthorizedKeys user
+      tags:
+      - user
+    put:
+      operationId: user#addAuthorizedKeys
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UserAuthorizedKey'
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: addAuthorizedKeys user
+      tags:
+      - user
 produces:
 - application/json
 - application/xml
 - application/gob
 - application/x-gob
 responses:
-  InternalServerError:
-    description: Internal Server Error
   NoContent:
     description: No Content
   NotFound:
@@ -1323,8 +1123,6 @@ responses:
     description: Request Entity Too Large
   SwitchingProtocols:
     description: Switching Protocols
-  Unauthorized:
-    description: Unauthorized
 schemes:
 - http
 - https

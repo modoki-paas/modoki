@@ -25,7 +25,6 @@ import (
 
 var (
 	sqlDriver        = flag.String("driver", "mysql", "SQL Driver")
-	jwtKey           = flag.String("jwtkey", "/usr/local/modoki/cred/key.pub", "Path to JWT private key")
 	jwtPub           = flag.String("jwtpub", "/usr/local/modoki/cred/*.pub", "Glob of JWT public key")
 	docker           = flag.String("docker", "unix:///var/run/docker.sock", "Docker path")
 	dockerAPIVersion = flag.String("docker-api", "v1.37", "Docker API version")
@@ -59,7 +58,11 @@ func main() {
 	}
 
 	if _, err := db.Exec(containerSchema); err != nil {
-		log.Fatal("error: Failed to create container table: ", err)
+		log.Fatal("error: Failed to create containers table: ", err)
+	}
+
+	if _, err := db.Exec(authorizedKeysSchema); err != nil {
+		log.Fatal("error: Failed to create authorizedKeys schema: ", err)
 	}
 
 	consul, err := consulTraefik.NewClient("traefik", *consulHost)
@@ -68,48 +71,38 @@ func main() {
 		log.Fatal("error: Connecting to Zookeeper server error", err)
 	}
 
-	if ok, err := consul.HasFrontend(TraefikFrontendName); err != nil {
+	if ok, err := consul.HasFrontend(traefikFrontendName); err != nil {
 		log.Fatal("error: zookeeper.HasFrontend error", err)
 	} else if !ok {
-		if err := consul.NewFrontend(TraefikFrontendName, "Host:"+*publicAddr); err != nil {
+		if err := consul.NewFrontend(traefikFrontendName, "Host:"+*publicAddr); err != nil {
 			log.Fatal("error: zookeeper.NewFrontend error", err)
 		}
 
-		if err := consul.AddValueForFrontend(TraefikFrontendName, "passHostHeader", true); err != nil {
+		if err := consul.AddValueForFrontend(traefikFrontendName, "passHostHeader", true); err != nil {
 			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
 		}
 
 		if *https {
-			if err := consul.AddValueForFrontend(TraefikFrontendName, "headers", "sslredirect", true); err != nil {
+			if err := consul.AddValueForFrontend(traefikFrontendName, "headers", "sslredirect", true); err != nil {
 				log.Fatal("error: zookeeper.AddValueForFrontend error", err)
 			}
 		}
 
-		if err := consul.AddValueForFrontend(TraefikFrontendName, "backend", TraefikBackendName); err != nil {
+		if err := consul.AddValueForFrontend(traefikFrontendName, "backend", traefikBackendName); err != nil {
 			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
 		}
 	}
 
-	if err := consul.NewBackend(TraefikBackendName, ServerName, *traefikAddr); err != nil {
+	if err := consul.NewBackend(traefikBackendName, serverName, *traefikAddr); err != nil {
 		log.Fatal("error: zookeeper.NewBackend error", err)
 	}
 
-	defer consul.DeleteBackend(TraefikBackendName)
+	defer consul.DeleteBackend(traefikBackendName)
 
 	keys, err := LoadJWTPublicKeys(*jwtPub)
 
 	if err != nil {
 		log.Fatal("error: Failed to load public keys", err)
-	}
-
-	b, err := ioutil.ReadFile(*jwtKey)
-	if err != nil {
-		log.Fatal("error: Failed to load private key", err)
-	}
-
-	privKey, err := jwtgo.ParseRSAPrivateKeyFromPEM(b)
-	if err != nil {
-		log.Fatalf("error: Failed to load private key: %s", err)
 	}
 
 	// Mount middleware
@@ -135,20 +128,21 @@ func main() {
 	c.DB = db
 	c.Consul = consul
 	go c.run(context.Background())
-
 	app.MountContainerController(service, c)
-	// Mount "viron" controller
-	c2 := NewVironController(service)
 
-	c2.PrivateKey = privKey
-	app.MountVironController(service, c2)
+	// Mount "user" controller
+	c2 := NewUserController(service)
+
+	c2.DockerClient = dockerClient
+	c2.DB = db
+	c2.Consul = consul
+	app.MountUserController(service, c2)
 
 	// Start service
 
 	if err := service.ListenAndServe(":80"); err != nil {
 		service.LogError("startup", "err", err)
 	}
-
 }
 
 // LoadJWTPublicKeys loads PEM encoded RSA public keys used to validata and decrypt the JWT.

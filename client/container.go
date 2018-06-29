@@ -51,24 +51,24 @@ func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, ima
 	values.Set("image", image)
 	values.Set("name", name)
 	for _, p := range command {
-		tmp23 := p
-		values.Add("command", tmp23)
+		tmp26 := p
+		values.Add("command", tmp26)
 	}
 	for _, p := range entrypoint {
-		tmp24 := p
-		values.Add("entrypoint", tmp24)
+		tmp27 := p
+		values.Add("entrypoint", tmp27)
 	}
 	for _, p := range env {
-		tmp25 := p
-		values.Add("env", tmp25)
+		tmp28 := p
+		values.Add("env", tmp28)
 	}
 	if sslRedirect != nil {
-		tmp26 := strconv.FormatBool(*sslRedirect)
-		values.Set("sslRedirect", tmp26)
+		tmp29 := strconv.FormatBool(*sslRedirect)
+		values.Set("sslRedirect", tmp29)
 	}
 	for _, p := range volumes {
-		tmp27 := p
-		values.Add("volumes", tmp27)
+		tmp30 := p
+		values.Add("volumes", tmp30)
 	}
 	if workingDir != nil {
 		values.Set("workingDir", *workingDir)
@@ -250,31 +250,31 @@ func (c *Client) LogsContainer(ctx context.Context, path string, follow *bool, s
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	if follow != nil {
-		tmp28 := strconv.FormatBool(*follow)
-		values.Set("follow", tmp28)
+		tmp31 := strconv.FormatBool(*follow)
+		values.Set("follow", tmp31)
 	}
 	if since != nil {
-		tmp29 := since.Format(time.RFC3339)
-		values.Set("since", tmp29)
+		tmp32 := since.Format(time.RFC3339)
+		values.Set("since", tmp32)
 	}
 	if stderr != nil {
-		tmp30 := strconv.FormatBool(*stderr)
-		values.Set("stderr", tmp30)
+		tmp33 := strconv.FormatBool(*stderr)
+		values.Set("stderr", tmp33)
 	}
 	if stdout != nil {
-		tmp31 := strconv.FormatBool(*stdout)
-		values.Set("stdout", tmp31)
+		tmp34 := strconv.FormatBool(*stdout)
+		values.Set("stdout", tmp34)
 	}
 	if tail != nil {
 		values.Set("tail", *tail)
 	}
 	if timestamps != nil {
-		tmp32 := strconv.FormatBool(*timestamps)
-		values.Set("timestamps", tmp32)
+		tmp35 := strconv.FormatBool(*timestamps)
+		values.Set("timestamps", tmp35)
 	}
 	if until != nil {
-		tmp33 := until.Format(time.RFC3339)
-		values.Set("until", tmp33)
+		tmp36 := until.Format(time.RFC3339)
+		values.Set("until", tmp36)
 	}
 	u.RawQuery = values.Encode()
 	url_ := u.String()
@@ -309,8 +309,8 @@ func (c *Client) NewRemoveContainerRequest(ctx context.Context, path string, for
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	tmp34 := strconv.FormatBool(force)
-	values.Set("force", tmp34)
+	tmp37 := strconv.FormatBool(force)
+	values.Set("force", tmp37)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {

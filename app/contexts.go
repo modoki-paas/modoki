@@ -74,6 +74,9 @@ func NewCreateContainerContext(ctx context.Context, r *http.Request, service *go
 		if ok := goa.ValidatePattern(`^[a-zA-Z0-9_]+$`, rctx.Name); !ok {
 			err = goa.MergeErrors(err, goa.InvalidPatternError(`name`, rctx.Name, `^[a-zA-Z0-9_]+$`))
 		}
+		if utf8.RuneCountInString(rctx.Name) < 1 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`name`, rctx.Name, utf8.RuneCountInString(rctx.Name), 1, true))
+		}
 		if utf8.RuneCountInString(rctx.Name) > 64 {
 			err = goa.MergeErrors(err, goa.InvalidLengthError(`name`, rctx.Name, utf8.RuneCountInString(rctx.Name), 64, false))
 		}
@@ -705,97 +708,245 @@ func (ctx *UploadContainerContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// AuthtypeVironContext provides the viron authtype action context.
-type AuthtypeVironContext struct {
+// AddAuthorizedKeysUserContext provides the user addAuthorizedKeys action context.
+type AddAuthorizedKeysUserContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
+	Payload *UserAuthorizedKey
 }
 
-// NewAuthtypeVironContext parses the incoming request URL and body, performs validations and creates the
-// context used by the viron controller authtype action.
-func NewAuthtypeVironContext(ctx context.Context, r *http.Request, service *goa.Service) (*AuthtypeVironContext, error) {
+// NewAddAuthorizedKeysUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller addAuthorizedKeys action.
+func NewAddAuthorizedKeysUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*AddAuthorizedKeysUserContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := AuthtypeVironContext{Context: ctx, ResponseData: resp, RequestData: req}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *AuthtypeVironContext) OK(r VironauthtypeCollection) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.vironauthtype+json; type=collection")
-	}
-	if r == nil {
-		r = VironauthtypeCollection{}
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// GetVironContext provides the viron get action context.
-type GetVironContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-}
-
-// NewGetVironContext parses the incoming request URL and body, performs validations and creates the
-// context used by the viron controller get action.
-func NewGetVironContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetVironContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := GetVironContext{Context: ctx, ResponseData: resp, RequestData: req}
-	return &rctx, err
-}
-
-// OK sends a HTTP response with status code 200.
-func (ctx *GetVironContext) OK(r *Vironsetting) error {
-	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.vironsetting+json")
-	}
-	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
-}
-
-// SigninVironContext provides the viron signin action context.
-type SigninVironContext struct {
-	context.Context
-	*goa.ResponseData
-	*goa.RequestData
-	Payload *SigninPayload
-}
-
-// NewSigninVironContext parses the incoming request URL and body, performs validations and creates the
-// context used by the viron controller signin action.
-func NewSigninVironContext(ctx context.Context, r *http.Request, service *goa.Service) (*SigninVironContext, error) {
-	var err error
-	resp := goa.ContextResponse(ctx)
-	resp.Service = service
-	req := goa.ContextRequest(ctx)
-	req.Request = r
-	rctx := SigninVironContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := AddAuthorizedKeysUserContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *SigninVironContext) NoContent() error {
+func (ctx *AddAuthorizedKeysUserContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
-// Unauthorized sends a HTTP response with status code 401.
-func (ctx *SigninVironContext) Unauthorized() error {
-	ctx.ResponseData.WriteHeader(401)
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *AddAuthorizedKeysUserContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// GetConfigUserContext provides the user getConfig action context.
+type GetConfigUserContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewGetConfigUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller getConfig action.
+func NewGetConfigUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetConfigUserContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetConfigUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetConfigUserContext) OK(r *GoaUserConfig) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.config")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetConfigUserContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ListAuthorizedKeysUserContext provides the user listAuthorizedKeys action context.
+type ListAuthorizedKeysUserContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewListAuthorizedKeysUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller listAuthorizedKeys action.
+func NewListAuthorizedKeysUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListAuthorizedKeysUserContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ListAuthorizedKeysUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ListAuthorizedKeysUserContext) OK(r GoaUserAuthorizedkeyCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.authorizedkey; type=collection")
+	}
+	if r == nil {
+		r = GoaUserAuthorizedkeyCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ListAuthorizedKeysUserContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *SigninVironContext) InternalServerError() error {
-	ctx.ResponseData.WriteHeader(500)
+func (ctx *ListAuthorizedKeysUserContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// RemoveAuthorizedKeysUserContext provides the user removeAuthorizedKeys action context.
+type RemoveAuthorizedKeysUserContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Label string
+}
+
+// NewRemoveAuthorizedKeysUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller removeAuthorizedKeys action.
+func NewRemoveAuthorizedKeysUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*RemoveAuthorizedKeysUserContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := RemoveAuthorizedKeysUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramLabel := req.Params["label"]
+	if len(paramLabel) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("label"))
+	} else {
+		rawLabel := paramLabel[0]
+		rctx.Label = rawLabel
+	}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *RemoveAuthorizedKeysUserContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
 	return nil
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *RemoveAuthorizedKeysUserContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *RemoveAuthorizedKeysUserContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// SetAuthorizedKeysUserContext provides the user setAuthorizedKeys action context.
+type SetAuthorizedKeysUserContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload SetAuthorizedKeysUserPayload
+}
+
+// NewSetAuthorizedKeysUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller setAuthorizedKeys action.
+func NewSetAuthorizedKeysUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetAuthorizedKeysUserContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := SetAuthorizedKeysUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// SetAuthorizedKeysUserPayload is the user setAuthorizedKeys action payload.
+type SetAuthorizedKeysUserPayload []*UserAuthorizedKey
+
+// Validate runs the validation rules defined in the design.
+func (payload SetAuthorizedKeysUserPayload) Validate() (err error) {
+	for _, e := range payload {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *SetAuthorizedKeysUserContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *SetAuthorizedKeysUserContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// SetConfigUserContext provides the user setConfig action context.
+type SetConfigUserContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *UserConfig
+}
+
+// NewSetConfigUserContext parses the incoming request URL and body, performs validations and creates the
+// context used by the user controller setConfig action.
+func NewSetConfigUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetConfigUserContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := SetConfigUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *SetConfigUserContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *SetConfigUserContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
