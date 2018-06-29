@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"crypto/sha1"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,10 +14,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/joho/godotenv"
-
 	modoki "github.com/cs3238-tsuzu/modoki/client"
 	"github.com/goadesign/goa/client"
+	"github.com/joho/godotenv"
 	"github.com/k0kubun/pp"
 	"github.com/olekukonko/tablewriter"
 	"github.com/pkg/errors"
@@ -579,168 +579,318 @@ func main() {
 			Name:           "config",
 			Usage:          "Change the config of a container",
 			SkipArgReorder: true,
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name: "defaultShell",
-				},
-				cli.BoolFlag{
-					Name: "show",
-				},
-			},
-			Action: func(ctx *cli.Context) error {
-				if ctx.NArg() < 1 {
-					return errors.New("ID or name is not specified")
-				}
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:      "shell",
+					Usage:     "Change the default shell for SSH",
+					ArgsUsage: `(--name /bin/sh) id/name`,
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "name",
+							Usage: "Set the default shell",
+						},
+					},
+					Action: func(ctx *cli.Context) error {
+						if ctx.NArg() != 1 {
+							cli.ShowSubcommandHelp(ctx)
 
-				if ctx.Bool("show") {
-					resp, err := modokiClient.GetConfigContainer(context.Background(), modoki.GetConfigContainerPath(ctx.Args()[0]))
+							return errors.New("ID or name must be specified")
+						}
 
-					if err != nil {
-						return err
-					}
+						if !ctx.IsSet("name") {
+							resp, err := modokiClient.GetConfigContainer(context.Background(), modoki.GetConfigContainerPath(ctx.Args()[0]))
 
-					switch resp.StatusCode {
-					case http.StatusOK:
-						res, err := modokiClient.DecodeGoaContainerConfig(resp)
+							if err != nil {
+								return err
+							}
+
+							switch resp.StatusCode {
+							case http.StatusOK:
+								res, err := modokiClient.DecodeGoaContainerConfig(resp)
+
+								if err != nil {
+									return err
+								}
+
+								pp.Println(res)
+
+								return nil
+							case http.StatusNotFound:
+								return errors.New("No such container")
+							default:
+								res, err := modokiClient.DecodeErrorResponse(resp)
+
+								if err != nil {
+									return errors.Wrap(err, resp.Status)
+								}
+
+								return errors.Wrap(res, resp.Status)
+							}
+						}
+
+						var config modoki.ContainerConfig
+
+						config.DefaultShell = stringPtr(ctx.String("name"))
+
+						resp, err := modokiClient.SetConfigContainer(context.Background(), modoki.SetConfigContainerPath(ctx.Args()[0]), &config, "application/json")
 
 						if err != nil {
 							return err
 						}
 
-						pp.Println(res)
+						switch resp.StatusCode {
+						case http.StatusNoContent:
+							return nil
+						case http.StatusNotFound:
+							return errors.New("No such container")
+						default:
+							res, err := modokiClient.DecodeErrorResponse(resp)
 
-						return nil
-					case http.StatusNotFound:
-						return errors.New("No such container")
-					default:
-						res, err := modokiClient.DecodeErrorResponse(resp)
+							if err != nil {
+								return errors.Wrap(err, resp.Status)
+							}
 
-						if err != nil {
-							return errors.Wrap(err, resp.Status)
+							return errors.Wrap(res, resp.Status)
 						}
-
-						return errors.Wrap(res, resp.Status)
-					}
-				}
-
-				var config modoki.ContainerConfig
-
-				if ctx.IsSet("defaultShell") {
-					config.DefaultShell = stringPtr(ctx.String("defaultShell"))
-				}
-
-				resp, err := modokiClient.SetConfigContainer(context.Background(), modoki.SetConfigContainerPath(ctx.Args()[0]), &config, "application/json")
-
-				if err != nil {
-					return err
-				}
-
-				switch resp.StatusCode {
-				case http.StatusNoContent:
-					return nil
-				case http.StatusNotFound:
-					return errors.New("No such container")
-				default:
-					res, err := modokiClient.DecodeErrorResponse(resp)
-
-					if err != nil {
-						return errors.Wrap(err, resp.Status)
-					}
-
-					return errors.Wrap(res, resp.Status)
-				}
+					},
+				},
 			},
-		})
+		},
+	)
 
 	userCommands := []cli.Command{
 		cli.Command{
 			Name:           "config",
 			Usage:          "Change the config of the user",
 			SkipArgReorder: true,
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name: "defaultShell",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:  "keys",
+					Usage: "Manage the authorized keys",
+					Subcommands: []cli.Command{
+						cli.Command{
+							Name:  "ls",
+							Usage: "Show a list of authorized keys",
+							Action: func(ctx *cli.Context) error {
+								resp, err := modokiClient.ListAuthorizedKeysUser(context.Background(), modoki.ListAuthorizedKeysUserPath())
+
+								if err != nil {
+									return err
+								}
+
+								switch resp.StatusCode {
+								case http.StatusOK:
+									res, err := modokiClient.DecodeGoaUserAuthorizedkeyCollection(resp)
+
+									if err != nil {
+										return err
+									}
+
+									table := tablewriter.NewWriter(os.Stdout)
+									table.SetBorder(true)
+									table.SetHeader([]string{"Label", "SHA1 Hash"})
+
+									for i := range res {
+										h := sha1.New()
+
+										h.Write([]byte(res[i].Key))
+										bs := h.Sum(nil)
+
+										table.Append([]string{
+											res[i].Label,
+											string(bs),
+										})
+									}
+
+									table.Render()
+
+									return nil
+								default:
+									res, err := modokiClient.DecodeErrorResponse(resp)
+
+									if err != nil {
+										return errors.Wrap(err, resp.Status)
+									}
+
+									return errors.Wrap(res, resp.Status)
+								}
+
+							},
+						},
+						cli.Command{
+							Name:      "add",
+							Usage:     "Add a new authorized key",
+							ArgsUsage: "[label] [path/to/key or -(stdin)]",
+							Action: func(ctx *cli.Context) error {
+								if ctx.NArg() != 2 {
+									cli.ShowSubcommandHelp(ctx)
+
+									return errors.New("label and path must be specified")
+								}
+
+								payload := &modoki.UserAuthorizedKey{
+									Label: ctx.Args()[0],
+								}
+
+								if ctx.Args()[1] == "-" {
+									b, err := ioutil.ReadAll(os.Stdin)
+
+									if err != nil {
+										return errors.Wrap(err, "stdin error")
+									}
+									payload.Key = string(b)
+								} else {
+									b, err := ioutil.ReadFile(ctx.Args()[1])
+
+									if err != nil {
+										return errors.Wrap(err, "file opening error")
+									}
+
+									payload.Key = string(b)
+								}
+
+								resp, err := modokiClient.AddAuthorizedKeysUser(context.Background(), modoki.AddAuthorizedKeysUserPath(), payload, "application/json")
+
+								if err != nil {
+									return err
+								}
+
+								switch resp.StatusCode {
+								case http.StatusNoContent:
+									return nil
+								default:
+									res, err := modokiClient.DecodeErrorResponse(resp)
+
+									if err != nil {
+										return errors.Wrap(err, resp.Status)
+									}
+
+									return errors.Wrap(res, resp.Status)
+								}
+							},
+						},
+						cli.Command{
+							Name:      "rm",
+							Usage:     "remove an authorized key",
+							ArgsUsage: "[lael]",
+							Action: func(ctx *cli.Context) error {
+								if ctx.NArg() != 1 {
+									cli.ShowSubcommandHelp(ctx)
+
+									return errors.New("label and path must be specified")
+								}
+
+								resp, err := modokiClient.RemoveAuthorizedKeysUser(context.Background(), modoki.RemoveAuthorizedKeysUserPath(), ctx.Args()[0])
+
+								if err != nil {
+									return err
+								}
+
+								switch resp.StatusCode {
+								case http.StatusNoContent:
+									return nil
+								default:
+									res, err := modokiClient.DecodeErrorResponse(resp)
+
+									if err != nil {
+										return errors.Wrap(err, resp.Status)
+									}
+
+									return errors.Wrap(res, resp.Status)
+								}
+							},
+						},
+					},
 				},
-				cli.BoolFlag{
-					Name: "show",
-				},
-			},
-			Action: func(ctx *cli.Context) error {
-				if ctx.NArg() < 1 {
-					return errors.New("ID or name is not specified")
-				}
+				cli.Command{
+					Name:      "shell",
+					Usage:     "Change the default shell for SSH",
+					ArgsUsage: `(--name /bin/sh)`,
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "name",
+							Usage: "Set the default shell",
+						},
+					},
+					Action: func(ctx *cli.Context) error {
+						if ctx.NArg() != 0 {
+							cli.ShowSubcommandHelp(ctx)
 
-				if ctx.Bool("show") {
-					resp, err := modokiClient.GetConfigContainer(context.Background(), modoki.GetConfigContainerPath(ctx.Args()[0]))
+							return errors.New("Invalid parameters")
+						}
 
-					if err != nil {
-						return err
-					}
+						if !ctx.IsSet("name") {
+							resp, err := modokiClient.GetDefaultShellUser(context.Background(), modoki.GetDefaultShellUserPath())
 
-					switch resp.StatusCode {
-					case http.StatusOK:
-						res, err := modokiClient.DecodeGoaContainerConfig(resp)
+							if err != nil {
+								return err
+							}
+
+							switch resp.StatusCode {
+							case http.StatusOK:
+								res, err := modokiClient.DecodeGoaUserDefaultshell(resp)
+
+								if err != nil {
+									return err
+								}
+
+								pp.Println(res)
+
+								return nil
+							case http.StatusNotFound:
+								return errors.New("No such container")
+							default:
+								res, err := modokiClient.DecodeErrorResponse(resp)
+
+								if err != nil {
+									return errors.Wrap(err, resp.Status)
+								}
+
+								return errors.Wrap(res, resp.Status)
+							}
+						}
+
+						var config modoki.ContainerConfig
+
+						config.DefaultShell = stringPtr(ctx.String("name"))
+
+						resp, err := modokiClient.SetDefaultShellUser(context.Background(), modoki.SetDefaultShellUserPath(), ctx.String("name"))
 
 						if err != nil {
 							return err
 						}
 
-						pp.Println(res)
+						switch resp.StatusCode {
+						case http.StatusNoContent:
+							return nil
+						case http.StatusNotFound:
+							return errors.New("No such container")
+						default:
+							res, err := modokiClient.DecodeErrorResponse(resp)
 
-						return nil
-					case http.StatusNotFound:
-						return errors.New("No such container")
-					default:
-						res, err := modokiClient.DecodeErrorResponse(resp)
+							if err != nil {
+								return errors.Wrap(err, resp.Status)
+							}
 
-						if err != nil {
-							return errors.Wrap(err, resp.Status)
+							return errors.Wrap(res, resp.Status)
 						}
-
-						return errors.Wrap(res, resp.Status)
-					}
-				}
-
-				var config modoki.ContainerConfig
-
-				if ctx.IsSet("defaultShell") {
-					config.DefaultShell = stringPtr(ctx.String("defaultShell"))
-				}
-
-				resp, err := modokiClient.SetConfigContainer(context.Background(), modoki.SetConfigContainerPath(ctx.Args()[0]), &config, "application/json")
-
-				if err != nil {
-					return err
-				}
-
-				switch resp.StatusCode {
-				case http.StatusNoContent:
-					return nil
-				case http.StatusNotFound:
-					return errors.New("No such container")
-				default:
-					res, err := modokiClient.DecodeErrorResponse(resp)
-
-					if err != nil {
-						return errors.Wrap(err, resp.Status)
-					}
-
-					return errors.Wrap(res, resp.Status)
-				}
+					},
+				},
 			},
 		},
 	}
 
-	app.Commands = []cli.Command{
+	app.Commands = append(app.Commands, containerExposedCommands...)
+	app.Commands = append(app.Commands,
 		cli.Command{
 			Name:        "container",
 			Usage:       "container subcommands",
 			Subcommands: containerCommands,
 		},
 		cli.Command{
-			Name:        "container",
-			Usage:       "container subcommands",
-			Subcommands: containerCommands,
+			Name:        "user",
+			Usage:       "user subcommands",
+			Subcommands: userCommands,
 		},
 
 		cli.Command{
@@ -779,7 +929,8 @@ func main() {
 				},
 			},
 		},
-	}
+	)
+
 	if err := app.Run(os.Args); err != nil {
 		log.Fatalf("error: %s", err.Error())
 	}
