@@ -67,7 +67,7 @@ func (c *UserController) AddAuthorizedKeys(ctx *app.AddAuthorizedKeysUserContext
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	_, err = c.DB.Exec("INSERT INTO authorizedKeys (label, `key`, uid) VALUES (?, ?, uid)", ctx.Payload.Label, ctx.Payload.Key, uid)
+	_, err = c.DB.Exec("INSERT INTO authorizedKeys (label, `key`, uid) VALUES (?, ?, ?)", ctx.Payload.Label, ctx.Payload.Key, uid)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "DB error")))
