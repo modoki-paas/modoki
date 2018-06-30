@@ -840,7 +840,7 @@ func (c *ContainerController) GetConfig(ctx *app.GetConfigContainerContext) erro
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	var configs []string
+	var configs []sql.NullString
 	err = c.DB.Select(&configs, "SELECT defaultShell FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
 
 	if err != nil {
@@ -851,7 +851,11 @@ func (c *ContainerController) GetConfig(ctx *app.GetConfigContainerContext) erro
 		return ctx.NotFound()
 	}
 
-	return ctx.OK(&app.GoaContainerConfig{&configs[0]})
+	if !configs[0].Valid {
+		return ctx.OK(&app.GoaContainerConfig{nil})
+	}
+
+	return ctx.OK(&app.GoaContainerConfig{&configs[0].String})
 	// ContainerController_SetConfig: end_implement
 }
 
