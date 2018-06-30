@@ -698,7 +698,7 @@ func main() {
 
 										table.Append([]string{
 											res[i].Label,
-											string(bs),
+											fmt.Sprintf("%x", bs),
 										})
 									}
 
