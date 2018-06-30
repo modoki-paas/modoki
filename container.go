@@ -808,12 +808,14 @@ func (c *ContainerController) SetConfig(ctx *app.SetConfigContainerContext) erro
 	}
 
 	var setQuery []string
-	placeholders := []interface{}{uid, ctx.ID, ctx.ID}
+	var placeholders []interface{}
 
 	if ctx.Payload.DefaultShell != nil {
 		setQuery = append(setQuery, "defaultShell=?")
 		placeholders = append(placeholders, *ctx.Payload.DefaultShell)
 	}
+
+	placeholders = append(placeholders, uid, ctx.ID, ctx.ID)
 
 	res, err := c.DB.Exec("UPDATE containers SET "+strings.Join(setQuery, " ")+" WHERE uid=? AND (id=? OR name=?)", placeholders...)
 
@@ -832,7 +834,7 @@ func (c *ContainerController) SetConfig(ctx *app.SetConfigContainerContext) erro
 
 // GetConfig runs the getConfig action.
 func (c *ContainerController) GetConfig(ctx *app.GetConfigContainerContext) error {
-	// ContainerController_SetConfig: start_implement
+	// ContainerController_GetConfig: start_implement
 
 	uid, err := GetUIDFromJWT(ctx)
 
@@ -856,7 +858,7 @@ func (c *ContainerController) GetConfig(ctx *app.GetConfigContainerContext) erro
 	}
 
 	return ctx.OK(&app.GoaContainerConfig{&configs[0].String})
-	// ContainerController_SetConfig: end_implement
+	// ContainerController_GetConfig: end_implement
 }
 
 func (c *ContainerController) updateStatus(ctx context.Context, status, msg string, id int) error {
