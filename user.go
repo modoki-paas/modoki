@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pkg/errors"
+	"golang.org/x/crypto/ssh"
 
 	"github.com/cs3238-tsuzu/modoki/app"
 	"github.com/cs3238-tsuzu/modoki/consul_traefik"
@@ -65,6 +66,11 @@ func (c *UserController) AddAuthorizedKeys(ctx *app.AddAuthorizedKeysUserContext
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	_, _, _, _, err = ssh.ParseAuthorizedKey([]byte(ctx.Payload.Key))
+	if err != nil {
+		return ctx.BadRequest()
 	}
 
 	_, err = c.DB.Exec("INSERT INTO authorizedKeys (label, `key`, uid) VALUES (?, ?, ?)", ctx.Payload.Label, ctx.Payload.Key, uid)

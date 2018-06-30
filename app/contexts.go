@@ -734,6 +734,12 @@ func (ctx *AddAuthorizedKeysUserContext) NoContent() error {
 	return nil
 }
 
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *AddAuthorizedKeysUserContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
 // InternalServerError sends a HTTP response with status code 500.
 func (ctx *AddAuthorizedKeysUserContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {

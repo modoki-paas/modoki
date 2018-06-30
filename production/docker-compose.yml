@@ -61,7 +61,7 @@ services:
             - --addr=${PUBLIC_ADDR}
             - --db=root:${DB_PASSWORD}@tcp(mysql:3306)/modoki?charset=utf8mb4&parseTime=True
             - --consul=consul:8500
-            - --docker-api=v1.37
+            - --docker-api=1.37
             - --traefikAddr=http://modoki
             - --jwtkey=/usr/local/modoki/cred/jwt.key
             - --jwtpub=/usr/local/modoki/cred/jwt.key.pub

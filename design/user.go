@@ -108,6 +108,7 @@ var _ = Resource("user", func() {
 		Payload(UserAuthorizedKeyType)
 
 		Response(NoContent)
+		Response(BadRequest)
 		Response(InternalServerError, ErrorMedia)
 	})
 	Action("removeAuthorizedKeys", func() {
