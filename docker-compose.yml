@@ -91,7 +91,7 @@ services:
             - --db=root:${DB_PASSWORD}@tcp(mysql:3306)/modoki?charset=utf8mb4&parseTime=True
             - --consul=consul:8500
             - --docker-api=1.37
-            - --key /usr/local/modoki-ssh-gateway/cred/ssh.key
+            - --key=/usr/local/modoki-ssh-gateway/cred/ssh.key
 volumes:
     mysql-volume:
         driver: local
