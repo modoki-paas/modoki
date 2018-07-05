@@ -121,21 +121,30 @@ func main() {
 		log.Fatal("Docker client initialization error", err)
 	}
 
+	containerUtil := &ContainerControllerUtil{
+		DockerClient: dockerClient,
+		DB:           db,
+		Consul:       consul,
+	}
+	userUtil := &UserControllerUtil{
+		DockerClient: dockerClient,
+		DB:           db,
+		Consul:       consul,
+	}
+	go containerUtil.run(context.Background())
+
 	// Mount "container" controller
 	c := NewContainerController(service)
 
-	c.DockerClient = dockerClient
-	c.DB = db
-	c.Consul = consul
-	go c.run(context.Background())
+	c.ContainerControllerUtil = containerUtil
+
 	app.MountContainerController(service, c)
 
 	// Mount "user" controller
 	c2 := NewUserController(service)
 
-	c2.DockerClient = dockerClient
-	c2.DB = db
-	c2.Consul = consul
+	c2.UserControllerUtil = userUtil
+
 	app.MountUserController(service, c2)
 
 	// Start service

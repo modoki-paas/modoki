@@ -58,6 +58,17 @@ type (
 		PrettyPrint  bool
 	}
 
+	// ExecContainerCommand is the command line data structure for the exec action of container
+	ExecContainerCommand struct {
+		// id or name
+		ID string
+		// The path to the executable file
+		Command []string
+		// Tty
+		Tty         string
+		PrettyPrint bool
+	}
+
 	// GetConfigContainerCommand is the command line data structure for the getConfig action of container
 	GetConfigContainerCommand struct {
 		// id or name
@@ -228,35 +239,35 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "get-config",
-		Short: `getConfig action`,
+		Use:   "exec",
+		Short: `Exec a command with attaching to a container using WebSocket(Mainly for xterm.js, using a protocol for terminado)`,
 	}
-	tmp4 := new(GetConfigContainerCommand)
+	tmp4 := new(ExecContainerCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v2/container/ID/config"]`,
+		Use:   `container ["/api/v2/container/ID/exec"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp4.Run(c, args) },
 	}
 	tmp4.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp4.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	tmp5 := new(GetConfigUserCommand)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "get-config",
+		Short: `getConfig action`,
+	}
+	tmp5 := new(GetConfigContainerCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/api/v2/user/config"]`,
+		Use:   `container ["/api/v2/container/ID/config"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp5.Run(c, args) },
 	}
 	tmp5.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp5.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
-		Use:   "get-default-shell",
-		Short: ``,
-	}
-	tmp6 := new(GetDefaultShellUserCommand)
+	tmp6 := new(GetConfigUserCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/api/v2/user/config/defaultShell"]`,
+		Use:   `user ["/api/v2/user/config"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp6.Run(c, args) },
 	}
@@ -265,12 +276,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "inspect",
-		Short: `Return details of a container`,
+		Use:   "get-default-shell",
+		Short: ``,
 	}
-	tmp7 := new(InspectContainerCommand)
+	tmp7 := new(GetDefaultShellUserCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v2/container/ID/inspect"]`,
+		Use:   `user ["/api/v2/user/config/defaultShell"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp7.Run(c, args) },
 	}
@@ -279,12 +290,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "list",
-		Short: `Return a list of containers`,
+		Use:   "inspect",
+		Short: `Return details of a container`,
 	}
-	tmp8 := new(ListContainerCommand)
+	tmp8 := new(InspectContainerCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v2/container/list"]`,
+		Use:   `container ["/api/v2/container/ID/inspect"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp8.Run(c, args) },
 	}
@@ -293,12 +304,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "list-authorized-keys",
-		Short: ``,
+		Use:   "list",
+		Short: `Return a list of containers`,
 	}
-	tmp9 := new(ListAuthorizedKeysUserCommand)
+	tmp9 := new(ListContainerCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/api/v2/user/config/authorizedKeys"]`,
+		Use:   `container ["/api/v2/container/list"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp9.Run(c, args) },
 	}
@@ -307,12 +318,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "logs",
-		Short: `Get stdout and stderr logs from a container.`,
+		Use:   "list-authorized-keys",
+		Short: ``,
 	}
-	tmp10 := new(LogsContainerCommand)
+	tmp10 := new(ListAuthorizedKeysUserCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v2/container/ID/logs"]`,
+		Use:   `user ["/api/v2/user/config/authorizedKeys"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp10.Run(c, args) },
 	}
@@ -321,12 +332,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "remove",
-		Short: `remove a container`,
+		Use:   "logs",
+		Short: `Get stdout and stderr logs from a container.`,
 	}
-	tmp11 := new(RemoveContainerCommand)
+	tmp11 := new(LogsContainerCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v2/container/ID/remove"]`,
+		Use:   `container ["/api/v2/container/ID/logs"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp11.Run(c, args) },
 	}
@@ -335,12 +346,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "remove-authorized-keys",
-		Short: ``,
+		Use:   "remove",
+		Short: `remove a container`,
 	}
-	tmp12 := new(RemoveAuthorizedKeysUserCommand)
+	tmp12 := new(RemoveContainerCommand)
 	sub = &cobra.Command{
-		Use:   `user ["/api/v2/user/config/authorizedKeys"]`,
+		Use:   `container ["/api/v2/container/ID/remove"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp12.Run(c, args) },
 	}
@@ -349,10 +360,24 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "remove-authorized-keys",
+		Short: ``,
+	}
+	tmp13 := new(RemoveAuthorizedKeysUserCommand)
+	sub = &cobra.Command{
+		Use:   `user ["/api/v2/user/config/authorizedKeys"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp13.Run(c, args) },
+	}
+	tmp13.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp13.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "set-authorized-keys",
 		Short: ``,
 	}
-	tmp13 := new(SetAuthorizedKeysUserCommand)
+	tmp14 := new(SetAuthorizedKeysUserCommand)
 	sub = &cobra.Command{
 		Use:   `user ["/api/v2/user/config/authorizedKeys"]`,
 		Short: ``,
@@ -370,17 +395,17 @@ Payload example:
       "label": "74"
    }
 ]`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp13.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp14.Run(c, args) },
 	}
-	tmp13.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp13.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp14.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp14.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
 		Use:   "set-config",
 		Short: `Change the config of a container`,
 	}
-	tmp14 := new(SetConfigContainerCommand)
+	tmp15 := new(SetConfigContainerCommand)
 	sub = &cobra.Command{
 		Use:   `container ["/api/v2/container/ID/config"]`,
 		Short: ``,
@@ -391,33 +416,19 @@ Payload example:
 {
    "defaultShell": "Aut nobis saepe."
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp14.Run(c, args) },
-	}
-	tmp14.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp14.PrettyPrint, "pp", false, "Pretty print response body")
-	command.AddCommand(sub)
-	app.AddCommand(command)
-	command = &cobra.Command{
-		Use:   "set-default-shell",
-		Short: ``,
-	}
-	tmp15 := new(SetDefaultShellUserCommand)
-	sub = &cobra.Command{
-		Use:   `user ["/api/v2/user/config/defaultShell"]`,
-		Short: ``,
-		RunE:  func(cmd *cobra.Command, args []string) error { return tmp15.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp15.Run(c, args) },
 	}
 	tmp15.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp15.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "start",
-		Short: `start a container`,
+		Use:   "set-default-shell",
+		Short: ``,
 	}
-	tmp16 := new(StartContainerCommand)
+	tmp16 := new(SetDefaultShellUserCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v2/container/ID/start"]`,
+		Use:   `user ["/api/v2/user/config/defaultShell"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp16.Run(c, args) },
 	}
@@ -426,12 +437,12 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
-		Use:   "stop",
-		Short: `stop a container`,
+		Use:   "start",
+		Short: `start a container`,
 	}
-	tmp17 := new(StopContainerCommand)
+	tmp17 := new(StartContainerCommand)
 	sub = &cobra.Command{
-		Use:   `container ["/api/v2/container/ID/stop"]`,
+		Use:   `container ["/api/v2/container/ID/start"]`,
 		Short: ``,
 		RunE:  func(cmd *cobra.Command, args []string) error { return tmp17.Run(c, args) },
 	}
@@ -440,10 +451,24 @@ Payload example:
 	command.AddCommand(sub)
 	app.AddCommand(command)
 	command = &cobra.Command{
+		Use:   "stop",
+		Short: `stop a container`,
+	}
+	tmp18 := new(StopContainerCommand)
+	sub = &cobra.Command{
+		Use:   `container ["/api/v2/container/ID/stop"]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp18.Run(c, args) },
+	}
+	tmp18.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp18.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
 		Use:   "upload",
 		Short: `Copy files to the container`,
 	}
-	tmp18 := new(UploadContainerCommand)
+	tmp19 := new(UploadContainerCommand)
 	sub = &cobra.Command{
 		Use:   `container ["/api/v2/container/ID/upload"]`,
 		Short: ``,
@@ -457,10 +482,10 @@ Payload example:
    "data": "Quas omnis tenetur ut.jpg",
    "path": "Fugit aut officia."
 }`,
-		RunE: func(cmd *cobra.Command, args []string) error { return tmp18.Run(c, args) },
+		RunE: func(cmd *cobra.Command, args []string) error { return tmp19.Run(c, args) },
 	}
-	tmp18.RegisterFlags(sub, c)
-	sub.PersistentFlags().BoolVar(&tmp18.PrettyPrint, "pp", false, "Pretty print response body")
+	tmp19.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp19.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -628,16 +653,16 @@ func (cmd *CreateContainerCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	var tmp19 *bool
+	var tmp20 *bool
 	if cmd.SslRedirect != "" {
 		var err error
-		tmp19, err = boolVal(cmd.SslRedirect)
+		tmp20, err = boolVal(cmd.SslRedirect)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--sslRedirect", "err", err)
 			return err
 		}
 	}
-	resp, err := c.CreateContainer(ctx, path, cmd.Image, cmd.Name, cmd.Command, cmd.Entrypoint, cmd.Env, tmp19, cmd.Volumes, stringFlagVal("workingDir", cmd.WorkingDir))
+	resp, err := c.CreateContainer(ctx, path, cmd.Image, cmd.Name, cmd.Command, cmd.Entrypoint, cmd.Env, tmp20, cmd.Volumes, stringFlagVal("workingDir", cmd.WorkingDir))
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -692,6 +717,46 @@ func (cmd *DownloadContainerCommand) RegisterFlags(cc *cobra.Command, c *client.
 	cc.Flags().StringVar(&cmd.ID, "id", id, `ID or name`)
 	var internalPath string
 	cc.Flags().StringVar(&cmd.InternalPath, "internalPath", internalPath, `Path in the container to save files`)
+}
+
+// Run establishes a websocket connection for the ExecContainerCommand command.
+func (cmd *ExecContainerCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = fmt.Sprintf("/api/v2/container/%v/exec", url.QueryEscape(cmd.ID))
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	var tmp21 *bool
+	if cmd.Tty != "" {
+		var err error
+		tmp21, err = boolVal(cmd.Tty)
+		if err != nil {
+			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--tty", "err", err)
+			return err
+		}
+	}
+	ws, err := c.ExecContainer(ctx, path, cmd.Command, tmp21)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+	go goaclient.WSWrite(ws)
+	goaclient.WSRead(ws)
+
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *ExecContainerCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	var id string
+	cc.Flags().StringVar(&cmd.ID, "id", id, `id or name`)
+	var command []string
+	cc.Flags().StringSliceVar(&cmd.Command, "command", command, `The path to the executable file`)
+	var tty string
+	cc.Flags().StringVar(&cmd.Tty, "tty", tty, `Tty`)
 }
 
 // Run makes the HTTP request corresponding to the GetConfigContainerCommand command.
@@ -780,61 +845,61 @@ func (cmd *LogsContainerCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	var tmp20 *bool
+	var tmp22 *bool
 	if cmd.Follow != "" {
 		var err error
-		tmp20, err = boolVal(cmd.Follow)
+		tmp22, err = boolVal(cmd.Follow)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--follow", "err", err)
 			return err
 		}
 	}
-	var tmp21 *time.Time
+	var tmp23 *time.Time
 	if cmd.Since != "" {
 		var err error
-		tmp21, err = timeVal(cmd.Since)
+		tmp23, err = timeVal(cmd.Since)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *time.Time value", "flag", "--since", "err", err)
 			return err
 		}
 	}
-	var tmp22 *bool
+	var tmp24 *bool
 	if cmd.Stderr != "" {
 		var err error
-		tmp22, err = boolVal(cmd.Stderr)
+		tmp24, err = boolVal(cmd.Stderr)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--stderr", "err", err)
 			return err
 		}
 	}
-	var tmp23 *bool
+	var tmp25 *bool
 	if cmd.Stdout != "" {
 		var err error
-		tmp23, err = boolVal(cmd.Stdout)
+		tmp25, err = boolVal(cmd.Stdout)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--stdout", "err", err)
 			return err
 		}
 	}
-	var tmp24 *bool
+	var tmp26 *bool
 	if cmd.Timestamps != "" {
 		var err error
-		tmp24, err = boolVal(cmd.Timestamps)
+		tmp26, err = boolVal(cmd.Timestamps)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--timestamps", "err", err)
 			return err
 		}
 	}
-	var tmp25 *time.Time
+	var tmp27 *time.Time
 	if cmd.Until != "" {
 		var err error
-		tmp25, err = timeVal(cmd.Until)
+		tmp27, err = timeVal(cmd.Until)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *time.Time value", "flag", "--until", "err", err)
 			return err
 		}
 	}
-	ws, err := c.LogsContainer(ctx, path, tmp20, tmp21, tmp22, tmp23, stringFlagVal("tail", cmd.Tail), tmp24, tmp25)
+	ws, err := c.LogsContainer(ctx, path, tmp22, tmp23, tmp24, tmp25, stringFlagVal("tail", cmd.Tail), tmp26, tmp27)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err
@@ -874,20 +939,20 @@ func (cmd *RemoveContainerCommand) Run(c *client.Client, args []string) error {
 	}
 	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
 	ctx := goa.WithLogger(context.Background(), logger)
-	var tmp26 *bool
+	var tmp28 *bool
 	if cmd.Force != "" {
 		var err error
-		tmp26, err = boolVal(cmd.Force)
+		tmp28, err = boolVal(cmd.Force)
 		if err != nil {
 			goa.LogError(ctx, "failed to parse flag into *bool value", "flag", "--force", "err", err)
 			return err
 		}
 	}
-	if tmp26 == nil {
+	if tmp28 == nil {
 		goa.LogError(ctx, "required flag is missing", "flag", "--force")
 		return fmt.Errorf("required flag force is missing")
 	}
-	resp, err := c.RemoveContainer(ctx, path, *tmp26)
+	resp, err := c.RemoveContainer(ctx, path, *tmp28)
 	if err != nil {
 		goa.LogError(ctx, "failed", "err", err)
 		return err

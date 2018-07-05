@@ -37,6 +37,7 @@ type ContainerController interface {
 	goa.Muxer
 	Create(*CreateContainerContext) error
 	Download(*DownloadContainerContext) error
+	Exec(*ExecContainerContext) error
 	GetConfig(*GetConfigContainerContext) error
 	Inspect(*InspectContainerContext) error
 	List(*ListContainerContext) error
@@ -86,6 +87,22 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	service.LogInfo("mount", "ctrl", "Container", "action", "Download", "route", "GET /api/v2/container/:id/download", "security", "jwt")
 	service.Mux.Handle("HEAD", "/api/v2/container/download", ctrl.MuxHandler("download", h, nil))
 	service.LogInfo("mount", "ctrl", "Container", "action", "Download", "route", "HEAD /api/v2/container/download", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewExecContainerContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Exec(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/api/v2/container/:id/exec", ctrl.MuxHandler("exec", h, nil))
+	service.LogInfo("mount", "ctrl", "Container", "action", "Exec", "route", "GET /api/v2/container/:id/exec", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -260,15 +277,15 @@ func unmarshalUploadContainerPayload(ctx context.Context, service *goa.Service, 
 	var payload uploadPayload
 	rawAllowOverwrite := req.FormValue("allowOverwrite")
 	if allowOverwrite, err2 := strconv.ParseBool(rawAllowOverwrite); err2 == nil {
-		tmp9 := &allowOverwrite
-		payload.AllowOverwrite = tmp9
+		tmp10 := &allowOverwrite
+		payload.AllowOverwrite = tmp10
 	} else {
 		err = goa.MergeErrors(err, goa.InvalidParamTypeError("allowOverwrite", rawAllowOverwrite, "boolean"))
 	}
 	rawCopyUIDGID := req.FormValue("copyUIDGID")
 	if copyUIDGID, err2 := strconv.ParseBool(rawCopyUIDGID); err2 == nil {
-		tmp10 := &copyUIDGID
-		payload.CopyUIDGID = tmp10
+		tmp11 := &copyUIDGID
+		payload.CopyUIDGID = tmp11
 	} else {
 		err = goa.MergeErrors(err, goa.InvalidParamTypeError("copyUIDGID", rawCopyUIDGID, "boolean"))
 	}

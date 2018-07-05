@@ -7,19 +7,13 @@ import (
 	"golang.org/x/crypto/ssh"
 
 	"github.com/cs3238-tsuzu/modoki/app"
-	"github.com/cs3238-tsuzu/modoki/consul_traefik"
-	"github.com/docker/docker/client"
 	"github.com/goadesign/goa"
-	"github.com/jmoiron/sqlx"
 )
 
 // UserController implements the user resource.
 type UserController struct {
 	*goa.Controller
-
-	DB           *sqlx.DB
-	DockerClient *client.Client
-	Consul       *consulTraefik.Client
+	*UserControllerUtil
 }
 
 // NewUserController creates a user controller.

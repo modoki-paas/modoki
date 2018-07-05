@@ -6,25 +6,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
 
 	"code.cloudfoundry.org/bytefmt"
 	"github.com/cs3238-tsuzu/modoki/app"
-	"github.com/cs3238-tsuzu/modoki/consul_traefik"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
-	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/docker/libkv/store"
 	"github.com/goadesign/goa"
-	"github.com/jmoiron/sqlx"
-	"github.com/k0kubun/pp"
 	"github.com/pkg/errors"
 	"golang.org/x/net/websocket"
 )
@@ -32,10 +29,7 @@ import (
 // ContainerController implements the container resource.
 type ContainerController struct {
 	*goa.Controller
-
-	DB           *sqlx.DB
-	DockerClient *client.Client
-	Consul       *consulTraefik.Client
+	*ContainerControllerUtil
 }
 
 // NewContainerController creates a container controller.
@@ -861,109 +855,164 @@ func (c *ContainerController) GetConfig(ctx *app.GetConfigContainerContext) erro
 	// ContainerController_GetConfig: end_implement
 }
 
-func (c *ContainerController) updateStatus(ctx context.Context, status, msg string, id int) error {
-	_, err := c.DB.ExecContext(ctx, "UPDATE containers SET status=?, message=? WHERE id=?", status, msg, id)
-
-	return err
-}
-
-func (c *ContainerController) must(err error) {
-	if err != nil {
-		log.Println("UpdateStatus error:", err)
-	}
-}
-
-func (c *ContainerController) updateContainerStatus(ctx context.Context, cid string) error {
-	j, err := c.DockerClient.ContainerInspect(ctx, cid)
+// Exec runs the exec action.
+func (c *ContainerController) Exec(ctx *app.ExecContainerContext) error {
+	uid, err := GetUIDFromJWT(ctx)
 
 	if err != nil {
-		return errors.Wrap(err, "Container Inspect Error")
+		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	var id int
-	if idStr, ok := j.Config.Labels[dockerLabelModokiID]; !ok {
-		return errors.New("This container is not maintained by modoki")
-	} else {
-		id, err = strconv.Atoi(idStr)
+	tty := false
+	if ctx.Tty != nil && *ctx.Tty {
+		tty = true
+	}
 
-		if err != nil {
-			return errors.Wrap(err, "Invalid id format")
+	rows, err := c.DB.Query("SELECT cid, defaultShell FROM containers WHERE uid=? AND (id=? OR name=?)", uid, ctx.ID, ctx.ID)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "DB error")))
+	}
+
+	var cid string
+	var defaultShell string
+	rows.Next()
+	if err := rows.Scan(&cid, &defaultShell); err != nil {
+		rows.Close()
+		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "DB error")))
+	}
+
+	rows.Close()
+
+	if len(ctx.Command) == 0 {
+		ctx.Command = []string{defaultShell}
+	}
+
+	if len(ctx.Command) == 0 {
+		if p, err := c.Consul.Client.Get(fmt.Sprint(defaultShellKVFormat, uid)); err == nil {
+			ctx.Command = []string{string(p.Value)}
 		}
 	}
-
-	if j.State.Error != "" {
-		if err := c.updateStatus(ctx, "Error", j.State.Error, id); err != nil {
-			return errors.Wrap(err, "DB Update error")
-		}
+	if len(ctx.Command) == 0 {
+		ctx.Command = []string{os.Getenv("MODOKI_DEFAULT_SHELL")}
+	}
+	if len(ctx.Command) == 0 {
+		ctx.Command = []string{"sh"}
 	}
 
-	n := "bridge"
+	c.ExecWSHandler(ctx, cid, ctx.Command, tty).ServeHTTP(ctx.ResponseWriter, ctx.Request)
+	return nil
+}
 
-	if networkName != nil { // command arguments
-		n = *networkName
-	}
+func createExecOutgointData(encoder *json.Encoder, kind string, data ...string) error {
+	arr := []string{kind}
+	arr = append(arr, data...)
 
-	addr := j.NetworkSettings.Networks[n].IPAddress
-
-	backendName := fmt.Sprintf(backendFormat, id)
-
-	if addr == "" {
-		if err := c.Consul.DeleteBackend(backendName); err != nil {
-			if !strings.Contains(err.Error(), "Key not found") {
-				return errors.Wrap(err, "Traefik Unregisteration Error")
-			}
-		}
-	} else {
-		if err := c.Consul.NewBackend(backendName, serverName, "http://"+addr); err != nil {
-			return errors.Wrap(err, "Traefik Registeration Error")
-		}
-	}
-
-	status := ""
-	if j.State.Running {
-		status = "Running"
-	} else {
-		status = "Stopped"
-	}
-
-	if err := c.updateStatus(ctx, status, "", id); err != nil {
-		return errors.Wrap(err, "DB Update error")
+	if err := encoder.Encode(arr); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-func (c *ContainerController) run(ctx context.Context) {
-	var fn func()
+func parseExecIncoming(decoder *json.Decoder) (string, []string, error) {
+	var arr []string
+	if err := decoder.Decode(&arr); err != nil {
+		return "", nil, err
+	}
 
-	fn = func() {
-		select {
-		case <-ctx.Done():
-			return
-		default:
+	if len(arr) < 2 {
+		return "", nil, errors.New("invalid format")
+	}
+
+	return arr[0], arr[1:], nil
+}
+
+// ExecWSHandler establishes a websocket connection to run the exec action.
+func (c *ContainerController) ExecWSHandler(ctx *app.ExecContainerContext, cid string, command []string, tty bool) websocket.Handler {
+	return func(ws *websocket.Conn) {
+		// ContainerController_Exec: start_implement
+
+		execConfig := types.ExecConfig{
+			AttachStdin:  true,
+			AttachStdout: true,
+			AttachStderr: true,
+			Detach:       false,
 		}
 
-		defer fn()
-		msg, err := c.DockerClient.Events(ctx, types.EventsOptions{})
+		decoder := json.NewDecoder(ws)
+		encoder := json.NewEncoder(ws)
 
-		for {
-			select {
-			case m := <-msg:
-				log.Println("event caught: ", pp.Sprint(m))
+		execID, resp, err := c.initExec(context.Background(), cid, execConfig)
 
-				switch m.Status {
-				case "start":
-					c.updateContainerStatus(context.Background(), m.Actor.ID)
-				case "die":
-					c.updateContainerStatus(context.Background(), m.Actor.ID)
+		finalize := func() {
+			ws.Close()
+			resp.Close()
+		}
+
+		if err != nil {
+			createExecOutgointData(encoder, "error", err.Error())
+			finalize()
+
+			return
+		}
+
+		go func() {
+			for {
+				kind, data, err := parseExecIncoming(decoder)
+
+				if err != nil {
+					finalize()
+
+					return
 				}
-			case e := <-err:
-				log.Println("Watching events error: ", e)
+
+				switch kind {
+				case "stdin":
+					if len(data) != 0 {
+						if _, err := resp.Conn.Write([]byte(data[0])); err != nil {
+							finalize()
+							return
+						}
+					}
+
+				case "set_size":
+					if len(data) < 2 {
+						break
+					}
+
+					rows, _ := strconv.Atoi(data[0])
+					cols, _ := strconv.Atoi(data[1])
+
+					c.resizeTty(context.Background(), execID, ttySize{
+						h: uint(rows),
+						w: uint(cols),
+					})
+				}
+			}
+		}()
+
+		pr, pw := io.Pipe()
+
+		if execConfig.Tty {
+			io.Copy(pw, resp.Conn)
+		} else {
+			stdcopy.StdCopy(pw, pw, resp.Conn)
+		}
+
+		buf := make([]byte, 32*1024)
+		for {
+			if l, err := pr.Read(buf); err != nil {
+				finalize()
 				return
+			} else {
+				if err := createExecOutgointData(encoder, "stdout", string(buf[:l])); err != nil {
+					finalize()
+					return
+				}
 			}
 		}
 
+		// ContainerController_Exec: end_implement
 	}
-
-	fn()
 }

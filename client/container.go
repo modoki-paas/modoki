@@ -51,24 +51,24 @@ func (c *Client) NewCreateContainerRequest(ctx context.Context, path string, ima
 	values.Set("image", image)
 	values.Set("name", name)
 	for _, p := range command {
-		tmp27 := p
-		values.Add("command", tmp27)
+		tmp29 := p
+		values.Add("command", tmp29)
 	}
 	for _, p := range entrypoint {
-		tmp28 := p
-		values.Add("entrypoint", tmp28)
+		tmp30 := p
+		values.Add("entrypoint", tmp30)
 	}
 	for _, p := range env {
-		tmp29 := p
-		values.Add("env", tmp29)
+		tmp31 := p
+		values.Add("env", tmp31)
 	}
 	if sslRedirect != nil {
-		tmp30 := strconv.FormatBool(*sslRedirect)
-		values.Set("sslRedirect", tmp30)
+		tmp32 := strconv.FormatBool(*sslRedirect)
+		values.Set("sslRedirect", tmp32)
 	}
 	for _, p := range volumes {
-		tmp31 := p
-		values.Add("volumes", tmp31)
+		tmp33 := p
+		values.Add("volumes", tmp33)
 	}
 	if workingDir != nil {
 		values.Set("workingDir", *workingDir)
@@ -128,6 +128,40 @@ func (c *Client) NewDownloadContainerRequest(ctx context.Context, path string, i
 		}
 	}
 	return req, nil
+}
+
+// ExecContainerPath computes a request path to the exec action of container.
+func ExecContainerPath(id string) string {
+	param0 := id
+
+	return fmt.Sprintf("/api/v2/container/%s/exec", param0)
+}
+
+// Exec a command with attaching to a container using WebSocket(Mainly for xterm.js, using a protocol for terminado)
+func (c *Client) ExecContainer(ctx context.Context, path string, command []string, tty *bool) (*websocket.Conn, error) {
+	scheme := c.Scheme
+	if scheme == "" {
+		scheme = "ws"
+	}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
+	values := u.Query()
+	if command != nil {
+		for _, p := range command {
+			tmp34 := p
+			values.Add("command", tmp34)
+		}
+	}
+	if tty != nil {
+		tmp35 := strconv.FormatBool(*tty)
+		values.Set("tty", tmp35)
+	}
+	u.RawQuery = values.Encode()
+	url_ := u.String()
+	cfg, err := websocket.NewConfig(url_, url_)
+	if err != nil {
+		return nil, err
+	}
+	return websocket.DialConfig(cfg)
 }
 
 // GetConfigContainerPath computes a request path to the getConfig action of container.
@@ -250,31 +284,31 @@ func (c *Client) LogsContainer(ctx context.Context, path string, follow *bool, s
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
 	if follow != nil {
-		tmp32 := strconv.FormatBool(*follow)
-		values.Set("follow", tmp32)
+		tmp36 := strconv.FormatBool(*follow)
+		values.Set("follow", tmp36)
 	}
 	if since != nil {
-		tmp33 := since.Format(time.RFC3339)
-		values.Set("since", tmp33)
+		tmp37 := since.Format(time.RFC3339)
+		values.Set("since", tmp37)
 	}
 	if stderr != nil {
-		tmp34 := strconv.FormatBool(*stderr)
-		values.Set("stderr", tmp34)
+		tmp38 := strconv.FormatBool(*stderr)
+		values.Set("stderr", tmp38)
 	}
 	if stdout != nil {
-		tmp35 := strconv.FormatBool(*stdout)
-		values.Set("stdout", tmp35)
+		tmp39 := strconv.FormatBool(*stdout)
+		values.Set("stdout", tmp39)
 	}
 	if tail != nil {
 		values.Set("tail", *tail)
 	}
 	if timestamps != nil {
-		tmp36 := strconv.FormatBool(*timestamps)
-		values.Set("timestamps", tmp36)
+		tmp40 := strconv.FormatBool(*timestamps)
+		values.Set("timestamps", tmp40)
 	}
 	if until != nil {
-		tmp37 := until.Format(time.RFC3339)
-		values.Set("until", tmp37)
+		tmp41 := until.Format(time.RFC3339)
+		values.Set("until", tmp41)
 	}
 	u.RawQuery = values.Encode()
 	url_ := u.String()
@@ -309,8 +343,8 @@ func (c *Client) NewRemoveContainerRequest(ctx context.Context, path string, for
 	}
 	u := url.URL{Host: c.Host, Scheme: scheme, Path: path}
 	values := u.Query()
-	tmp38 := strconv.FormatBool(force)
-	values.Set("force", tmp38)
+	tmp42 := strconv.FormatBool(force)
+	values.Set("force", tmp42)
 	u.RawQuery = values.Encode()
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {

@@ -342,6 +342,24 @@ var _ = Resource("container", func() { // Defines the Operands resource
 		Response(NotFound)
 		Response(InternalServerError, ErrorMedia)
 	})
+
+	Action("exec", func() { // WebSocket API
+		Routing(GET("/:id/exec"))
+		Scheme("ws")
+		Description("Exec a command with attaching to a container using WebSocket(Mainly for xterm.js, using a protocol for terminado)")
+
+		Params(func() {
+			Param("id", String, "id or name")
+			Param("command", ArrayOf(String), "The path to the executable file")
+			Param("tty", Boolean, "Tty")
+
+			Required("id")
+		})
+
+		Response(SwitchingProtocols)
+		Response(NotFound, ErrorMedia)
+		Response(InternalServerError, ErrorMedia)
+	})
 })
 
 var UploadPayload = Type("UploadPayload", func() {

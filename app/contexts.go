@@ -196,6 +196,64 @@ func (ctx *DownloadContainerContext) InternalServerError(r error) error {
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
+// ExecContainerContext provides the container exec action context.
+type ExecContainerContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Command []string
+	ID      string
+	Tty     *bool
+}
+
+// NewExecContainerContext parses the incoming request URL and body, performs validations and creates the
+// context used by the container controller exec action.
+func NewExecContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*ExecContainerContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ExecContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramCommand := req.Params["command"]
+	if len(paramCommand) > 0 {
+		params := paramCommand
+		rctx.Command = params
+	}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramTty := req.Params["tty"]
+	if len(paramTty) > 0 {
+		rawTty := paramTty[0]
+		if tty, err2 := strconv.ParseBool(rawTty); err2 == nil {
+			tmp2 := &tty
+			rctx.Tty = tmp2
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("tty", rawTty, "boolean"))
+		}
+	}
+	return &rctx, err
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ExecContainerContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ExecContainerContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
 // GetConfigContainerContext provides the container getConfig action context.
 type GetConfigContainerContext struct {
 	context.Context
@@ -372,8 +430,8 @@ func NewLogsContainerContext(ctx context.Context, r *http.Request, service *goa.
 	if len(paramSince) > 0 {
 		rawSince := paramSince[0]
 		if since, err2 := time.Parse(time.RFC3339, rawSince); err2 == nil {
-			tmp3 := &since
-			rctx.Since = tmp3
+			tmp4 := &since
+			rctx.Since = tmp4
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("since", rawSince, "datetime"))
 		}
@@ -422,8 +480,8 @@ func NewLogsContainerContext(ctx context.Context, r *http.Request, service *goa.
 	if len(paramUntil) > 0 {
 		rawUntil := paramUntil[0]
 		if until, err2 := time.Parse(time.RFC3339, rawUntil); err2 == nil {
-			tmp7 := &until
-			rctx.Until = tmp7
+			tmp8 := &until
+			rctx.Until = tmp8
 		} else {
 			err = goa.MergeErrors(err, goa.InvalidParamTypeError("until", rawUntil, "datetime"))
 		}

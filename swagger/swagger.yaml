@@ -561,6 +561,50 @@ paths:
       summary: download container
       tags:
       - container
+  /container/{id}/exec:
+    get:
+      description: Exec a command with attaching to a container using WebSocket(Mainly
+        for xterm.js, using a protocol for terminado)
+      operationId: container#exec
+      parameters:
+      - collectionFormat: multi
+        description: The path to the executable file
+        in: query
+        items:
+          type: string
+        name: command
+        required: false
+        type: array
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tty
+        in: query
+        name: tty
+        required: false
+        type: boolean
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "101":
+          description: Switching Protocols
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - ws
+      security:
+      - jwt: []
+      summary: exec container
+      tags:
+      - container
   /container/{id}/inspect:
     get:
       description: Return details of a container
