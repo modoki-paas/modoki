@@ -10,7 +10,7 @@ var _ = API("Modoki API", func() {
 	Host("localhost:4434")
 	BasePath("/api/v2")
 	Security(JWT)
-	Version("1.0")
+	Version("1.0.0")
 })
 
 var JWT = JWTSecurity("jwt", func() {
