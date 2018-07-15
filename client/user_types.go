@@ -11,13 +11,14 @@
 package client
 
 import (
-	"github.com/goadesign/goa"
 	"unicode/utf8"
+
+	"github.com/goadesign/goa"
 )
 
 // containerConfig user type.
 type containerConfig struct {
-	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" yaml:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
 }
 
 // Publicize creates ContainerConfig from containerConfig
@@ -31,19 +32,19 @@ func (ut *containerConfig) Publicize() *ContainerConfig {
 
 // ContainerConfig user type.
 type ContainerConfig struct {
-	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" yaml:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
 }
 
 // uploadPayload user type.
 type uploadPayload struct {
 	// Allow for a existing directory to be replaced by a file
-	AllowOverwrite *bool `form:"allowOverwrite,omitempty" json:"allowOverwrite,omitempty" xml:"allowOverwrite,omitempty"`
+	AllowOverwrite *bool `form:"allowOverwrite,omitempty" json:"allowOverwrite,omitempty" yaml:"allowOverwrite,omitempty" xml:"allowOverwrite,omitempty"`
 	// Copy all uid/gid information
-	CopyUIDGID *bool `form:"copyUIDGID,omitempty" json:"copyUIDGID,omitempty" xml:"copyUIDGID,omitempty"`
+	CopyUIDGID *bool `form:"copyUIDGID,omitempty" json:"copyUIDGID,omitempty" yaml:"copyUIDGID,omitempty" xml:"copyUIDGID,omitempty"`
 	// File tar archive
-	Data *string `form:"data,omitempty" json:"data,omitempty" xml:"data,omitempty"`
+	Data *string `form:"data,omitempty" json:"data,omitempty" yaml:"data,omitempty" xml:"data,omitempty"`
 	// Path in the container to save files
-	Path *string `form:"path,omitempty" json:"path,omitempty" xml:"path,omitempty"`
+	Path *string `form:"path,omitempty" json:"path,omitempty" yaml:"path,omitempty" xml:"path,omitempty"`
 }
 
 // Finalize sets the default values for uploadPayload type instance.
@@ -93,13 +94,13 @@ func (ut *uploadPayload) Publicize() *UploadPayload {
 // UploadPayload user type.
 type UploadPayload struct {
 	// Allow for a existing directory to be replaced by a file
-	AllowOverwrite bool `form:"allowOverwrite" json:"allowOverwrite" xml:"allowOverwrite"`
+	AllowOverwrite bool `form:"allowOverwrite" json:"allowOverwrite" yaml:"allowOverwrite" xml:"allowOverwrite"`
 	// Copy all uid/gid information
-	CopyUIDGID bool `form:"copyUIDGID" json:"copyUIDGID" xml:"copyUIDGID"`
+	CopyUIDGID bool `form:"copyUIDGID" json:"copyUIDGID" yaml:"copyUIDGID" xml:"copyUIDGID"`
 	// File tar archive
-	Data string `form:"data" json:"data" xml:"data"`
+	Data string `form:"data" json:"data" yaml:"data" xml:"data"`
 	// Path in the container to save files
-	Path string `form:"path" json:"path" xml:"path"`
+	Path string `form:"path" json:"path" yaml:"path" xml:"path"`
 }
 
 // Validate validates the UploadPayload type instance.
@@ -116,8 +117,8 @@ func (ut *UploadPayload) Validate() (err error) {
 
 // userAuthorizedKey user type.
 type userAuthorizedKey struct {
-	Key   *string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty"`
-	Label *string `form:"label,omitempty" json:"label,omitempty" xml:"label,omitempty"`
+	Key   *string `form:"key,omitempty" json:"key,omitempty" yaml:"key,omitempty" xml:"key,omitempty"`
+	Label *string `form:"label,omitempty" json:"label,omitempty" yaml:"label,omitempty" xml:"label,omitempty"`
 }
 
 // Validate validates the userAuthorizedKey type instance.
@@ -165,8 +166,8 @@ func (ut *userAuthorizedKey) Publicize() *UserAuthorizedKey {
 
 // UserAuthorizedKey user type.
 type UserAuthorizedKey struct {
-	Key   string `form:"key" json:"key" xml:"key"`
-	Label string `form:"label" json:"label" xml:"label"`
+	Key   string `form:"key" json:"key" yaml:"key" xml:"key"`
+	Label string `form:"label" json:"label" yaml:"label" xml:"label"`
 }
 
 // Validate validates the UserAuthorizedKey type instance.
@@ -194,8 +195,8 @@ func (ut *UserAuthorizedKey) Validate() (err error) {
 
 // userConfig user type.
 type userConfig struct {
-	AuthorizedKeys []*userAuthorizedKey `form:"authorizedKeys,omitempty" json:"authorizedKeys,omitempty" xml:"authorizedKeys,omitempty"`
-	DefaultShell   *string              `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+	AuthorizedKeys []*userAuthorizedKey `form:"authorizedKeys,omitempty" json:"authorizedKeys,omitempty" yaml:"authorizedKeys,omitempty" xml:"authorizedKeys,omitempty"`
+	DefaultShell   *string              `form:"defaultShell,omitempty" json:"defaultShell,omitempty" yaml:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
 }
 
 // Validate validates the userConfig type instance.
@@ -227,8 +228,8 @@ func (ut *userConfig) Publicize() *UserConfig {
 
 // UserConfig user type.
 type UserConfig struct {
-	AuthorizedKeys []*UserAuthorizedKey `form:"authorizedKeys,omitempty" json:"authorizedKeys,omitempty" xml:"authorizedKeys,omitempty"`
-	DefaultShell   *string              `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+	AuthorizedKeys []*UserAuthorizedKey `form:"authorizedKeys,omitempty" json:"authorizedKeys,omitempty" yaml:"authorizedKeys,omitempty" xml:"authorizedKeys,omitempty"`
+	DefaultShell   *string              `form:"defaultShell,omitempty" json:"defaultShell,omitempty" yaml:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
 }
 
 // Validate validates the UserConfig type instance.

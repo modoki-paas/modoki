@@ -797,6 +797,8 @@ paths:
       - container
   /container/{id}/upload:
     post:
+      consumes:
+      - multipart/form-data
       description: Copy files to the container
       operationId: container#upload
       parameters:

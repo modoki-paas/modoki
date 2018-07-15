@@ -23,9 +23,9 @@ import (
 // Identifier: vnd.application/goa.container.create.results+json; view=default
 type GoaContainerCreateResults struct {
 	// endpoint URL
-	Endpoints []string `form:"endpoints" json:"endpoints" xml:"endpoints"`
+	Endpoints []string `form:"endpoints" json:"endpoints" yaml:"endpoints" xml:"endpoints"`
 	// container id
-	ID int `form:"id" json:"id" xml:"id"`
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
 }
 
 // Validate validates the GoaContainerCreateResults media type instance.
@@ -41,16 +41,16 @@ func (mt *GoaContainerCreateResults) Validate() (err error) {
 //
 // Identifier: vnd.application/goa.container.inspect.raw_state; view=default
 type GoaContainerInspectRawState struct {
-	Dead       bool      `form:"dead" json:"dead" xml:"dead"`
-	ExitCode   int       `form:"exitCode" json:"exitCode" xml:"exitCode"`
-	FinishedAt time.Time `form:"finishedAt" json:"finishedAt" xml:"finishedAt"`
-	OomKilled  bool      `form:"oomKilled" json:"oomKilled" xml:"oomKilled"`
-	Paused     bool      `form:"paused" json:"paused" xml:"paused"`
-	Pid        int       `form:"pid" json:"pid" xml:"pid"`
-	Restarting bool      `form:"restarting" json:"restarting" xml:"restarting"`
-	Running    bool      `form:"running" json:"running" xml:"running"`
-	StartedAt  time.Time `form:"startedAt" json:"startedAt" xml:"startedAt"`
-	Status     string    `form:"status" json:"status" xml:"status"`
+	Dead       bool      `form:"dead" json:"dead" yaml:"dead" xml:"dead"`
+	ExitCode   int       `form:"exitCode" json:"exitCode" yaml:"exitCode" xml:"exitCode"`
+	FinishedAt time.Time `form:"finishedAt" json:"finishedAt" yaml:"finishedAt" xml:"finishedAt"`
+	OomKilled  bool      `form:"oomKilled" json:"oomKilled" yaml:"oomKilled" xml:"oomKilled"`
+	Paused     bool      `form:"paused" json:"paused" yaml:"paused" xml:"paused"`
+	Pid        int       `form:"pid" json:"pid" yaml:"pid" xml:"pid"`
+	Restarting bool      `form:"restarting" json:"restarting" yaml:"restarting" xml:"restarting"`
+	Running    bool      `form:"running" json:"running" yaml:"running" xml:"running"`
+	StartedAt  time.Time `form:"startedAt" json:"startedAt" yaml:"startedAt" xml:"startedAt"`
+	Status     string    `form:"status" json:"status" yaml:"status" xml:"status"`
 }
 
 // Validate validates the GoaContainerInspectRawState media type instance.
@@ -69,14 +69,14 @@ func (mt *GoaContainerInspectRawState) Validate() (err error) {
 //
 // Identifier: vpn.application/goa.container.config; view=default
 type GoaContainerConfig struct {
-	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
+	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" yaml:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
 }
 
 // GoaContainerDownloadResult media type (default view)
 //
 // Identifier: vpn.application/goa.container.download.result; view=default
 type GoaContainerDownloadResult struct {
-	File *multipart.FileHeader `form:"file,omitempty" json:"file,omitempty" xml:"file,omitempty"`
+	File *multipart.FileHeader `form:"file,omitempty" json:"file,omitempty" yaml:"file,omitempty" xml:"file,omitempty"`
 }
 
 // GoaContainerInspect media type (default view)
@@ -84,23 +84,23 @@ type GoaContainerDownloadResult struct {
 // Identifier: vpn.application/goa.container.inspect; view=default
 type GoaContainerInspect struct {
 	// The arguments to the command being run
-	Args []string `form:"args" json:"args" xml:"args"`
+	Args []string `form:"args" json:"args" yaml:"args" xml:"args"`
 	// The time the container was created
-	Created time.Time `form:"created" json:"created" xml:"created"`
+	Created time.Time `form:"created" json:"created" yaml:"created" xml:"created"`
 	// ID
-	ID int `form:"id" json:"id" xml:"id"`
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
 	// The name of the image to use when creating the container
-	Image string `form:"image" json:"image" xml:"image"`
+	Image string `form:"image" json:"image" yaml:"image" xml:"image"`
 	// The container's image ID
-	ImageID string `form:"imageID" json:"imageID" xml:"imageID"`
+	ImageID string `form:"imageID" json:"imageID" yaml:"imageID" xml:"imageID"`
 	// Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
-	Name string `form:"name" json:"name" xml:"name"`
+	Name string `form:"name" json:"name" yaml:"name" xml:"name"`
 	// The path to the command being run
-	Path     string                       `form:"path" json:"path" xml:"path"`
-	RawState *GoaContainerInspectRawState `form:"raw_state" json:"raw_state" xml:"raw_state"`
-	Status   string                       `form:"status" json:"status" xml:"status"`
+	Path     string                       `form:"path" json:"path" yaml:"path" xml:"path"`
+	RawState *GoaContainerInspectRawState `form:"raw_state" json:"raw_state" yaml:"raw_state" xml:"raw_state"`
+	Status   string                       `form:"status" json:"status" yaml:"status" xml:"status"`
 	// Paths to mount volumes in
-	Volumes []string `form:"volumes" json:"volumes" xml:"volumes"`
+	Volumes []string `form:"volumes" json:"volumes" yaml:"volumes" xml:"volumes"`
 }
 
 // Validate validates the GoaContainerInspect media type instance.
@@ -147,20 +147,20 @@ func (mt *GoaContainerInspect) Validate() (err error) {
 // Identifier: vpn.application/goa.container.list.each; view=default
 type GoaContainerListEach struct {
 	// Command to run when starting the container
-	Command string `form:"command" json:"command" xml:"command"`
+	Command string `form:"command" json:"command" yaml:"command" xml:"command"`
 	// The time the container was created
-	Created time.Time `form:"created" json:"created" xml:"created"`
+	Created time.Time `form:"created" json:"created" yaml:"created" xml:"created"`
 	// ID
-	ID int `form:"id" json:"id" xml:"id"`
+	ID int `form:"id" json:"id" yaml:"id" xml:"id"`
 	// The name of the image to use when creating the container
-	Image string `form:"image" json:"image" xml:"image"`
+	Image string `form:"image" json:"image" yaml:"image" xml:"image"`
 	// The container's image ID
-	ImageID string `form:"imageID" json:"imageID" xml:"imageID"`
+	ImageID string `form:"imageID" json:"imageID" yaml:"imageID" xml:"imageID"`
 	// Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.
-	Name   string `form:"name" json:"name" xml:"name"`
-	Status string `form:"status" json:"status" xml:"status"`
+	Name   string `form:"name" json:"name" yaml:"name" xml:"name"`
+	Status string `form:"status" json:"status" yaml:"status" xml:"status"`
 	// Paths to mount volumes in
-	Volumes []string `form:"volumes" json:"volumes" xml:"volumes"`
+	Volumes []string `form:"volumes" json:"volumes" yaml:"volumes" xml:"volumes"`
 }
 
 // Validate validates the GoaContainerListEach media type instance.
@@ -212,8 +212,8 @@ func (mt GoaContainerListEachCollection) Validate() (err error) {
 //
 // Identifier: vpn.application/goa.user.authorizedkey; view=default
 type GoaUserAuthorizedkey struct {
-	Key   string `form:"key" json:"key" xml:"key"`
-	Label string `form:"label" json:"label" xml:"label"`
+	Key   string `form:"key" json:"key" yaml:"key" xml:"key"`
+	Label string `form:"label" json:"label" yaml:"label" xml:"label"`
 }
 
 // Validate validates the GoaUserAuthorizedkey media type instance.
@@ -260,8 +260,8 @@ func (mt GoaUserAuthorizedkeyCollection) Validate() (err error) {
 //
 // Identifier: vpn.application/goa.user.config; view=default
 type GoaUserConfig struct {
-	AuthorizedKeys GoaUserAuthorizedkeyCollection `form:"authorizedKeys" json:"authorizedKeys" xml:"authorizedKeys"`
-	DefaultShell   string                         `form:"defaultShell" json:"defaultShell" xml:"defaultShell"`
+	AuthorizedKeys GoaUserAuthorizedkeyCollection `form:"authorizedKeys" json:"authorizedKeys" yaml:"authorizedKeys" xml:"authorizedKeys"`
+	DefaultShell   string                         `form:"defaultShell" json:"defaultShell" yaml:"defaultShell" xml:"defaultShell"`
 }
 
 // Validate validates the GoaUserConfig media type instance.
@@ -282,7 +282,7 @@ func (mt *GoaUserConfig) Validate() (err error) {
 //
 // Identifier: vpn.application/goa.user.defaultshell; view=default
 type GoaUserDefaultshell struct {
-	DefaultShell string `form:"defaultShell" json:"defaultShell" xml:"defaultShell"`
+	DefaultShell string `form:"defaultShell" json:"defaultShell" yaml:"defaultShell" xml:"defaultShell"`
 }
 
 // Validate validates the GoaUserDefaultshell media type instance.
