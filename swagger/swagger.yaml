@@ -456,8 +456,8 @@ definitions:
     type: object
 host: localhost:4434
 info:
-  title: Modoki API Documentation
-  version: ""
+  title: Modoki API
+  version: "1.0"
 paths:
   /container/{id}/config:
     get:
