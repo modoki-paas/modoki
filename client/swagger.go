@@ -27,7 +27,7 @@ func (c *Client) DownloadSwaggerJSON(ctx context.Context, dest string) (int64, e
 	if scheme == "" {
 		scheme = "http"
 	}
-	u := url.URL{Host: c.Host, Scheme: scheme, Path: "/swagger.json"}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: "/api/v2/swagger/swagger.json"}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return 0, err
@@ -61,7 +61,7 @@ func (c *Client) DownloadSwaggerYaml(ctx context.Context, dest string) (int64, e
 	if scheme == "" {
 		scheme = "http"
 	}
-	u := url.URL{Host: c.Host, Scheme: scheme, Path: "/swagger.yaml"}
+	u := url.URL{Host: c.Host, Scheme: scheme, Path: "/api/v2/swagger/swagger.yaml"}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return 0, err

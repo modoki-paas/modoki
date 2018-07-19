@@ -676,14 +676,14 @@ func (cmd *DownloadCommand) Run(c *client.Client, args []string) error {
 	if rpath[0] != '/' {
 		rpath = "/" + rpath
 	}
-	if rpath == "/swagger.json" {
+	if rpath == "/api/v2/swagger/swagger.json" {
 		fnf = c.DownloadSwaggerJSON
 		if outfile == "" {
 			outfile = "swagger.json"
 		}
 		goto found
 	}
-	if rpath == "/swagger.yaml" {
+	if rpath == "/api/v2/swagger/swagger.yaml" {
 		fnf = c.DownloadSwaggerYaml
 		if outfile == "" {
 			outfile = "swagger.yaml"

@@ -320,20 +320,18 @@ type SwaggerController interface {
 func MountSwaggerController(service *goa.Service, ctrl SwaggerController) {
 	initService(service)
 	var h goa.Handler
-	service.Mux.Handle("OPTIONS", "/swagger.json", ctrl.MuxHandler("preflight", handleSwaggerOrigin(cors.HandlePreflight()), nil))
-	service.Mux.Handle("OPTIONS", "/swagger.yaml", ctrl.MuxHandler("preflight", handleSwaggerOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/api/v2/swagger/swagger.json", ctrl.MuxHandler("preflight", handleSwaggerOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/api/v2/swagger/swagger.yaml", ctrl.MuxHandler("preflight", handleSwaggerOrigin(cors.HandlePreflight()), nil))
 
-	h = ctrl.FileHandler("/swagger.json", "swagger/swagger.json")
-	h = handleSecurity("jwt", h)
+	h = ctrl.FileHandler("/api/v2/swagger/swagger.json", "./swagger/swagger.json")
 	h = handleSwaggerOrigin(h)
-	service.Mux.Handle("GET", "/swagger.json", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Swagger", "files", "swagger/swagger.json", "route", "GET /swagger.json", "security", "jwt")
+	service.Mux.Handle("GET", "/api/v2/swagger/swagger.json", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Swagger", "files", "./swagger/swagger.json", "route", "GET /api/v2/swagger/swagger.json")
 
-	h = ctrl.FileHandler("/swagger.yaml", "swagger/swagger.yaml")
-	h = handleSecurity("jwt", h)
+	h = ctrl.FileHandler("/api/v2/swagger/swagger.yaml", "./swagger/swagger.yaml")
 	h = handleSwaggerOrigin(h)
-	service.Mux.Handle("GET", "/swagger.yaml", ctrl.MuxHandler("serve", h, nil))
-	service.LogInfo("mount", "ctrl", "Swagger", "files", "swagger/swagger.yaml", "route", "GET /swagger.yaml", "security", "jwt")
+	service.Mux.Handle("GET", "/api/v2/swagger/swagger.yaml", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Swagger", "files", "./swagger/swagger.yaml", "route", "GET /api/v2/swagger/swagger.yaml")
 }
 
 // handleSwaggerOrigin applies the CORS response headers corresponding to the origin.

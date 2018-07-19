@@ -1005,6 +1005,30 @@ paths:
       summary: list container
       tags:
       - container
+  /api/v2/swagger/swagger.json:
+    get:
+      operationId: swagger#/api/v2/swagger/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      - https
+      summary: Download ./swagger/swagger.json
+  /api/v2/swagger/swagger.yaml:
+    get:
+      operationId: swagger#/api/v2/swagger/swagger.yaml
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      - https
+      summary: Download ./swagger/swagger.yaml
   /api/v2/user/config:
     get:
       operationId: user#getConfig
@@ -1178,34 +1202,6 @@ paths:
       summary: setDefaultShell user
       tags:
       - user
-  /swagger.json:
-    get:
-      operationId: swagger#/swagger.json
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-      schemes:
-      - http
-      - https
-      security:
-      - jwt: []
-      summary: Download swagger/swagger.json
-  /swagger.yaml:
-    get:
-      operationId: swagger#/swagger.yaml
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-      schemes:
-      - http
-      - https
-      security:
-      - jwt: []
-      summary: Download swagger/swagger.yaml
 produces:
 - application/json
 - application/xml
