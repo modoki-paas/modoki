@@ -346,7 +346,7 @@ func handleSwaggerOrigin(h goa.Handler) goa.Handler {
 		if cors.MatchOrigin(origin, "*") {
 			ctx = goa.WithLogContext(ctx, "origin", origin)
 			rw.Header().Set("Access-Control-Allow-Origin", origin)
-			rw.Header().Set("Access-Control-Allow-Credentials", "false")
+			rw.Header().Set("Access-Control-Allow-Credentials", "true")
 			if acrm := req.Header.Get("Access-Control-Request-Method"); acrm != "" {
 				// We are handling a preflight request
 				rw.Header().Set("Access-Control-Allow-Methods", "GET")

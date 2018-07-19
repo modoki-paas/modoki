@@ -11,11 +11,9 @@
 package app
 
 import (
-	"mime/multipart"
+	"github.com/goadesign/goa"
 	"time"
 	"unicode/utf8"
-
-	"github.com/goadesign/goa"
 )
 
 // The results of container creation (default view)
