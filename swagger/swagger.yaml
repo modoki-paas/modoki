@@ -1,4 +1,3 @@
-basePath: /api/v2
 consumes:
 - application/json
 - application/xml
@@ -459,7 +458,7 @@ info:
   title: Modoki API
   version: 1.0.0
 paths:
-  /container/{id}/config:
+  /api/v2/container/{id}/config:
     get:
       description: Get the config of a container
       operationId: container#getConfig
@@ -524,7 +523,7 @@ paths:
       summary: setConfig container
       tags:
       - container
-  /container/{id}/download:
+  /api/v2/container/{id}/download:
     get:
       description: Copy files from the container
       operationId: container#download
@@ -561,7 +560,7 @@ paths:
       summary: download container
       tags:
       - container
-  /container/{id}/exec:
+  /api/v2/container/{id}/exec:
     get:
       description: Exec a command with attaching to a container using WebSocket(Mainly
         for xterm.js, using a protocol for terminado)
@@ -605,7 +604,7 @@ paths:
       summary: exec container
       tags:
       - container
-  /container/{id}/inspect:
+  /api/v2/container/{id}/inspect:
     get:
       description: Return details of a container
       operationId: container#inspect
@@ -637,7 +636,7 @@ paths:
       summary: inspect container
       tags:
       - container
-  /container/{id}/logs:
+  /api/v2/container/{id}/logs:
     get:
       description: Get stdout and stderr logs from a container.
       operationId: container#logs
@@ -700,7 +699,7 @@ paths:
       summary: logs container
       tags:
       - container
-  /container/{id}/remove:
+  /api/v2/container/{id}/remove:
     get:
       description: remove a container
       operationId: container#remove
@@ -737,7 +736,7 @@ paths:
       summary: remove container
       tags:
       - container
-  /container/{id}/start:
+  /api/v2/container/{id}/start:
     get:
       description: start a container
       operationId: container#start
@@ -766,7 +765,7 @@ paths:
       summary: start container
       tags:
       - container
-  /container/{id}/stop:
+  /api/v2/container/{id}/stop:
     get:
       description: stop a container
       operationId: container#stop
@@ -795,7 +794,7 @@ paths:
       summary: stop container
       tags:
       - container
-  /container/{id}/upload:
+  /api/v2/container/{id}/upload:
     post:
       consumes:
       - multipart/form-data
@@ -856,7 +855,7 @@ paths:
       summary: upload container
       tags:
       - container
-  /container/create:
+  /api/v2/container/create:
     get:
       description: create a new container
       operationId: container#create
@@ -946,7 +945,7 @@ paths:
       summary: create container
       tags:
       - container
-  /container/download:
+  /api/v2/container/download:
     head:
       description: Copy files from the container
       operationId: container#download#1
@@ -983,7 +982,7 @@ paths:
       summary: download container
       tags:
       - container
-  /container/list:
+  /api/v2/container/list:
     get:
       description: Return a list of containers
       operationId: container#list
@@ -1007,7 +1006,7 @@ paths:
       summary: list container
       tags:
       - container
-  /user/config:
+  /api/v2/user/config:
     get:
       operationId: user#getConfig
       produces:
@@ -1030,7 +1029,7 @@ paths:
       summary: getConfig user
       tags:
       - user
-  /user/config/authorizedKeys:
+  /api/v2/user/config/authorizedKeys:
     delete:
       operationId: user#removeAuthorizedKeys
       parameters:
@@ -1133,7 +1132,7 @@ paths:
       summary: addAuthorizedKeys user
       tags:
       - user
-  /user/config/defaultShell:
+  /api/v2/user/config/defaultShell:
     get:
       operationId: user#getDefaultShell
       produces:
@@ -1180,6 +1179,34 @@ paths:
       summary: setDefaultShell user
       tags:
       - user
+  /swagger.json:
+    get:
+      operationId: swagger#/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: Download swagger/swagger.json
+  /swagger.yaml:
+    get:
+      operationId: swagger#/swagger.yaml
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: Download swagger/swagger.yaml
 produces:
 - application/json
 - application/xml

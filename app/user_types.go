@@ -11,10 +11,9 @@
 package app
 
 import (
+	"github.com/goadesign/goa"
 	"mime/multipart"
 	"unicode/utf8"
-
-	"github.com/goadesign/goa"
 )
 
 // containerConfig user type.

@@ -11,9 +11,8 @@
 package client
 
 import (
-	"unicode/utf8"
-
 	"github.com/goadesign/goa"
+	"unicode/utf8"
 )
 
 // containerConfig user type.

@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/cs3238-tsuzu/modoki/consul_traefik"
 	_ "github.com/go-sql-driver/mysql"
@@ -149,7 +150,18 @@ func main() {
 
 	// Start service
 
-	if err := service.ListenAndServe(":80"); err != nil {
+	mux := http.NewServeMux()
+
+	mux.Handle(
+		"/swagger/",
+		http.StripPrefix(
+			"/swagger/",
+			http.FileServer(http.Dir("./swagger")),
+		),
+	)
+	mux.Handle("/", service)
+
+	if err := http.ListenAndServe(":80", mux); err != nil {
 		service.LogError("startup", "err", err)
 	}
 }
