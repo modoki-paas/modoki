@@ -147,6 +147,11 @@ func main() {
 
 	app.MountUserController(service, c2)
 
+	// Mount "swagger" controller
+	c3 := NewSwaggerController(service)
+
+	app.MountSwaggerController(service, c3)
+
 	// Start service
 
 	if err := service.ListenAndServe(":80"); err != nil {
