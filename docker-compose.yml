@@ -51,7 +51,7 @@ services:
 
     modoki:
         restart: always
-        build: .
+        image: tsuzu/modoki
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./cred:/usr/local/modoki/cred
