@@ -7,7 +7,6 @@ import (
 var _ = API("Modoki API", func() {
 	Title("Modoki API")
 	Scheme("http", "https")
-	Host("localhost:4434")
 	BasePath("/api/v2")
 	Security(JWT)
 	Version("1.0.0")

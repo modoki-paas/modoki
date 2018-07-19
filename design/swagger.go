@@ -5,7 +5,6 @@ import (
 )
 
 var _ = Resource("swagger", func() { // Defines the Operands resource
-	BasePath("/swagger")
 
 	Origin("*", func() { // CORS policy that applies to all actions and file servers
 		Methods("GET") // of "public" resource
