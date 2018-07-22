@@ -52,8 +52,10 @@ func initAuthMiddleware(path string, security *goa.JWTSecurity) (goa.Middleware,
 	handler := func(next goa.Handler) goa.Handler {
 		return func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 			var newReq *http.Request
+			var newCtx context.Context
 			reqUpdater := func(ctx context.Context, rw http.ResponseWriter, r *http.Request) error {
 				newReq = r
+				newCtx = ctx
 
 				return nil
 			}
@@ -75,7 +77,7 @@ func initAuthMiddleware(path string, security *goa.JWTSecurity) (goa.Middleware,
 				return jwt.ErrJWTError(strings.Join(errs, ", "))
 			}
 
-			return next(ctx, rw, newReq)
+			return next(newCtx, rw, newReq)
 		}
 	}
 
