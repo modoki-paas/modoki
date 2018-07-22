@@ -9,7 +9,7 @@ COPY . /go/src/github.com/cs3238-tsuzu/modoki
 RUN go get -v .
 RUN CGO_ENABLED=0 go build -o /bin/modoki
 
-FROM ubuntu
+FROM scratch
 COPY --from=build /bin/modoki /bin/modoki
 COPY --from=build /go/src/github.com/cs3238-tsuzu/modoki/swagger /swagger
 WORKDIR /

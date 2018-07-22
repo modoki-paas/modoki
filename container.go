@@ -811,15 +811,38 @@ func (c *ContainerController) SetConfig(ctx *app.SetConfigContainerContext) erro
 
 	placeholders = append(placeholders, uid, ctx.ID, ctx.ID)
 
-	res, err := c.DB.Exec("UPDATE containers SET "+strings.Join(setQuery, " ")+" WHERE uid=? AND (id=? OR name=?)", placeholders...)
+	tx, err := c.DB.Begin()
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	if r, _ := res.RowsAffected(); r == 0 {
+	var cnt int
+
+	err = tx.QueryRow(
+		"SELECT COUNT(id) FROM containers WHERE uid=? AND (id=? OR name=?)",
+		uid, ctx.ID, ctx.ID,
+	).Scan(&cnt)
+
+	if err != nil {
+		tx.Rollback()
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	if cnt == 0 {
+		tx.Rollback()
+
 		return ctx.NotFound()
 	}
+
+	_, err = tx.Exec("UPDATE containers SET "+strings.Join(setQuery, " ")+" WHERE uid=? AND (id=? OR name=?)", placeholders...)
+
+	if err != nil {
+		tx.Rollback()
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	tx.Commit()
 
 	return ctx.NoContent()
 
