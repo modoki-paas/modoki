@@ -92,6 +92,17 @@ services:
             - --consul=consul:8500
             - --docker-api=1.37
             - --key=/usr/local/modoki-ssh-gateway/auth/ssh.key
+
+    modokicp:
+        image: tsuzu/modoki-control-panel
+        volumes:
+            - ./auth/authconfig.json:/dist/auth.json
+        command:
+            - --addr=${PUBLIC_ADDR}
+            - --consul=consul:8500
+            - --traefikAddr=http://modoki
+            - --dir=/dist
+
 volumes:
     mysql-volume:
         driver: local

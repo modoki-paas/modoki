@@ -128,33 +128,33 @@ func consulInit() *consulTraefik.Client {
 	consul, err := consulTraefik.NewClient("traefik", *consulHost)
 
 	if err != nil {
-		log.Fatal("error: Connecting to Zookeeper server error", err)
+		log.Fatal("error: Connecting to consul server error", err)
 	}
 
 	if ok, err := consul.HasFrontend(traefikFrontendName); err != nil {
-		log.Fatal("error: zookeeper.HasFrontend error", err)
+		log.Fatal("error: consul.HasFrontend error", err)
 	} else if !ok {
 		if err := consul.NewFrontend(traefikFrontendName, "Host:"+*publicAddr); err != nil {
-			log.Fatal("error: zookeeper.NewFrontend error", err)
+			log.Fatal("error: consul.NewFrontend error", err)
 		}
 
 		if err := consul.AddValueForFrontend(traefikFrontendName, "passHostHeader", true); err != nil {
-			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
+			log.Fatal("error: consul.AddValueForFrontend error", err)
 		}
 
 		if *https {
 			if err := consul.AddValueForFrontend(traefikFrontendName, "headers", "sslredirect", true); err != nil {
-				log.Fatal("error: zookeeper.AddValueForFrontend error", err)
+				log.Fatal("error: consul.AddValueForFrontend error", err)
 			}
 		}
 
 		if err := consul.AddValueForFrontend(traefikFrontendName, "backend", traefikBackendName); err != nil {
-			log.Fatal("error: zookeeper.AddValueForFrontend error", err)
+			log.Fatal("error: consul.AddValueForFrontend error", err)
 		}
 	}
 
 	if err := consul.NewBackend(traefikBackendName, serverName, *traefikAddr); err != nil {
-		log.Fatal("error: zookeeper.NewBackend error", err)
+		log.Fatal("error: consul.NewBackend error", err)
 	}
 
 	return consul
