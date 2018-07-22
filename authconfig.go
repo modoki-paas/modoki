@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/cs3238-tsuzu/modoki/extensions/auth"
 	"github.com/pkg/errors"
 
 	"github.com/goadesign/goa"
+	"github.com/goadesign/goa/middleware/security/jwt"
 )
 
 type contextKeyAuthType int
@@ -56,6 +58,7 @@ func initAuthMiddleware(path string, security *goa.JWTSecurity) (goa.Middleware,
 				return nil
 			}
 
+			var errs []string
 			for i := range mws {
 				handler := mws[i](reqUpdater)
 
@@ -63,7 +66,13 @@ func initAuthMiddleware(path string, security *goa.JWTSecurity) (goa.Middleware,
 					newReq = newReq.WithContext(context.WithValue(newReq.Context(), contextKeyAuth, names[i]))
 
 					break
+				} else {
+					errs = append(errs, err.Error())
 				}
+			}
+
+			if newReq == nil {
+				return jwt.ErrJWTError(strings.Join(errs, ", "))
 			}
 
 			return next(ctx, rw, newReq)
