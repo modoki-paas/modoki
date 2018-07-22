@@ -2,3 +2,4 @@ jwt.key
 jwt.key.pub
 ssh.key
 ssh.key.pub
+authconfig.json

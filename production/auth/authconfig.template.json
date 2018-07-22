@@ -1,0 +1,14 @@
+{
+    "auth0": {
+        "aud": "{YOUR_API_IDENTIFIER} or {YOUR_APPLICATION_CLIENT_ID}",
+        "iss": "https://{YOUR_ENDPOINT}.auth0.com/",
+        "jwks": "https://{YOUR_ENDPOINT}.auth0.com/.well-known/jwks.json"
+    },
+    "firebase": {
+        "aud": "Firebase Project ID",
+        "iss": "https://securetoken.google.com/<projectId>"
+    },
+    "file": {
+        "path": "/usr/local/modoki/cred/*.pub"
+    }
+}

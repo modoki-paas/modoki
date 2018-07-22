@@ -7,15 +7,15 @@
 # Installation
 - Install [Docker](https://docker.com)
 - Install [docker-compose](https://docs.docker.com/compose/)
-- $ mkdir modoki && cd modoki
+- $ git clone https://github.com/cs3238-tsuzu/modoki.git
+- $ cd production
 
-- $ mkdir cred && cd cred
-- $ wget https://raw.githubusercontent.com/cs3238-tsuzu/modoki/master/cred/gen.sh
+- $ cd auth
 - $ sh ./gen.sh
+- Create **./authconfig.json** in the format  of [authconfig.template.json](https://github.com/cs3238-tsuzu/modoki/blob/master/production/auth/authconfig.template.json)
 - $ cd ../
 
-- $ wget https://github.com/cs3238-tsuzu/modoki/blob/master/production/docker-compose.yml # Do not use docker-compose.yml in the top directory
-- Create .env file in the format of [.env.template](https://github.com/cs3238-tsuzu/modoki/blob/master/.env.template)
+- Create **./.env** file in the format of [.env.template](https://github.com/cs3238-tsuzu/modoki/blob/master/.env.template)
 - $ docker-compose up
 
 # License
