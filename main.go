@@ -134,7 +134,11 @@ func consulInit() *consulTraefik.Client {
 	if ok, err := consul.HasFrontend(traefikFrontendName); err != nil {
 		log.Fatal("error: consul.HasFrontend error", err)
 	} else if !ok {
-		if err := consul.NewFrontend(traefikFrontendName, "Host:"+*publicAddr); err != nil {
+
+		if err := consul.AddValueForFrontend(
+			traefikFrontendName,
+			"routes", "host", "rule", "Host:"+*publicAddr+";PathPrefix:/api/",
+		); err != nil {
 			log.Fatal("error: consul.NewFrontend error", err)
 		}
 
