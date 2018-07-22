@@ -24,7 +24,7 @@ type FileAuth struct {
 
 // FileAuth implements AuthExtension.GetName
 func (a *FileAuth) GetName() string {
-	return "auth0"
+	return "file"
 }
 
 // GetMiddleware implements AuthExtension.GetMiddleware
