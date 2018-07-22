@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 
+	"github.com/docker/libkv/store"
+
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ssh"
 
@@ -34,7 +36,9 @@ func (c *UserController) GetConfig(ctx *app.GetConfigUserContext) error {
 	var config app.GoaUserConfig
 
 	if p, err := c.Consul.Client.Get(fmt.Sprint(defaultShellKVFormat, uid)); err != nil {
-		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "consul error")))
+		if err != store.ErrKeyNotFound {
+			return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "consul error")))
+		}
 	} else {
 		config.DefaultShell = string(p.Value)
 	}
@@ -162,15 +166,16 @@ func (c *UserController) GetDefaultShell(ctx *app.GetDefaultShellUserContext) er
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
+	res := &app.GoaUserDefaultshell{}
 	if p, err := c.Consul.Client.Get(fmt.Sprint(defaultShellKVFormat, uid)); err != nil {
-		return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "consul error")))
-	} else {
-		res := &app.GoaUserDefaultshell{
-			DefaultShell: string(p.Value),
+		if err != store.ErrKeyNotFound {
+			return ctx.InternalServerError(goa.ErrInternal(errors.Wrap(err, "consul error")))
 		}
-		return ctx.OK(res)
+	} else {
+		res.DefaultShell = string(p.Value)
 	}
 
+	return ctx.OK(res)
 	// UserController_GetDefaultShell: end_implement
 }
 
