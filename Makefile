@@ -3,7 +3,7 @@ DOCKER_IMAGE_NAME = tsuzu/modoki
 
 SRCS = $(wildcard *.go)
 
-.PHONY: all build_only build dep clean
+.PHONY: all  build  clean
 all: build docker
 
 build: $(SRCS)
