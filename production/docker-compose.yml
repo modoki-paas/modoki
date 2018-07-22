@@ -100,7 +100,7 @@ services:
         command:
             - --addr=${PUBLIC_ADDR}
             - --consul=consul:8500
-            - --traefikAddr=http://modoki
+            - --traefikAddr=http://modokicp
             - --dir=/dist
 
 volumes:
