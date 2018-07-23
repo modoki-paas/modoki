@@ -9,6 +9,6 @@
         "iss": "https://securetoken.google.com/<projectId>"
     },
     "file": {
-        "path": "/usr/local/modoki/cred/*.pub"
+        "file": "/usr/local/modoki/cred/*.pub"
     }
 }
