@@ -4,8 +4,8 @@
 //
 // Command:
 // $ goagen
-// --design=github.com/cs3238-tsuzu/modoki/design
-// --out=$(GOPATH)/src/github.com/cs3238-tsuzu/modoki
+// --design=github.com/modoki-paas/modoki/design
+// --out=$(GOPATH)/src/github.com/modoki-paas/modoki
 // --version=v1.3.1
 
 package test
@@ -14,9 +14,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/cs3238-tsuzu/modoki/app"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/goatest"
+	"github.com/modoki-paas/modoki/app"
 	"io"
 	"log"
 	"net/http"

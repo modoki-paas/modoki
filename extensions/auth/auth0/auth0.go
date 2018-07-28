@@ -6,7 +6,7 @@ import (
 
 	"github.com/auth0/go-jwt-middleware"
 
-	"github.com/cs3238-tsuzu/auth0-goa-util"
+	"github.com/modoki-paas/auth0-goa-util"
 
 	"github.com/mitchellh/mapstructure"
 

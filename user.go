@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"golang.org/x/crypto/ssh"
 
-	"github.com/cs3238-tsuzu/modoki/app"
+	"github.com/modoki-paas/modoki/app"
 	"github.com/goadesign/goa"
 )
 

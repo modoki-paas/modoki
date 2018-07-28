@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/bytefmt"
-	"github.com/cs3238-tsuzu/modoki/app"
+	"github.com/modoki-paas/modoki/app"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"

@@ -3,7 +3,7 @@ package firebaseauth
 import (
 	"errors"
 
-	"github.com/cs3238-tsuzu/firebase-goa-util"
+	"github.com/modoki-paas/firebase-goa-util"
 
 	"github.com/mitchellh/mapstructure"
 

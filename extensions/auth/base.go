@@ -1,9 +1,9 @@
 package authbase
 
 import (
-	"github.com/cs3238-tsuzu/modoki/extensions/auth/auth0"
-	"github.com/cs3238-tsuzu/modoki/extensions/auth/file"
-	"github.com/cs3238-tsuzu/modoki/extensions/auth/firebase"
+	"github.com/modoki-paas/modoki/extensions/auth/auth0"
+	"github.com/modoki-paas/modoki/extensions/auth/file"
+	"github.com/modoki-paas/modoki/extensions/auth/firebase"
 	"github.com/goadesign/goa"
 )
 

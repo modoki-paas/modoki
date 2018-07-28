@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/cs3238-tsuzu/modoki/extensions/auth"
+	"github.com/modoki-paas/modoki/extensions/auth"
 	"github.com/pkg/errors"
 
 	"github.com/goadesign/goa"

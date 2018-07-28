@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	modoki "github.com/cs3238-tsuzu/modoki/client"
+	modoki "github.com/modoki-paas/modoki/client"
 	"golang.org/x/net/websocket"
 )
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/cs3238-tsuzu/modoki/consul_traefik"
+	"github.com/modoki-paas/modoki/consul_traefik"
 	"github.com/docker/docker/client"
 	"github.com/jmoiron/sqlx"
 )

@@ -1,4 +1,4 @@
-//go:generate goagen bootstrap -d github.com/cs3238-tsuzu/modoki/design
+//go:generate goagen bootstrap -d github.com/modoki-paas/modoki/design
 
 package main
 
@@ -7,8 +7,8 @@ import (
 	"flag"
 	"log"
 
-	"github.com/cs3238-tsuzu/modoki/app"
-	"github.com/cs3238-tsuzu/modoki/consul_traefik"
+	"github.com/modoki-paas/modoki/app"
+	"github.com/modoki-paas/modoki/consul_traefik"
 	"github.com/docker/docker/client"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goadesign/goa"

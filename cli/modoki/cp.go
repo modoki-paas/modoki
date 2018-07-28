@@ -204,7 +204,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	modoki "github.com/cs3238-tsuzu/modoki/client"
+	modoki "github.com/modoki-paas/modoki/client"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/pkg/archive"
 	"github.com/docker/docker/pkg/system"

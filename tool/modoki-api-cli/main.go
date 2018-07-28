@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/cs3238-tsuzu/modoki/client"
-	"github.com/cs3238-tsuzu/modoki/tool/cli"
+	"github.com/modoki-paas/modoki/client"
+	"github.com/modoki-paas/modoki/tool/cli"
 	goaclient "github.com/goadesign/goa/client"
 	"github.com/spf13/cobra"
 	"net/http"

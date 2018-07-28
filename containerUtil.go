@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/cs3238-tsuzu/modoki/consul_traefik"
+	"github.com/modoki-paas/modoki/consul_traefik"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"

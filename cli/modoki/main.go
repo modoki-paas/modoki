@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	modoki "github.com/cs3238-tsuzu/modoki/client"
+	modoki "github.com/modoki-paas/modoki/client"
 	"github.com/goadesign/goa/client"
 	"github.com/joho/godotenv"
 	"github.com/k0kubun/pp"
