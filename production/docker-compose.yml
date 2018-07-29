@@ -96,12 +96,13 @@ services:
     modokicp:
         image: modokipaas/modoki-control-panel
         volumes:
-            - ./auth/authconfig.json:/dist/auth.json
+            - ./auth/authconfig.json:/auth/authconfig.json
         command:
             - --addr=${PUBLIC_ADDR}
             - --consul=consul:8500
             - --traefikAddr=http://modokicp
             - --dir=/dist
+            - --auth=/auth/authconfig.json
 
 volumes:
     mysql-volume:
