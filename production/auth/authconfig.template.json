@@ -7,11 +7,23 @@
             "domain": "YOUR-DOMAIN.auth0.com",
             "clientID": "CLIENT-ID",
             "redirectUri": "https://YOUR-SERVER-DOMAIN/web/callback/auth0"
+        },
+        "metaDataBinding": {
+            "Nick Name": "nickname",
+            "Email": "name"
         }
     },
     "firebase": {
         "aud": "Firebase Project ID",
-        "iss": "https://securetoken.google.com/<projectId>"
+        "iss": "https://securetoken.google.com/<projectId>",
+        "config": {
+            "apiKey": "{API_KEY}",
+            "authDomain": "{PROJECT_ID}.firebaseapp.com",
+            "projectId": "{PROJECT_ID}"
+        },
+        "metaDataBinding": {
+            "Email": "email"
+        }
     },
     "file": {
         "file": "/usr/local/modoki/cred/*.pub"
