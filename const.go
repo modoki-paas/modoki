@@ -14,7 +14,7 @@ const (
 	dockerLabelModokiName = "com.cs3238.modoki.name"
 
 	// user.go
-	defaultShellKVFormat = "modoki/users/%d/defaultShell"
+	defaultShellKVFormat = "modoki/users/%s/defaultShell" // TODO: encode for security
 )
 
 const containerSchema = `
