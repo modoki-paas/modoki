@@ -3,6 +3,7 @@ package auth0auth
 import (
 	"errors"
 	"fmt"
+	"net/http"
 
 	"github.com/auth0/go-jwt-middleware"
 
@@ -40,6 +41,7 @@ func (a *Auth0auth) GetMiddleware(cfg interface{}, security *goa.JWTSecurity) (g
 	getPemCert := auth0goa.NewGetPemCert(config.JWKS)
 
 	middleware := auth0goa.NewJWTMiddleware(config.Aud, config.Iss, getPemCert)
+	middleware.Options.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err string) {}
 
 	if security.In == goa.LocHeader {
 		middleware.Options.Extractor = jwtmiddleware.FromAuthHeader // Must be Authorization header

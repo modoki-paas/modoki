@@ -2,6 +2,7 @@ package firebaseauth
 
 import (
 	"errors"
+	"net/http"
 
 	"github.com/modoki-paas/firebase-goa-util"
 
@@ -36,6 +37,7 @@ func (a *FirebaseAuth) GetMiddleware(cfg interface{}, _ *goa.JWTSecurity) (goa.M
 	getPemCert := firebasegoa.NewGetPemCert()
 
 	middleware := firebasegoa.NewJWTMiddleware(config.Aud, config.Iss, getPemCert)
+	middleware.Options.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err string) {}
 
 	handler := firebasegoa.BridgeMiddlewareHandler{
 		Middleware: middleware,
