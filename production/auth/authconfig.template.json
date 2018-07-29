@@ -2,7 +2,12 @@
     "auth0": {
         "aud": "{YOUR_API_IDENTIFIER} or {YOUR_APPLICATION_CLIENT_ID}",
         "iss": "https://{YOUR_ENDPOINT}.auth0.com/",
-        "jwks": "https://{YOUR_ENDPOINT}.auth0.com/.well-known/jwks.json"
+        "jwks": "https://{YOUR_ENDPOINT}.auth0.com/.well-known/jwks.json",
+        "webAuthOptions": {
+            "domain": "YOUR-DOMAIN.auth0.com",
+            "clientID": "CLIENT-ID",
+            "redirectUri": "https://YOUR-SERVER-DOMAIN/web/callback/auth0"
+        }
     },
     "firebase": {
         "aud": "Firebase Project ID",

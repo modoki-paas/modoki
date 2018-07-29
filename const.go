@@ -1,7 +1,7 @@
 package main
 
 const (
-	jwtKeyUID           = "uid"
+	jwtKeyUID           = "sub"
 	traefikFrontendName = "modoki"
 	traefikBackendName  = "modoki_backend"
 
@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS containers (
 	id INT NOT NULL AUTO_INCREMENT,
 	cid VARCHAR(128) UNIQUE,
 	name VARCHAR(64) NOT NULL UNIQUE,
-	uid INT NOT NULL,
+	uid VARCHAR(128) NOT NULL,
 	status VARCHAR(32),
 	message TEXT,
 	defaultShell TEXT,
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS containers (
 const authorizedKeysSchema = `
 CREATE TABLE IF NOT EXISTS authorizedKeys (
 	id INT NOT NULL AUTO_INCREMENT,
-	uid INT NOT NULL,
+	uid VARCHAR(128) NOT NULL,
 	label VARCHAR(32),
 	` + "`key`" + ` TEXT,
 	PRIMARY KEY(id),

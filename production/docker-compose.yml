@@ -64,7 +64,7 @@ services:
             - --docker-api=1.37
             - --traefikAddr=http://modoki
             - --auth=/usr/local/modoki/auth/authconfig.json
-            - --net=modoki_paas-bridge
+            - --net=production_paas-bridge
 
     mysql:
         restart: always

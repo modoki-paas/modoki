@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"code.cloudfoundry.org/bytefmt"
-	"github.com/modoki-paas/modoki/app"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -22,6 +21,7 @@ import (
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/docker/libkv/store"
 	"github.com/goadesign/goa"
+	"github.com/modoki-paas/modoki/app"
 	"github.com/pkg/errors"
 	"golang.org/x/net/websocket"
 )
@@ -114,7 +114,7 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 			Volumes:    volumesMap,
 			Labels: map[string]string{
 				dockerLabelModokiID:   strconv.Itoa(id),
-				dockerLabelModokiUID:  strconv.Itoa(uid),
+				dockerLabelModokiUID:  uid,
 				dockerLabelModokiName: ctx.Name,
 			},
 		}
@@ -600,7 +600,7 @@ func (c *ContainerController) List(ctx *app.ListContainerContext) error {
 
 	filter := filters.NewArgs()
 
-	filter.Add("label", dockerLabelModokiUID+"="+strconv.Itoa(uid))
+	filter.Add("label", dockerLabelModokiUID+"="+uid)
 
 	list, err := c.DockerClient.ContainerList(ctx, types.ContainerListOptions{
 		All:     true,
