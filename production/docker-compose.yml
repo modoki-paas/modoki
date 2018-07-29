@@ -51,7 +51,7 @@ services:
 
     modoki:
         restart: always
-        image: tsuzu/modoki
+        image: modokipaas/modoki
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./auth:/usr/local/modoki/auth
@@ -81,7 +81,7 @@ services:
             MYSQL_DATABASE: modoki
 
     sshgw:
-        image: tsuzu/modoki-ssh-gateway
+        image: modokipaas/modoki-ssh-gateway
         ports:
             - 2022:2022
         volumes:
@@ -94,7 +94,7 @@ services:
             - --key=/usr/local/modoki-ssh-gateway/auth/ssh.key
 
     modokicp:
-        image: tsuzu/modoki-control-panel
+        image: modokipaas/modoki-control-panel
         volumes:
             - ./auth/authconfig.json:/dist/auth.json
         command:

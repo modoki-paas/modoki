@@ -1,6 +1,6 @@
 # modoki
 
-![Docker Build Status](https://img.shields.io/docker/build/tsuzu/modoki.svg?style=flat-square)
+![Docker Build Status](https://img.shields.io/docker/build/modokipaas/modoki.svg?style=flat-square)
 [![Go Report Card](https://goreportcard.com/badge/github.com/modoki-paas/modoki)](https://goreportcard.com/report/github.com/modoki-paas/modoki)
 - PaaS modoki(like PaaS)
 

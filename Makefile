@@ -1,5 +1,5 @@
 BINARY_NAME = modoki
-DOCKER_IMAGE_NAME = tsuzu/modoki
+DOCKER_IMAGE_NAME = modokipaas/modoki
 
 SRCS = $(wildcard *.go)
 
