@@ -10,6 +10,7 @@ RUN go get -v .
 RUN CGO_ENABLED=0 go build -o /bin/modoki
 
 FROM scratch
+COPY --from=build /etc/ssl/certs/ /etc/ssl/certs/
 COPY --from=build /bin/modoki /bin/modoki
 COPY --from=build /go/src/github.com/modoki-paas/modoki/swagger /swagger
 WORKDIR /
