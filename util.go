@@ -13,6 +13,7 @@ func GetUIDFromJWT(ctx context.Context) (string, error) {
 	if token == nil {
 		return "", fmt.Errorf("JWT token is missing from context") // internal error
 	}
+
 	claims := token.Claims.(jwtgo.MapClaims)
 
 	uidStr := claims[jwtKeyUID].(string)
