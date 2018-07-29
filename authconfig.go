@@ -65,7 +65,7 @@ func initAuthMiddleware(path string, security *goa.JWTSecurity) (goa.Middleware,
 				handler := mws[i](reqUpdater)
 
 				if err := handler(ctx, rw, req); err == nil {
-					newReq = newReq.WithContext(context.WithValue(newReq.Context(), contextKeyAuth, names[i]))
+					newCtx = context.WithValue(newCtx, contextKeyAuth, names[i])
 
 					break
 				} else {
