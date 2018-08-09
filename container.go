@@ -519,7 +519,7 @@ func (c *ContainerController) Inspect(ctx *app.InspectContainerContext) error {
 	}
 	rows.Close()
 
-	if status == "Error" || status == "Created" {
+	if status == "Error" || status == "Creating" {
 		insp := &app.GoaContainerInspect{
 			ID:     id,
 			Name:   name,
