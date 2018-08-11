@@ -11,12 +11,10 @@
 package client
 
 import (
-	"mime/multipart"
+	"github.com/goadesign/goa"
 	"net/http"
 	"time"
 	"unicode/utf8"
-
-	"github.com/goadesign/goa"
 )
 
 // DecodeErrorResponse decodes the ErrorResponse instance encoded in resp body.
@@ -54,7 +52,7 @@ func (c *Client) DecodeGoaContainerCreateResults(resp *http.Response) (*GoaConta
 
 // GoaContainerInspectRaw_state media type (default view)
 //
-// Identifier: vnd.application/goa.container.inspect.raw_state; view=default
+// Identifier: vnd.application/goa.container.inspect.raw_state+json; view=default
 type GoaContainerInspectRawState struct {
 	Dead       bool      `form:"dead" json:"dead" yaml:"dead" xml:"dead"`
 	ExitCode   int       `form:"exitCode" json:"exitCode" yaml:"exitCode" xml:"exitCode"`
@@ -89,7 +87,7 @@ func (c *Client) DecodeGoaContainerInspectRawState(resp *http.Response) (*GoaCon
 
 // GoaContainerConfig media type (default view)
 //
-// Identifier: vpn.application/goa.container.config; view=default
+// Identifier: vpn.application/goa.container.config+json; view=default
 type GoaContainerConfig struct {
 	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" yaml:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
 }
@@ -103,7 +101,7 @@ func (c *Client) DecodeGoaContainerConfig(resp *http.Response) (*GoaContainerCon
 
 // GoaContainerDownloadResult media type (default view)
 //
-// Identifier: vpn.application/goa.container.download.result; view=default
+// Identifier: vpn.application/goa.container.download.result+json; view=default
 type GoaContainerDownloadResult struct {
 	File *multipart.FileHeader `form:"file,omitempty" json:"file,omitempty" yaml:"file,omitempty" xml:"file,omitempty"`
 }
@@ -117,7 +115,7 @@ func (c *Client) DecodeGoaContainerDownloadResult(resp *http.Response) (*GoaCont
 
 // GoaContainerInspect media type (default view)
 //
-// Identifier: vpn.application/goa.container.inspect; view=default
+// Identifier: vpn.application/goa.container.inspect+json; view=default
 type GoaContainerInspect struct {
 	// The arguments to the command being run
 	Args []string `form:"args" json:"args" yaml:"args" xml:"args"`
@@ -187,7 +185,7 @@ func (c *Client) DecodeGoaContainerInspect(resp *http.Response) (*GoaContainerIn
 
 // GoaContainerListEach media type (default view)
 //
-// Identifier: vpn.application/goa.container.list.each; view=default
+// Identifier: vpn.application/goa.container.list.each+json; view=default
 type GoaContainerListEach struct {
 	// Command to run when starting the container
 	Command string `form:"command" json:"command" yaml:"command" xml:"command"`
@@ -243,7 +241,7 @@ func (c *Client) DecodeGoaContainerListEach(resp *http.Response) (*GoaContainerL
 
 // GoaContainerListEachCollection is the media type for an array of GoaContainerListEach (default view)
 //
-// Identifier: vpn.application/goa.container.list.each; type=collection; view=default
+// Identifier: vpn.application/goa.container.list.each+json; type=collection; view=default
 type GoaContainerListEachCollection []*GoaContainerListEach
 
 // Validate validates the GoaContainerListEachCollection media type instance.
@@ -267,7 +265,7 @@ func (c *Client) DecodeGoaContainerListEachCollection(resp *http.Response) (GoaC
 
 // GoaUserAuthorizedkey media type (default view)
 //
-// Identifier: vpn.application/goa.user.authorizedkey; view=default
+// Identifier: vpn.application/goa.user.authorizedkey+json; view=default
 type GoaUserAuthorizedkey struct {
 	Key   string `form:"key" json:"key" yaml:"key" xml:"key"`
 	Label string `form:"label" json:"label" yaml:"label" xml:"label"`
@@ -305,7 +303,7 @@ func (c *Client) DecodeGoaUserAuthorizedkey(resp *http.Response) (*GoaUserAuthor
 
 // GoaUserAuthorizedkeyCollection is the media type for an array of GoaUserAuthorizedkey (default view)
 //
-// Identifier: vpn.application/goa.user.authorizedkey; type=collection; view=default
+// Identifier: vpn.application/goa.user.authorizedkey+json; type=collection; view=default
 type GoaUserAuthorizedkeyCollection []*GoaUserAuthorizedkey
 
 // Validate validates the GoaUserAuthorizedkeyCollection media type instance.
@@ -329,7 +327,7 @@ func (c *Client) DecodeGoaUserAuthorizedkeyCollection(resp *http.Response) (GoaU
 
 // GoaUserConfig media type (default view)
 //
-// Identifier: vpn.application/goa.user.config; view=default
+// Identifier: vpn.application/goa.user.config+json; view=default
 type GoaUserConfig struct {
 	AuthorizedKeys GoaUserAuthorizedkeyCollection `form:"authorizedKeys" json:"authorizedKeys" yaml:"authorizedKeys" xml:"authorizedKeys"`
 	DefaultShell   string                         `form:"defaultShell" json:"defaultShell" yaml:"defaultShell" xml:"defaultShell"`
@@ -358,7 +356,7 @@ func (c *Client) DecodeGoaUserConfig(resp *http.Response) (*GoaUserConfig, error
 
 // GoaUserDefaultshell media type (default view)
 //
-// Identifier: vpn.application/goa.user.defaultshell; view=default
+// Identifier: vpn.application/goa.user.defaultshell+json; view=default
 type GoaUserDefaultshell struct {
 	DefaultShell string `form:"defaultShell" json:"defaultShell" yaml:"defaultShell" xml:"defaultShell"`
 }

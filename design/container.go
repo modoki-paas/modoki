@@ -5,7 +5,7 @@ import (
 	. "github.com/goadesign/goa/design/apidsl"
 )
 
-var ContainerInspectRawStateMedia = MediaType("vnd.application/goa.container.inspect.raw_state", func() {
+var ContainerInspectRawStateMedia = MediaType("vnd.application/goa.container.inspect.raw_state+json", func() {
 	Attributes(func() {
 		Attribute("exitCode", Integer)
 		Attribute("finishedAt", DateTime)
@@ -37,7 +37,7 @@ var ContainerInspectRawStateMedia = MediaType("vnd.application/goa.container.ins
 	})
 })
 
-var ContainerListEachMedia = MediaType("vpn.application/goa.container.list.each", func() {
+var ContainerListEachMedia = MediaType("vpn.application/goa.container.list.each+json", func() {
 	Attributes(func() {
 		Attribute("name", String, "Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.")
 		Attribute("id", Integer, "ID")
@@ -65,7 +65,7 @@ var ContainerListEachMedia = MediaType("vpn.application/goa.container.list.each"
 	})
 })
 
-var ContainerInspectMedia = MediaType("vpn.application/goa.container.inspect", func() {
+var ContainerInspectMedia = MediaType("vpn.application/goa.container.inspect+json", func() {
 	Attributes(func() {
 		Attribute("name", String, "Assign the specified name to the container. Must match /?[a-zA-Z0-9_-]+.")
 		Attribute("id", Integer, "ID")
@@ -113,7 +113,7 @@ var ContainerCreateOK = MediaType("vnd.application/goa.container.create.results+
 	})
 })
 
-var ContainerDownloadOK = MediaType("vpn.application/goa.container.download.result", func() {
+var ContainerDownloadOK = MediaType("vpn.application/goa.container.download.result+json", func() {
 	Attributes(func() {
 		Attribute("file", File)
 	})
@@ -127,7 +127,7 @@ var ContainerConfig = Type("ContainerConfig", func() {
 	Attribute("defaultShell", String)
 })
 
-var ContainerConfigOK = MediaType("vpn.application/goa.container.config", func() {
+var ContainerConfigOK = MediaType("vpn.application/goa.container.config+json", func() {
 	Reference(ContainerConfig)
 	Attributes(func() {
 		Attribute("defaultShell")

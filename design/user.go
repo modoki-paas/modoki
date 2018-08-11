@@ -22,7 +22,7 @@ var UserConfig = Type("UserConfig", func() {
 	Attribute("authorizedKeys", ArrayOf(UserAuthorizedKeyType))
 })
 
-var UserAuthorizedKeyOK = MediaType("vpn.application/goa.user.authorizedKey", func() {
+var UserAuthorizedKeyOK = MediaType("vpn.application/goa.user.authorizedKey+json", func() {
 	Reference(UserAuthorizedKeyType)
 
 	Attributes(func() {
@@ -37,7 +37,7 @@ var UserAuthorizedKeyOK = MediaType("vpn.application/goa.user.authorizedKey", fu
 		Attribute("label")
 	})
 })
-var UserConfigOK = MediaType("vpn.application/goa.user.config", func() {
+var UserConfigOK = MediaType("vpn.application/goa.user.config+json", func() {
 	Attributes(func() {
 		Attribute("defaultShell", String)
 		Attribute("authorizedKeys", CollectionOf(UserAuthorizedKeyOK))
@@ -51,7 +51,7 @@ var UserConfigOK = MediaType("vpn.application/goa.user.config", func() {
 	})
 })
 
-var UserDefaultShellOK = MediaType("vpn.application/goa.user.defaultShell", func() {
+var UserDefaultShellOK = MediaType("vpn.application/goa.user.defaultShell+json", func() {
 	Attributes(func() {
 		Attribute("defaultShell", String)
 

@@ -21,7 +21,7 @@ definitions:
       defaultShell:
         example: Autem nisi autem numquam illo dignissimos.
         type: string
-    title: 'Mediatype identifier: vpn.application/goa.container.config; view=default'
+    title: 'Mediatype identifier: vpn.application/goa.container.config+json; view=default'
     type: object
   GoaContainerCreateResults:
     description: The results of container creation (default view)
@@ -143,7 +143,7 @@ definitions:
     - status
     - raw_state
     - volumes
-    title: 'Mediatype identifier: vpn.application/goa.container.inspect; view=default'
+    title: 'Mediatype identifier: vpn.application/goa.container.inspect+json; view=default'
     type: object
   GoaContainerInspectRaw_state:
     description: GoaContainerInspectRaw_state media type (default view)
@@ -212,7 +212,7 @@ definitions:
     - running
     - startedAt
     - status
-    title: 'Mediatype identifier: vnd.application/goa.container.inspect.raw_state;
+    title: 'Mediatype identifier: vnd.application/goa.container.inspect.raw_state+json;
       view=default'
     type: object
   GoaContainerListEach:
@@ -280,7 +280,7 @@ definitions:
     - created
     - status
     - volumes
-    title: 'Mediatype identifier: vpn.application/goa.container.list.each; view=default'
+    title: 'Mediatype identifier: vpn.application/goa.container.list.each+json; view=default'
     type: object
   GoaContainerListEachCollection:
     description: GoaContainerListEachCollection is the media type for an array of
@@ -315,7 +315,7 @@ definitions:
       - Aut quia omnis ut illum assumenda omnis.
     items:
       $ref: '#/definitions/GoaContainerListEach'
-    title: 'Mediatype identifier: vpn.application/goa.container.list.each; type=collection;
+    title: 'Mediatype identifier: vpn.application/goa.container.list.each+json; type=collection;
       view=default'
     type: array
   GoaUserAuthorizedkey:
@@ -337,7 +337,7 @@ definitions:
     required:
     - key
     - label
-    title: 'Mediatype identifier: vpn.application/goa.user.authorizedkey; view=default'
+    title: 'Mediatype identifier: vpn.application/goa.user.authorizedkey+json; view=default'
     type: object
   GoaUserAuthorizedkeyCollection:
     description: GoaUserAuthorizedkeyCollection is the media type for an array of
@@ -351,7 +351,7 @@ definitions:
       label: 7u3
     items:
       $ref: '#/definitions/GoaUserAuthorizedkey'
-    title: 'Mediatype identifier: vpn.application/goa.user.authorizedkey; type=collection;
+    title: 'Mediatype identifier: vpn.application/goa.user.authorizedkey+json; type=collection;
       view=default'
     type: array
   GoaUserConfig:
@@ -372,7 +372,7 @@ definitions:
     required:
     - defaultShell
     - authorizedKeys
-    title: 'Mediatype identifier: vpn.application/goa.user.config; view=default'
+    title: 'Mediatype identifier: vpn.application/goa.user.config+json; view=default'
     type: object
   GoaUserDefaultshell:
     description: GoaUserDefaultshell media type (default view)
@@ -384,7 +384,7 @@ definitions:
         type: string
     required:
     - defaultShell
-    title: 'Mediatype identifier: vpn.application/goa.user.defaultshell; view=default'
+    title: 'Mediatype identifier: vpn.application/goa.user.defaultshell+json; view=default'
     type: object
   SetAuthorizedKeysUserPayload:
     example:
@@ -469,7 +469,7 @@ paths:
         type: string
       produces:
       - application/vnd.goa.error
-      - vpn.application/goa.container.config
+      - vpn.application/goa.container.config+json
       responses:
         "200":
           description: OK
@@ -615,7 +615,7 @@ paths:
         type: string
       produces:
       - application/vnd.goa.error
-      - vpn.application/goa.container.inspect
+      - vpn.application/goa.container.inspect+json
       responses:
         "200":
           description: OK
@@ -987,7 +987,7 @@ paths:
       operationId: container#list
       produces:
       - application/vnd.goa.error
-      - vpn.application/goa.container.list.each; type=collection
+      - vpn.application/goa.container.list.each+json; type=collection
       responses:
         "200":
           description: OK
@@ -1034,7 +1034,7 @@ paths:
       operationId: user#getConfig
       produces:
       - application/vnd.goa.error
-      - vpn.application/goa.user.config
+      - vpn.application/goa.user.config+json
       responses:
         "200":
           description: OK
@@ -1083,7 +1083,7 @@ paths:
       operationId: user#listAuthorizedKeys
       produces:
       - application/vnd.goa.error
-      - vpn.application/goa.user.authorizedkey; type=collection
+      - vpn.application/goa.user.authorizedkey+json; type=collection
       responses:
         "200":
           description: OK
@@ -1160,7 +1160,7 @@ paths:
       operationId: user#getDefaultShell
       produces:
       - application/vnd.goa.error
-      - vpn.application/goa.user.defaultshell
+      - vpn.application/goa.user.defaultshell+json
       responses:
         "200":
           description: OK

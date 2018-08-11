@@ -282,7 +282,7 @@ func NewGetConfigContainerContext(ctx context.Context, r *http.Request, service 
 // OK sends a HTTP response with status code 200.
 func (ctx *GetConfigContainerContext) OK(r *GoaContainerConfig) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.config")
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.config+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
@@ -329,7 +329,7 @@ func NewInspectContainerContext(ctx context.Context, r *http.Request, service *g
 // OK sends a HTTP response with status code 200.
 func (ctx *InspectContainerContext) OK(r *GoaContainerInspect) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.inspect")
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.inspect+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
@@ -370,7 +370,7 @@ func NewListContainerContext(ctx context.Context, r *http.Request, service *goa.
 // OK sends a HTTP response with status code 200.
 func (ctx *ListContainerContext) OK(r GoaContainerListEachCollection) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.list.each; type=collection")
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.list.each+json; type=collection")
 	}
 	if r == nil {
 		r = GoaContainerListEachCollection{}
@@ -828,7 +828,7 @@ func NewGetConfigUserContext(ctx context.Context, r *http.Request, service *goa.
 // OK sends a HTTP response with status code 200.
 func (ctx *GetConfigUserContext) OK(r *GoaUserConfig) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.config")
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.config+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
@@ -863,7 +863,7 @@ func NewGetDefaultShellUserContext(ctx context.Context, r *http.Request, service
 // OK sends a HTTP response with status code 200.
 func (ctx *GetDefaultShellUserContext) OK(r *GoaUserDefaultshell) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.defaultshell")
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.defaultshell+json")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
 }
@@ -898,7 +898,7 @@ func NewListAuthorizedKeysUserContext(ctx context.Context, r *http.Request, serv
 // OK sends a HTTP response with status code 200.
 func (ctx *ListAuthorizedKeysUserContext) OK(r GoaUserAuthorizedkeyCollection) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
-		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.authorizedkey; type=collection")
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.authorizedkey+json; type=collection")
 	}
 	if r == nil {
 		r = GoaUserAuthorizedkeyCollection{}

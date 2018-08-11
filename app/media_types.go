@@ -11,11 +11,9 @@
 package app
 
 import (
-	"mime/multipart"
+	"github.com/goadesign/goa"
 	"time"
 	"unicode/utf8"
-
-	"github.com/goadesign/goa"
 )
 
 // The results of container creation (default view)
@@ -39,7 +37,7 @@ func (mt *GoaContainerCreateResults) Validate() (err error) {
 
 // GoaContainerInspectRaw_state media type (default view)
 //
-// Identifier: vnd.application/goa.container.inspect.raw_state; view=default
+// Identifier: vnd.application/goa.container.inspect.raw_state+json; view=default
 type GoaContainerInspectRawState struct {
 	Dead       bool      `form:"dead" json:"dead" yaml:"dead" xml:"dead"`
 	ExitCode   int       `form:"exitCode" json:"exitCode" yaml:"exitCode" xml:"exitCode"`
@@ -67,21 +65,21 @@ func (mt *GoaContainerInspectRawState) Validate() (err error) {
 
 // GoaContainerConfig media type (default view)
 //
-// Identifier: vpn.application/goa.container.config; view=default
+// Identifier: vpn.application/goa.container.config+json; view=default
 type GoaContainerConfig struct {
 	DefaultShell *string `form:"defaultShell,omitempty" json:"defaultShell,omitempty" yaml:"defaultShell,omitempty" xml:"defaultShell,omitempty"`
 }
 
 // GoaContainerDownloadResult media type (default view)
 //
-// Identifier: vpn.application/goa.container.download.result; view=default
+// Identifier: vpn.application/goa.container.download.result+json; view=default
 type GoaContainerDownloadResult struct {
 	File *multipart.FileHeader `form:"file,omitempty" json:"file,omitempty" yaml:"file,omitempty" xml:"file,omitempty"`
 }
 
 // GoaContainerInspect media type (default view)
 //
-// Identifier: vpn.application/goa.container.inspect; view=default
+// Identifier: vpn.application/goa.container.inspect+json; view=default
 type GoaContainerInspect struct {
 	// The arguments to the command being run
 	Args []string `form:"args" json:"args" yaml:"args" xml:"args"`
@@ -144,7 +142,7 @@ func (mt *GoaContainerInspect) Validate() (err error) {
 
 // GoaContainerListEach media type (default view)
 //
-// Identifier: vpn.application/goa.container.list.each; view=default
+// Identifier: vpn.application/goa.container.list.each+json; view=default
 type GoaContainerListEach struct {
 	// Command to run when starting the container
 	Command string `form:"command" json:"command" yaml:"command" xml:"command"`
@@ -193,7 +191,7 @@ func (mt *GoaContainerListEach) Validate() (err error) {
 
 // GoaContainerListEachCollection is the media type for an array of GoaContainerListEach (default view)
 //
-// Identifier: vpn.application/goa.container.list.each; type=collection; view=default
+// Identifier: vpn.application/goa.container.list.each+json; type=collection; view=default
 type GoaContainerListEachCollection []*GoaContainerListEach
 
 // Validate validates the GoaContainerListEachCollection media type instance.
@@ -210,7 +208,7 @@ func (mt GoaContainerListEachCollection) Validate() (err error) {
 
 // GoaUserAuthorizedkey media type (default view)
 //
-// Identifier: vpn.application/goa.user.authorizedkey; view=default
+// Identifier: vpn.application/goa.user.authorizedkey+json; view=default
 type GoaUserAuthorizedkey struct {
 	Key   string `form:"key" json:"key" yaml:"key" xml:"key"`
 	Label string `form:"label" json:"label" yaml:"label" xml:"label"`
@@ -241,7 +239,7 @@ func (mt *GoaUserAuthorizedkey) Validate() (err error) {
 
 // GoaUserAuthorizedkeyCollection is the media type for an array of GoaUserAuthorizedkey (default view)
 //
-// Identifier: vpn.application/goa.user.authorizedkey; type=collection; view=default
+// Identifier: vpn.application/goa.user.authorizedkey+json; type=collection; view=default
 type GoaUserAuthorizedkeyCollection []*GoaUserAuthorizedkey
 
 // Validate validates the GoaUserAuthorizedkeyCollection media type instance.
@@ -258,7 +256,7 @@ func (mt GoaUserAuthorizedkeyCollection) Validate() (err error) {
 
 // GoaUserConfig media type (default view)
 //
-// Identifier: vpn.application/goa.user.config; view=default
+// Identifier: vpn.application/goa.user.config+json; view=default
 type GoaUserConfig struct {
 	AuthorizedKeys GoaUserAuthorizedkeyCollection `form:"authorizedKeys" json:"authorizedKeys" yaml:"authorizedKeys" xml:"authorizedKeys"`
 	DefaultShell   string                         `form:"defaultShell" json:"defaultShell" yaml:"defaultShell" xml:"defaultShell"`
@@ -280,7 +278,7 @@ func (mt *GoaUserConfig) Validate() (err error) {
 
 // GoaUserDefaultshell media type (default view)
 //
-// Identifier: vpn.application/goa.user.defaultshell; view=default
+// Identifier: vpn.application/goa.user.defaultshell+json; view=default
 type GoaUserDefaultshell struct {
 	DefaultShell string `form:"defaultShell" json:"defaultShell" yaml:"defaultShell" xml:"defaultShell"`
 }
