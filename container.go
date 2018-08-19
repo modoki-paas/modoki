@@ -50,6 +50,10 @@ func (c *ContainerController) Create(ctx *app.CreateContainerContext) error {
 	res, err := c.DB.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (?, ?, "Waiting")`, ctx.Name, uid)
 
 	if err != nil {
+		if strings.Contains(err.Error(), "Duplicate") && strings.Contains(err.Error(), "'name'") {
+			return ctx.Conflict(goa.ErrInvalidRequest(errors.New("The name is already used by another container")))
+		}
+
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
