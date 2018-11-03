@@ -5,68 +5,34 @@ import (
 	. "github.com/goadesign/goa/design/apidsl"
 )
 
-var UserAuthorizedKeyType = Type("UserAuthorizedKey", func() {
-	Attribute("key", String, func() {
-		MaxLength(2048)
-	})
-	Attribute("label", String, func() {
-		Pattern("^[a-zA-Z0-9_]+$")
-		MaxLength(32)
-		MinLength(1)
-	})
+var _ = Resource("userForApi", func() {
+	Security(APIKey)
+	BasePath(APIBasePath + "/user")
 
-	Required("key", "label")
-})
-var UserConfig = Type("UserConfig", func() {
-	Attribute("defaultShell", String)
-	Attribute("authorizedKeys", ArrayOf(UserAuthorizedKeyType))
+	userActions()
 })
 
-var UserAuthorizedKeyOK = MediaType("vpn.application/goa.user.authorizedKey+json", func() {
-	Reference(UserAuthorizedKeyType)
-
-	Attributes(func() {
-		Attribute("key")
-		Attribute("label")
-
-		Required("key", "label")
-	})
-
-	View("default", func() {
-		Attribute("key")
-		Attribute("label")
-	})
-})
-var UserConfigOK = MediaType("vpn.application/goa.user.config+json", func() {
-	Attributes(func() {
-		Attribute("defaultShell", String)
-		Attribute("authorizedKeys", CollectionOf(UserAuthorizedKeyOK))
-
-		Required("defaultShell", "authorizedKeys")
-	})
-
-	View("default", func() {
-		Attribute("defaultShell")
-		Attribute("authorizedKeys")
-	})
-})
-
-var UserDefaultShellOK = MediaType("vpn.application/goa.user.defaultShell+json", func() {
-	Attributes(func() {
-		Attribute("defaultShell", String)
-
-		Required("defaultShell")
-	})
-
-	View("default", func() {
-		Attribute("defaultShell")
-	})
-})
-
-var _ = Resource("user", func() {
+var _ = Resource("userForFrontend", func() {
 	Security(JWT)
-	BasePath("/user")
+	BasePath(FrontendAPIBasePath + "/user")
 
+	userActions()
+
+	Action("getAPIKey", func() {
+		Routing(GET("/apiKey"))
+
+		Response(OK, UserAPIKeyOK)
+		Response(InternalServerError, ErrorMedia)
+	})
+	Action("reissueAPIKey", func() {
+		Routing(POST("/apiKey"))
+
+		Response(OK, UserAPIKeyOK)
+		Response(InternalServerError, ErrorMedia)
+	})
+})
+
+var userActions = func() {
 	Action("getConfig", func() {
 		Routing(GET("/config"))
 
@@ -130,5 +96,75 @@ var _ = Resource("user", func() {
 		Response(OK, CollectionOf(UserAuthorizedKeyOK))
 		Response(NotFound)
 		Response(InternalServerError, ErrorMedia)
+	})
+}
+
+var UserAuthorizedKeyType = Type("UserAuthorizedKey", func() {
+	Attribute("key", String, func() {
+		MaxLength(2048)
+	})
+	Attribute("label", String, func() {
+		Pattern("^[a-zA-Z0-9_]+$")
+		MaxLength(32)
+		MinLength(1)
+	})
+
+	Required("key", "label")
+})
+var UserConfig = Type("UserConfig", func() {
+	Attribute("defaultShell", String)
+	Attribute("authorizedKeys", ArrayOf(UserAuthorizedKeyType))
+})
+
+var UserAuthorizedKeyOK = MediaType("vpn.application/goa.user.authorizedKey+json", func() {
+	Reference(UserAuthorizedKeyType)
+
+	Attributes(func() {
+		Attribute("key")
+		Attribute("label")
+
+		Required("key", "label")
+	})
+
+	View("default", func() {
+		Attribute("key")
+		Attribute("label")
+	})
+})
+var UserConfigOK = MediaType("vpn.application/goa.user.config+json", func() {
+	Attributes(func() {
+		Attribute("defaultShell", String)
+		Attribute("authorizedKeys", CollectionOf(UserAuthorizedKeyOK))
+
+		Required("defaultShell", "authorizedKeys")
+	})
+
+	View("default", func() {
+		Attribute("defaultShell")
+		Attribute("authorizedKeys")
+	})
+})
+
+var UserDefaultShellOK = MediaType("vpn.application/goa.user.defaultShell+json", func() {
+	Attributes(func() {
+		Attribute("defaultShell", String)
+
+		Required("defaultShell")
+	})
+
+	View("default", func() {
+		Attribute("defaultShell")
+	})
+})
+
+var UserAPIKeyOK = MediaType("vpn.application/goa.user.apiKey", func() {
+	Attributes(func() {
+		Attribute("key", String)
+
+		Required("key")
+	})
+
+	View("default", func() {
+		Attribute("key")
 	})
 })

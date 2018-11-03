@@ -208,6 +208,21 @@ func (mt GoaContainerListEachCollection) Validate() (err error) {
 	return
 }
 
+// GoaUserApikey media type (default view)
+//
+// Identifier: vpn.application/goa.user.apikey; view=default
+type GoaUserApikey struct {
+	Key string `form:"key" json:"key" yaml:"key" xml:"key"`
+}
+
+// Validate validates the GoaUserApikey media type instance.
+func (mt *GoaUserApikey) Validate() (err error) {
+	if mt.Key == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "key"))
+	}
+	return
+}
+
 // GoaUserAuthorizedkey media type (default view)
 //
 // Identifier: vpn.application/goa.user.authorizedkey+json; view=default

@@ -1,10 +1,16 @@
-package main
+package controller
 
 import (
 	"context"
+	"io"
 
 	"github.com/docker/docker/api/types"
 )
+
+type ExecResult struct {
+	Reader io.ReadCloser
+	Writer io.WriteCloser
+}
 
 type ttySize struct {
 	w, h uint

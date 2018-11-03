@@ -6,10 +6,10 @@ consumes:
 definitions:
   ContainerConfig:
     example:
-      defaultShell: Aut nobis saepe.
+      defaultShell: Ut laudantium fugit aut officia.
     properties:
       defaultShell:
-        example: Aut nobis saepe.
+        example: Ut laudantium fugit aut officia.
         type: string
     title: ContainerConfig
     type: object
@@ -304,32 +304,35 @@ definitions:
       status: Stopped
       volumes:
       - Aut quia omnis ut illum assumenda omnis.
-    - command: Voluptatibus excepturi sapiente debitis quia alias.
-      created: "1982-11-10T20:38:32Z"
-      id: 8.702585886642135e+18
-      image: Doloremque reiciendis ducimus.
-      imageID: Labore odio.
-      name: Perferendis excepturi.
-      status: Stopped
-      volumes:
-      - Aut quia omnis ut illum assumenda omnis.
     items:
       $ref: '#/definitions/GoaContainerListEach'
     title: 'Mediatype identifier: vpn.application/goa.container.list.each+json; type=collection;
       view=default'
     type: array
+  GoaUserApikey:
+    description: GoaUserApikey media type (default view)
+    example:
+      key: Debitis non illo et ut et cumque.
+    properties:
+      key:
+        example: Debitis non illo et ut et cumque.
+        type: string
+    required:
+    - key
+    title: 'Mediatype identifier: vpn.application/goa.user.apikey; view=default'
+    type: object
   GoaUserAuthorizedkey:
     description: GoaUserAuthorizedkey media type (default view)
     example:
-      key: j3etmw10ir
-      label: 7u3
+      key: iro7u3zvdv
+      label: "59"
     properties:
       key:
-        example: j3etmw10ir
+        example: iro7u3zvdv
         maxLength: 2048
         type: string
       label:
-        example: 7u3
+        example: "59"
         maxLength: 32
         minLength: 1
         pattern: ^[a-zA-Z0-9_]+$
@@ -343,12 +346,8 @@ definitions:
     description: GoaUserAuthorizedkeyCollection is the media type for an array of
       GoaUserAuthorizedkey (default view)
     example:
-    - key: j3etmw10ir
-      label: 7u3
-    - key: j3etmw10ir
-      label: 7u3
-    - key: j3etmw10ir
-      label: 7u3
+    - key: iro7u3zvdv
+      label: "59"
     items:
       $ref: '#/definitions/GoaUserAuthorizedkey'
     title: 'Mediatype identifier: vpn.application/goa.user.authorizedkey+json; type=collection;
@@ -358,16 +357,18 @@ definitions:
     description: GoaUserConfig media type (default view)
     example:
       authorizedKeys:
-      - key: j3etmw10ir
-        label: 7u3
-      - key: j3etmw10ir
-        label: 7u3
-      defaultShell: Sed nam est commodi reiciendis.
+      - key: iro7u3zvdv
+        label: "59"
+      - key: iro7u3zvdv
+        label: "59"
+      - key: iro7u3zvdv
+        label: "59"
+      defaultShell: Aut rerum dolorem rerum aut nobis.
     properties:
       authorizedKeys:
         $ref: '#/definitions/GoaUserAuthorizedkeyCollection'
       defaultShell:
-        example: Sed nam est commodi reiciendis.
+        example: Aut rerum dolorem rerum aut nobis.
         type: string
     required:
     - defaultShell
@@ -377,36 +378,50 @@ definitions:
   GoaUserDefaultshell:
     description: GoaUserDefaultshell media type (default view)
     example:
-      defaultShell: Eos aut rerum dolorem.
+      defaultShell: Accusantium ipsam alias quas omnis.
     properties:
       defaultShell:
-        example: Eos aut rerum dolorem.
+        example: Accusantium ipsam alias quas omnis.
         type: string
     required:
     - defaultShell
     title: 'Mediatype identifier: vpn.application/goa.user.defaultshell+json; view=default'
     type: object
-  SetAuthorizedKeysUserPayload:
+  SetAuthorizedKeysUserForApiPayload:
     example:
-    - key: nufwk5tf2z
-      label: "74"
-    - key: nufwk5tf2z
-      label: "74"
+    - key: 4p5w7j6dvb
+      label: i5hmg
+    - key: 4p5w7j6dvb
+      label: i5hmg
+    - key: 4p5w7j6dvb
+      label: i5hmg
     items:
       $ref: '#/definitions/UserAuthorizedKey'
-    title: SetAuthorizedKeysUserPayload
+    title: SetAuthorizedKeysUserForApiPayload
+    type: array
+  SetAuthorizedKeysUserForFrontendPayload:
+    example:
+    - key: 4p5w7j6dvb
+      label: i5hmg
+    - key: 4p5w7j6dvb
+      label: i5hmg
+    - key: 4p5w7j6dvb
+      label: i5hmg
+    items:
+      $ref: '#/definitions/UserAuthorizedKey'
+    title: SetAuthorizedKeysUserForFrontendPayload
     type: array
   UserAuthorizedKey:
     example:
-      key: nufwk5tf2z
-      label: "74"
+      key: 4p5w7j6dvb
+      label: i5hmg
     properties:
       key:
-        example: nufwk5tf2z
+        example: 4p5w7j6dvb
         maxLength: 2048
         type: string
       label:
-        example: "74"
+        example: i5hmg
         maxLength: 32
         minLength: 1
         pattern: ^[a-zA-Z0-9_]+$
@@ -460,7 +475,7 @@ paths:
   /api/v2/container/{id}/config:
     get:
       description: Get the config of a container
-      operationId: container#getConfig
+      operationId: containerForApi#getConfig
       parameters:
       - description: id or name
         in: path
@@ -486,12 +501,12 @@ paths:
       - https
       security:
       - jwt: []
-      summary: getConfig container
+      summary: getConfig containerForApi
       tags:
-      - container
+      - containerForApi
     post:
       description: Change the config of a container
-      operationId: container#setConfig
+      operationId: containerForApi#setConfig
       parameters:
       - description: id or name
         in: path
@@ -519,13 +534,13 @@ paths:
       - https
       security:
       - jwt: []
-      summary: setConfig container
+      summary: setConfig containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/{id}/download:
     get:
       description: Copy files from the container
-      operationId: container#download
+      operationId: containerForApi#download
       parameters:
       - description: ID or name
         in: path
@@ -556,14 +571,14 @@ paths:
       - https
       security:
       - jwt: []
-      summary: download container
+      summary: download containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/{id}/exec:
     get:
       description: Exec a command with attaching to a container using WebSocket(Mainly
         for xterm.js, using a protocol for terminado)
-      operationId: container#exec
+      operationId: containerForApi#exec
       parameters:
       - collectionFormat: multi
         description: The path to the executable file
@@ -600,13 +615,13 @@ paths:
       - ws
       security:
       - jwt: []
-      summary: exec container
+      summary: exec containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/{id}/inspect:
     get:
       description: Return details of a container
-      operationId: container#inspect
+      operationId: containerForApi#inspect
       parameters:
       - description: ID or name
         in: path
@@ -632,13 +647,13 @@ paths:
       - https
       security:
       - jwt: []
-      summary: inspect container
+      summary: inspect containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/{id}/logs:
     get:
       description: Get stdout and stderr logs from a container.
-      operationId: container#logs
+      operationId: containerForApi#logs
       parameters:
       - default: false
         in: query
@@ -695,13 +710,13 @@ paths:
       - ws
       security:
       - jwt: []
-      summary: logs container
+      summary: logs containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/{id}/remove:
     get:
       description: remove a container
-      operationId: container#remove
+      operationId: containerForApi#remove
       parameters:
       - default: false
         description: If the container is running, kill it before removing it.
@@ -732,13 +747,13 @@ paths:
       - https
       security:
       - jwt: []
-      summary: remove container
+      summary: remove containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/{id}/start:
     get:
       description: start a container
-      operationId: container#start
+      operationId: containerForApi#start
       parameters:
       - description: id or name
         in: path
@@ -761,13 +776,13 @@ paths:
       - https
       security:
       - jwt: []
-      summary: start container
+      summary: start containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/{id}/stop:
     get:
       description: stop a container
-      operationId: container#stop
+      operationId: containerForApi#stop
       parameters:
       - description: id or name
         in: path
@@ -790,15 +805,15 @@ paths:
       - https
       security:
       - jwt: []
-      summary: stop container
+      summary: stop containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/{id}/upload:
     post:
       consumes:
       - multipart/form-data
       description: Copy files to the container
-      operationId: container#upload
+      operationId: containerForApi#upload
       parameters:
       - description: ID or name
         in: path
@@ -851,13 +866,13 @@ paths:
       - https
       security:
       - jwt: []
-      summary: upload container
+      summary: upload containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/create:
     get:
       description: create a new container
-      operationId: container#create
+      operationId: containerForApi#create
       parameters:
       - collectionFormat: multi
         description: Command to run specified as a string or an array of strings.
@@ -941,13 +956,13 @@ paths:
       - https
       security:
       - jwt: []
-      summary: create container
+      summary: create containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/download:
     head:
       description: Copy files from the container
-      operationId: container#download#1
+      operationId: containerForApi#download#1
       parameters:
       - description: ID or name
         in: query
@@ -978,13 +993,13 @@ paths:
       - https
       security:
       - jwt: []
-      summary: download container
+      summary: download containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/container/list:
     get:
       description: Return a list of containers
-      operationId: container#list
+      operationId: containerForApi#list
       produces:
       - application/vnd.goa.error
       - vpn.application/goa.container.list.each+json; type=collection
@@ -1002,9 +1017,9 @@ paths:
       - https
       security:
       - jwt: []
-      summary: list container
+      summary: list containerForApi
       tags:
-      - container
+      - containerForApi
   /api/v2/swagger/swagger.json:
     get:
       operationId: swagger#/api/v2/swagger/swagger.json
@@ -1031,7 +1046,7 @@ paths:
       summary: Download ./swagger/swagger.yaml
   /api/v2/user/config:
     get:
-      operationId: user#getConfig
+      operationId: userForApi#getConfig
       produces:
       - application/vnd.goa.error
       - vpn.application/goa.user.config+json
@@ -1049,12 +1064,12 @@ paths:
       - https
       security:
       - jwt: []
-      summary: getConfig user
+      summary: getConfig userForApi
       tags:
-      - user
+      - userForApi
   /api/v2/user/config/authorizedKeys:
     delete:
-      operationId: user#removeAuthorizedKeys
+      operationId: userForApi#removeAuthorizedKeys
       parameters:
       - in: query
         name: label
@@ -1076,11 +1091,11 @@ paths:
       - https
       security:
       - jwt: []
-      summary: removeAuthorizedKeys user
+      summary: removeAuthorizedKeys userForApi
       tags:
-      - user
+      - userForApi
     get:
-      operationId: user#listAuthorizedKeys
+      operationId: userForApi#listAuthorizedKeys
       produces:
       - application/vnd.goa.error
       - vpn.application/goa.user.authorizedkey+json; type=collection
@@ -1100,17 +1115,17 @@ paths:
       - https
       security:
       - jwt: []
-      summary: listAuthorizedKeys user
+      summary: listAuthorizedKeys userForApi
       tags:
-      - user
+      - userForApi
     post:
-      operationId: user#setAuthorizedKeys
+      operationId: userForApi#setAuthorizedKeys
       parameters:
       - in: body
         name: payload
         required: true
         schema:
-          $ref: '#/definitions/SetAuthorizedKeysUserPayload'
+          $ref: '#/definitions/SetAuthorizedKeysUserForApiPayload'
       produces:
       - application/vnd.goa.error
       responses:
@@ -1125,11 +1140,11 @@ paths:
       - https
       security:
       - jwt: []
-      summary: setAuthorizedKeys user
+      summary: setAuthorizedKeys userForApi
       tags:
-      - user
+      - userForApi
     put:
-      operationId: user#addAuthorizedKeys
+      operationId: userForApi#addAuthorizedKeys
       parameters:
       - in: body
         name: payload
@@ -1152,12 +1167,12 @@ paths:
       - https
       security:
       - jwt: []
-      summary: addAuthorizedKeys user
+      summary: addAuthorizedKeys userForApi
       tags:
-      - user
+      - userForApi
   /api/v2/user/config/defaultShell:
     get:
-      operationId: user#getDefaultShell
+      operationId: userForApi#getDefaultShell
       produces:
       - application/vnd.goa.error
       - vpn.application/goa.user.defaultshell+json
@@ -1175,11 +1190,11 @@ paths:
       - https
       security:
       - jwt: []
-      summary: getDefaultShell user
+      summary: getDefaultShell userForApi
       tags:
-      - user
+      - userForApi
     post:
-      operationId: user#setDefaultShell
+      operationId: userForApi#setDefaultShell
       parameters:
       - in: query
         name: defaultShell
@@ -1199,9 +1214,799 @@ paths:
       - https
       security:
       - jwt: []
-      summary: setDefaultShell user
+      summary: setDefaultShell userForApi
       tags:
-      - user
+      - userForApi
+  /frontend/v2/container/{id}/config:
+    get:
+      description: Get the config of a container
+      operationId: containerForFrontend#getConfig
+      parameters:
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.container.config+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaContainerConfig'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: getConfig containerForFrontend
+      tags:
+      - containerForFrontend
+    post:
+      description: Change the config of a container
+      operationId: containerForFrontend#setConfig
+      parameters:
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/ContainerConfig'
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: setConfig containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/{id}/download:
+    get:
+      description: Copy files from the container
+      operationId: containerForFrontend#download
+      parameters:
+      - description: ID or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Path in the container to save files
+        in: query
+        name: internalPath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      - application/vnd.goa.error
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: download containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/{id}/exec:
+    get:
+      description: Exec a command with attaching to a container using WebSocket(Mainly
+        for xterm.js, using a protocol for terminado)
+      operationId: containerForFrontend#exec
+      parameters:
+      - collectionFormat: multi
+        description: The path to the executable file
+        in: query
+        items:
+          type: string
+        name: command
+        required: false
+        type: array
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tty
+        in: query
+        name: tty
+        required: false
+        type: boolean
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "101":
+          description: Switching Protocols
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - ws
+      security:
+      - jwt: []
+      summary: exec containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/{id}/inspect:
+    get:
+      description: Return details of a container
+      operationId: containerForFrontend#inspect
+      parameters:
+      - description: ID or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.container.inspect+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaContainerInspect'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: inspect containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/{id}/logs:
+    get:
+      description: Get stdout and stderr logs from a container.
+      operationId: containerForFrontend#logs
+      parameters:
+      - default: false
+        in: query
+        name: follow
+        required: false
+        type: boolean
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: since
+        required: false
+        type: string
+      - default: false
+        in: query
+        name: stderr
+        required: false
+        type: boolean
+      - default: false
+        in: query
+        name: stdout
+        required: false
+        type: boolean
+      - default: all
+        in: query
+        name: tail
+        required: false
+        type: string
+      - default: false
+        in: query
+        name: timestamps
+        required: false
+        type: boolean
+      - in: query
+        name: until
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "101":
+          description: Switching Protocols
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - ws
+      security:
+      - jwt: []
+      summary: logs containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/{id}/remove:
+    get:
+      description: remove a container
+      operationId: containerForFrontend#remove
+      parameters:
+      - default: false
+        description: If the container is running, kill it before removing it.
+        in: query
+        name: force
+        required: true
+        type: boolean
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "409":
+          description: You cannot remove a running container
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: remove containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/{id}/start:
+    get:
+      description: start a container
+      operationId: containerForFrontend#start
+      parameters:
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: start containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/{id}/stop:
+    get:
+      description: stop a container
+      operationId: containerForFrontend#stop
+      parameters:
+      - description: id or name
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: stop containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/{id}/upload:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Copy files to the container
+      operationId: containerForFrontend#upload
+      parameters:
+      - description: ID or name
+        in: path
+        name: id
+        required: true
+        type: string
+      - default: false
+        description: Allow for a existing directory to be replaced by a file
+        in: formData
+        name: allowOverwrite
+        required: false
+        type: boolean
+      - default: false
+        description: Copy all uid/gid information
+        in: formData
+        name: copyUIDGID
+        required: true
+        type: boolean
+      - description: File tar archive
+        in: formData
+        name: data
+        required: true
+        type: file
+      - description: Path in the container to save files
+        in: formData
+        name: path
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "413":
+          description: Request Entity Too Large
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: upload containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/create:
+    get:
+      description: create a new container
+      operationId: containerForFrontend#create
+      parameters:
+      - collectionFormat: multi
+        description: Command to run specified as a string or an array of strings.
+        in: query
+        items:
+          type: string
+        name: command
+        required: false
+        type: array
+      - collectionFormat: multi
+        description: The entry point for the container as a string or an array of
+          strings
+        in: query
+        items:
+          type: string
+        name: entrypoint
+        required: false
+        type: array
+      - collectionFormat: multi
+        description: Environment variables
+        in: query
+        items:
+          type: string
+        name: env
+        required: false
+        type: array
+      - description: Name of image
+        in: query
+        name: image
+        required: true
+        type: string
+      - description: Name of container and subdomain
+        in: query
+        maxLength: 64
+        minLength: 1
+        name: name
+        pattern: ^[a-zA-Z0-9_]+$
+        required: true
+        type: string
+      - default: true
+        description: Whether HTTP is redirected to HTTPS
+        in: query
+        name: sslRedirect
+        required: false
+        type: boolean
+      - collectionFormat: multi
+        description: Path to volumes in a container
+        in: query
+        items:
+          type: string
+        name: volumes
+        required: false
+        type: array
+      - description: Current directory (PWD) in the command will be launched
+        in: query
+        name: workingDir
+        required: false
+        type: string
+      produces:
+      - application/vnd.goa.error
+      - vnd.application/goa.container.create.results+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaContainerCreateResults'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/error'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: create containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/download:
+    head:
+      description: Copy files from the container
+      operationId: containerForFrontend#download#1
+      parameters:
+      - description: ID or name
+        in: query
+        name: id
+        required: false
+        type: string
+      - description: Path in the container to save files
+        in: query
+        name: internalPath
+        required: true
+        type: string
+      produces:
+      - application/octet-stream
+      - application/vnd.goa.error
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: download containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/container/list:
+    get:
+      description: Return a list of containers
+      operationId: containerForFrontend#list
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.container.list.each+json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaContainerListEachCollection'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: list containerForFrontend
+      tags:
+      - containerForFrontend
+  /frontend/v2/swagger/swagger.json:
+    get:
+      operationId: swagger#/frontend/v2/swagger/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      - https
+      summary: Download ./swagger/swagger.json
+  /frontend/v2/swagger/swagger.yaml:
+    get:
+      operationId: swagger#/frontend/v2/swagger/swagger.yaml
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      - https
+      summary: Download ./swagger/swagger.yaml
+  /frontend/v2/user/apiKey:
+    get:
+      operationId: userForFrontend#getAPIKey
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.user.apikey
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaUserApikey'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: getAPIKey userForFrontend
+      tags:
+      - userForFrontend
+    post:
+      operationId: userForFrontend#reissueAPIKey
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.user.apikey
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaUserApikey'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: reissueAPIKey userForFrontend
+      tags:
+      - userForFrontend
+  /frontend/v2/user/config:
+    get:
+      operationId: userForFrontend#getConfig
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.user.config+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaUserConfig'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: getConfig userForFrontend
+      tags:
+      - userForFrontend
+  /frontend/v2/user/config/authorizedKeys:
+    delete:
+      operationId: userForFrontend#removeAuthorizedKeys
+      parameters:
+      - in: query
+        name: label
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: removeAuthorizedKeys userForFrontend
+      tags:
+      - userForFrontend
+    get:
+      operationId: userForFrontend#listAuthorizedKeys
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.user.authorizedkey+json; type=collection
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaUserAuthorizedkeyCollection'
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: listAuthorizedKeys userForFrontend
+      tags:
+      - userForFrontend
+    post:
+      operationId: userForFrontend#setAuthorizedKeys
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/SetAuthorizedKeysUserForFrontendPayload'
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: setAuthorizedKeys userForFrontend
+      tags:
+      - userForFrontend
+    put:
+      operationId: userForFrontend#addAuthorizedKeys
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/UserAuthorizedKey'
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: addAuthorizedKeys userForFrontend
+      tags:
+      - userForFrontend
+  /frontend/v2/user/config/defaultShell:
+    get:
+      operationId: userForFrontend#getDefaultShell
+      produces:
+      - application/vnd.goa.error
+      - vpn.application/goa.user.defaultshell+json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaUserDefaultshell'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: getDefaultShell userForFrontend
+      tags:
+      - userForFrontend
+    post:
+      operationId: userForFrontend#setDefaultShell
+      parameters:
+      - in: query
+        name: defaultShell
+        required: true
+        type: string
+      produces:
+      - application/vnd.goa.error
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error'
+      schemes:
+      - http
+      - https
+      security:
+      - jwt: []
+      summary: setDefaultShell userForFrontend
+      tags:
+      - userForFrontend
 produces:
 - application/json
 - application/xml

@@ -265,6 +265,28 @@ func (c *Client) DecodeGoaContainerListEachCollection(resp *http.Response) (GoaC
 	return decoded, err
 }
 
+// GoaUserApikey media type (default view)
+//
+// Identifier: vpn.application/goa.user.apikey; view=default
+type GoaUserApikey struct {
+	Key string `form:"key" json:"key" yaml:"key" xml:"key"`
+}
+
+// Validate validates the GoaUserApikey media type instance.
+func (mt *GoaUserApikey) Validate() (err error) {
+	if mt.Key == "" {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`response`, "key"))
+	}
+	return
+}
+
+// DecodeGoaUserApikey decodes the GoaUserApikey instance encoded in resp body.
+func (c *Client) DecodeGoaUserApikey(resp *http.Response) (*GoaUserApikey, error) {
+	var decoded GoaUserApikey
+	err := c.Decoder.Decode(&decoded, resp.Body, resp.Header.Get("Content-Type"))
+	return &decoded, err
+}
+
 // GoaUserAuthorizedkey media type (default view)
 //
 // Identifier: vpn.application/goa.user.authorizedkey+json; view=default

@@ -1,12 +1,15 @@
-package main
+package controller
 
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
+	"github.com/modoki-paas/modoki/const"
 	"github.com/modoki-paas/modoki/consul_traefik"
 
 	"github.com/docker/docker/api/types"
@@ -21,18 +24,17 @@ type ContainerControllerUtil struct {
 	DB           *sqlx.DB
 	DockerClient *client.Client
 	Consul       *consulTraefik.Client
+
+	PublicAddr       string
+	HTTPS            bool
+	DockerAPIVersion string
+	NetworkName      *string
 }
 
 func (c *ContainerControllerUtil) updateStatus(ctx context.Context, status, msg string, id int) error {
 	_, err := c.DB.ExecContext(ctx, "UPDATE containers SET status=?, message=? WHERE id=?", status, msg, id)
 
 	return err
-}
-
-func (c *ContainerController) must(err error) {
-	if err != nil {
-		log.Println("UpdateStatus error:", err)
-	}
 }
 
 func (c *ContainerControllerUtil) updateContainerStatus(ctx context.Context, cid string) error {
@@ -43,7 +45,7 @@ func (c *ContainerControllerUtil) updateContainerStatus(ctx context.Context, cid
 	}
 
 	var id int
-	if idStr, ok := j.Config.Labels[dockerLabelModokiID]; !ok {
+	if idStr, ok := j.Config.Labels[constants.DockerLabelModokiID]; !ok {
 		return errors.New("This container is not maintained by modoki")
 	} else {
 		id, err = strconv.Atoi(idStr)
@@ -60,14 +62,15 @@ func (c *ContainerControllerUtil) updateContainerStatus(ctx context.Context, cid
 	}
 
 	n := "bridge"
+	// TODO: change network
 
-	if networkName != nil { // command arguments
+	/*if networkName != nil { // command arguments
 		n = *networkName
-	}
+	}*/
 
 	addr := j.NetworkSettings.Networks[n].IPAddress
 
-	backendName := fmt.Sprintf(backendFormat, id)
+	backendName := fmt.Sprintf(constants.BackendFormat, id)
 
 	if addr == "" {
 		if err := c.Consul.DeleteBackend(backendName); err != nil {
@@ -76,7 +79,7 @@ func (c *ContainerControllerUtil) updateContainerStatus(ctx context.Context, cid
 			}
 		}
 	} else {
-		if err := c.Consul.NewBackend(backendName, serverName, "http://"+addr); err != nil {
+		if err := c.Consul.NewBackend(backendName, constants.ServerName, "http://"+addr); err != nil {
 			return errors.Wrap(err, "Traefik Registeration Error")
 		}
 	}
@@ -129,3 +132,40 @@ func (c *ContainerControllerUtil) run(ctx context.Context) {
 
 	fn()
 }
+
+// TODO: change from payload to parameters
+
+type ContainerCreatePayload struct {
+	Name        string
+	Image       string
+	Command     []string
+	Entrypoint  []string
+	Env         []string
+	Volumes     []string
+	WorkingDir  *string
+	SSLRedirect bool
+}
+
+type LogsPayload struct {
+	Stderr     bool
+	Stdout     bool
+	Timestamps bool
+	Follow     bool
+	Tail       string
+	Since      *time.Time
+	Until      *time.Time
+}
+
+type ExecParameters struct {
+	Command []string
+	Tty     *bool
+}
+
+type DownloadResult struct {
+	PathStatJSON string
+	Reader       io.ReadCloser
+}
+
+const (
+	StatusRunningContainer = 409
+)

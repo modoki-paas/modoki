@@ -33,25 +33,25 @@ func initService(service *goa.Service) {
 	service.Decoder.Register(goa.NewJSONDecoder, "*/*")
 }
 
-// ContainerController is the controller interface for the Container actions.
-type ContainerController interface {
+// ContainerForAPIController is the controller interface for the ContainerForAPI actions.
+type ContainerForAPIController interface {
 	goa.Muxer
-	Create(*CreateContainerContext) error
-	Download(*DownloadContainerContext) error
-	Exec(*ExecContainerContext) error
-	GetConfig(*GetConfigContainerContext) error
-	Inspect(*InspectContainerContext) error
-	List(*ListContainerContext) error
-	Logs(*LogsContainerContext) error
-	Remove(*RemoveContainerContext) error
-	SetConfig(*SetConfigContainerContext) error
-	Start(*StartContainerContext) error
-	Stop(*StopContainerContext) error
-	Upload(*UploadContainerContext) error
+	Create(*CreateContainerForAPIContext) error
+	Download(*DownloadContainerForAPIContext) error
+	Exec(*ExecContainerForAPIContext) error
+	GetConfig(*GetConfigContainerForAPIContext) error
+	Inspect(*InspectContainerForAPIContext) error
+	List(*ListContainerForAPIContext) error
+	Logs(*LogsContainerForAPIContext) error
+	Remove(*RemoveContainerForAPIContext) error
+	SetConfig(*SetConfigContainerForAPIContext) error
+	Start(*StartContainerForAPIContext) error
+	Stop(*StopContainerForAPIContext) error
+	Upload(*UploadContainerForAPIContext) error
 }
 
-// MountContainerController "mounts" a Container resource controller on the given service.
-func MountContainerController(service *goa.Service, ctrl ContainerController) {
+// MountContainerForAPIController "mounts" a ContainerForAPI resource controller on the given service.
+func MountContainerForAPIController(service *goa.Service, ctrl ContainerForAPIController) {
 	initService(service)
 	var h goa.Handler
 
@@ -61,7 +61,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewCreateContainerContext(ctx, req, service)
+		rctx, err := NewCreateContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -69,7 +69,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/create", ctrl.MuxHandler("create", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Create", "route", "GET /api/v2/container/create", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Create", "route", "GET /api/v2/container/create", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -77,7 +77,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewDownloadContainerContext(ctx, req, service)
+		rctx, err := NewDownloadContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -85,9 +85,9 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/:id/download", ctrl.MuxHandler("download", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Download", "route", "GET /api/v2/container/:id/download", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Download", "route", "GET /api/v2/container/:id/download", "security", "jwt")
 	service.Mux.Handle("HEAD", "/api/v2/container/download", ctrl.MuxHandler("download", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Download", "route", "HEAD /api/v2/container/download", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Download", "route", "HEAD /api/v2/container/download", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -95,7 +95,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewExecContainerContext(ctx, req, service)
+		rctx, err := NewExecContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -103,7 +103,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/:id/exec", ctrl.MuxHandler("exec", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Exec", "route", "GET /api/v2/container/:id/exec", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Exec", "route", "GET /api/v2/container/:id/exec", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -111,7 +111,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewGetConfigContainerContext(ctx, req, service)
+		rctx, err := NewGetConfigContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -119,7 +119,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/:id/config", ctrl.MuxHandler("getConfig", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "GetConfig", "route", "GET /api/v2/container/:id/config", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "GetConfig", "route", "GET /api/v2/container/:id/config", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -127,7 +127,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewInspectContainerContext(ctx, req, service)
+		rctx, err := NewInspectContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -135,7 +135,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/:id/inspect", ctrl.MuxHandler("inspect", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Inspect", "route", "GET /api/v2/container/:id/inspect", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Inspect", "route", "GET /api/v2/container/:id/inspect", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -143,7 +143,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewListContainerContext(ctx, req, service)
+		rctx, err := NewListContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -151,7 +151,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/list", ctrl.MuxHandler("list", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "List", "route", "GET /api/v2/container/list", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "List", "route", "GET /api/v2/container/list", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -159,7 +159,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewLogsContainerContext(ctx, req, service)
+		rctx, err := NewLogsContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -167,7 +167,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/:id/logs", ctrl.MuxHandler("logs", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Logs", "route", "GET /api/v2/container/:id/logs", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Logs", "route", "GET /api/v2/container/:id/logs", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -175,7 +175,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewRemoveContainerContext(ctx, req, service)
+		rctx, err := NewRemoveContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -183,7 +183,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/:id/remove", ctrl.MuxHandler("remove", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Remove", "route", "GET /api/v2/container/:id/remove", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Remove", "route", "GET /api/v2/container/:id/remove", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -191,7 +191,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewSetConfigContainerContext(ctx, req, service)
+		rctx, err := NewSetConfigContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -204,8 +204,8 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 		return ctrl.SetConfig(rctx)
 	}
 	h = handleSecurity("jwt", h)
-	service.Mux.Handle("POST", "/api/v2/container/:id/config", ctrl.MuxHandler("setConfig", h, unmarshalSetConfigContainerPayload))
-	service.LogInfo("mount", "ctrl", "Container", "action", "SetConfig", "route", "POST /api/v2/container/:id/config", "security", "jwt")
+	service.Mux.Handle("POST", "/api/v2/container/:id/config", ctrl.MuxHandler("setConfig", h, unmarshalSetConfigContainerForAPIPayload))
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "SetConfig", "route", "POST /api/v2/container/:id/config", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -213,7 +213,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewStartContainerContext(ctx, req, service)
+		rctx, err := NewStartContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -221,7 +221,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/:id/start", ctrl.MuxHandler("start", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Start", "route", "GET /api/v2/container/:id/start", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Start", "route", "GET /api/v2/container/:id/start", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -229,7 +229,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewStopContainerContext(ctx, req, service)
+		rctx, err := NewStopContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -237,7 +237,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/container/:id/stop", ctrl.MuxHandler("stop", h, nil))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Stop", "route", "GET /api/v2/container/:id/stop", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Stop", "route", "GET /api/v2/container/:id/stop", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -245,7 +245,7 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewUploadContainerContext(ctx, req, service)
+		rctx, err := NewUploadContainerForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -258,12 +258,12 @@ func MountContainerController(service *goa.Service, ctrl ContainerController) {
 		return ctrl.Upload(rctx)
 	}
 	h = handleSecurity("jwt", h)
-	service.Mux.Handle("POST", "/api/v2/container/:id/upload", ctrl.MuxHandler("upload", h, unmarshalUploadContainerPayload))
-	service.LogInfo("mount", "ctrl", "Container", "action", "Upload", "route", "POST /api/v2/container/:id/upload", "security", "jwt")
+	service.Mux.Handle("POST", "/api/v2/container/:id/upload", ctrl.MuxHandler("upload", h, unmarshalUploadContainerForAPIPayload))
+	service.LogInfo("mount", "ctrl", "ContainerForAPI", "action", "Upload", "route", "POST /api/v2/container/:id/upload", "security", "jwt")
 }
 
-// unmarshalSetConfigContainerPayload unmarshals the request body into the context request data Payload field.
-func unmarshalSetConfigContainerPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+// unmarshalSetConfigContainerForAPIPayload unmarshals the request body into the context request data Payload field.
+func unmarshalSetConfigContainerForAPIPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &containerConfig{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
@@ -272,21 +272,298 @@ func unmarshalSetConfigContainerPayload(ctx context.Context, service *goa.Servic
 	return nil
 }
 
-// unmarshalUploadContainerPayload unmarshals the request body into the context request data Payload field.
-func unmarshalUploadContainerPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+// unmarshalUploadContainerForAPIPayload unmarshals the request body into the context request data Payload field.
+func unmarshalUploadContainerForAPIPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	var err error
 	var payload uploadPayload
 	rawAllowOverwrite := req.FormValue("allowOverwrite")
 	if allowOverwrite, err2 := strconv.ParseBool(rawAllowOverwrite); err2 == nil {
-		tmp10 := &allowOverwrite
-		payload.AllowOverwrite = tmp10
+		tmp19 := &allowOverwrite
+		payload.AllowOverwrite = tmp19
 	} else {
 		err = goa.MergeErrors(err, goa.InvalidParamTypeError("allowOverwrite", rawAllowOverwrite, "boolean"))
 	}
 	rawCopyUIDGID := req.FormValue("copyUIDGID")
 	if copyUIDGID, err2 := strconv.ParseBool(rawCopyUIDGID); err2 == nil {
-		tmp11 := &copyUIDGID
-		payload.CopyUIDGID = tmp11
+		tmp20 := &copyUIDGID
+		payload.CopyUIDGID = tmp20
+	} else {
+		err = goa.MergeErrors(err, goa.InvalidParamTypeError("copyUIDGID", rawCopyUIDGID, "boolean"))
+	}
+	_, rawData, err2 := req.FormFile("data")
+	if err2 == nil {
+		payload.Data = rawData
+	} else {
+		err = goa.MergeErrors(err, goa.InvalidParamTypeError("data", "data", "file"))
+	}
+	rawPath := req.FormValue("path")
+	payload.Path = &rawPath
+	if err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// ContainerForFrontendController is the controller interface for the ContainerForFrontend actions.
+type ContainerForFrontendController interface {
+	goa.Muxer
+	Create(*CreateContainerForFrontendContext) error
+	Download(*DownloadContainerForFrontendContext) error
+	Exec(*ExecContainerForFrontendContext) error
+	GetConfig(*GetConfigContainerForFrontendContext) error
+	Inspect(*InspectContainerForFrontendContext) error
+	List(*ListContainerForFrontendContext) error
+	Logs(*LogsContainerForFrontendContext) error
+	Remove(*RemoveContainerForFrontendContext) error
+	SetConfig(*SetConfigContainerForFrontendContext) error
+	Start(*StartContainerForFrontendContext) error
+	Stop(*StopContainerForFrontendContext) error
+	Upload(*UploadContainerForFrontendContext) error
+}
+
+// MountContainerForFrontendController "mounts" a ContainerForFrontend resource controller on the given service.
+func MountContainerForFrontendController(service *goa.Service, ctrl ContainerForFrontendController) {
+	initService(service)
+	var h goa.Handler
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewCreateContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Create(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/create", ctrl.MuxHandler("create", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Create", "route", "GET /frontend/v2/container/create", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewDownloadContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Download(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/:id/download", ctrl.MuxHandler("download", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Download", "route", "GET /frontend/v2/container/:id/download", "security", "jwt")
+	service.Mux.Handle("HEAD", "/frontend/v2/container/download", ctrl.MuxHandler("download", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Download", "route", "HEAD /frontend/v2/container/download", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewExecContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Exec(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/:id/exec", ctrl.MuxHandler("exec", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Exec", "route", "GET /frontend/v2/container/:id/exec", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetConfigContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetConfig(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/:id/config", ctrl.MuxHandler("getConfig", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "GetConfig", "route", "GET /frontend/v2/container/:id/config", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewInspectContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Inspect(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/:id/inspect", ctrl.MuxHandler("inspect", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Inspect", "route", "GET /frontend/v2/container/:id/inspect", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewListContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.List(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/list", ctrl.MuxHandler("list", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "List", "route", "GET /frontend/v2/container/list", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewLogsContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Logs(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/:id/logs", ctrl.MuxHandler("logs", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Logs", "route", "GET /frontend/v2/container/:id/logs", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewRemoveContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Remove(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/:id/remove", ctrl.MuxHandler("remove", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Remove", "route", "GET /frontend/v2/container/:id/remove", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewSetConfigContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*ContainerConfig)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.SetConfig(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("POST", "/frontend/v2/container/:id/config", ctrl.MuxHandler("setConfig", h, unmarshalSetConfigContainerForFrontendPayload))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "SetConfig", "route", "POST /frontend/v2/container/:id/config", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewStartContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Start(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/:id/start", ctrl.MuxHandler("start", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Start", "route", "GET /frontend/v2/container/:id/start", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewStopContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.Stop(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/container/:id/stop", ctrl.MuxHandler("stop", h, nil))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Stop", "route", "GET /frontend/v2/container/:id/stop", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewUploadContainerForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*UploadPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.Upload(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("POST", "/frontend/v2/container/:id/upload", ctrl.MuxHandler("upload", h, unmarshalUploadContainerForFrontendPayload))
+	service.LogInfo("mount", "ctrl", "ContainerForFrontend", "action", "Upload", "route", "POST /frontend/v2/container/:id/upload", "security", "jwt")
+}
+
+// unmarshalSetConfigContainerForFrontendPayload unmarshals the request body into the context request data Payload field.
+func unmarshalSetConfigContainerForFrontendPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &containerConfig{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalUploadContainerForFrontendPayload unmarshals the request body into the context request data Payload field.
+func unmarshalUploadContainerForFrontendPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	var err error
+	var payload uploadPayload
+	rawAllowOverwrite := req.FormValue("allowOverwrite")
+	if allowOverwrite, err2 := strconv.ParseBool(rawAllowOverwrite); err2 == nil {
+		tmp21 := &allowOverwrite
+		payload.AllowOverwrite = tmp21
+	} else {
+		err = goa.MergeErrors(err, goa.InvalidParamTypeError("allowOverwrite", rawAllowOverwrite, "boolean"))
+	}
+	rawCopyUIDGID := req.FormValue("copyUIDGID")
+	if copyUIDGID, err2 := strconv.ParseBool(rawCopyUIDGID); err2 == nil {
+		tmp22 := &copyUIDGID
+		payload.CopyUIDGID = tmp22
 	} else {
 		err = goa.MergeErrors(err, goa.InvalidParamTypeError("copyUIDGID", rawCopyUIDGID, "boolean"))
 	}
@@ -321,17 +598,29 @@ func MountSwaggerController(service *goa.Service, ctrl SwaggerController) {
 	initService(service)
 	var h goa.Handler
 	service.Mux.Handle("OPTIONS", "/api/v2/swagger/swagger.json", ctrl.MuxHandler("preflight", handleSwaggerOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/frontend/v2/swagger/swagger.json", ctrl.MuxHandler("preflight", handleSwaggerOrigin(cors.HandlePreflight()), nil))
 	service.Mux.Handle("OPTIONS", "/api/v2/swagger/swagger.yaml", ctrl.MuxHandler("preflight", handleSwaggerOrigin(cors.HandlePreflight()), nil))
+	service.Mux.Handle("OPTIONS", "/frontend/v2/swagger/swagger.yaml", ctrl.MuxHandler("preflight", handleSwaggerOrigin(cors.HandlePreflight()), nil))
 
 	h = ctrl.FileHandler("/api/v2/swagger/swagger.json", "./swagger/swagger.json")
 	h = handleSwaggerOrigin(h)
 	service.Mux.Handle("GET", "/api/v2/swagger/swagger.json", ctrl.MuxHandler("serve", h, nil))
 	service.LogInfo("mount", "ctrl", "Swagger", "files", "./swagger/swagger.json", "route", "GET /api/v2/swagger/swagger.json")
 
+	h = ctrl.FileHandler("/frontend/v2/swagger/swagger.json", "./swagger/swagger.json")
+	h = handleSwaggerOrigin(h)
+	service.Mux.Handle("GET", "/frontend/v2/swagger/swagger.json", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Swagger", "files", "./swagger/swagger.json", "route", "GET /frontend/v2/swagger/swagger.json")
+
 	h = ctrl.FileHandler("/api/v2/swagger/swagger.yaml", "./swagger/swagger.yaml")
 	h = handleSwaggerOrigin(h)
 	service.Mux.Handle("GET", "/api/v2/swagger/swagger.yaml", ctrl.MuxHandler("serve", h, nil))
 	service.LogInfo("mount", "ctrl", "Swagger", "files", "./swagger/swagger.yaml", "route", "GET /api/v2/swagger/swagger.yaml")
+
+	h = ctrl.FileHandler("/frontend/v2/swagger/swagger.yaml", "./swagger/swagger.yaml")
+	h = handleSwaggerOrigin(h)
+	service.Mux.Handle("GET", "/frontend/v2/swagger/swagger.yaml", ctrl.MuxHandler("serve", h, nil))
+	service.LogInfo("mount", "ctrl", "Swagger", "files", "./swagger/swagger.yaml", "route", "GET /frontend/v2/swagger/swagger.yaml")
 }
 
 // handleSwaggerOrigin applies the CORS response headers corresponding to the origin.
@@ -358,20 +647,20 @@ func handleSwaggerOrigin(h goa.Handler) goa.Handler {
 	}
 }
 
-// UserController is the controller interface for the User actions.
-type UserController interface {
+// UserForAPIController is the controller interface for the UserForAPI actions.
+type UserForAPIController interface {
 	goa.Muxer
-	AddAuthorizedKeys(*AddAuthorizedKeysUserContext) error
-	GetConfig(*GetConfigUserContext) error
-	GetDefaultShell(*GetDefaultShellUserContext) error
-	ListAuthorizedKeys(*ListAuthorizedKeysUserContext) error
-	RemoveAuthorizedKeys(*RemoveAuthorizedKeysUserContext) error
-	SetAuthorizedKeys(*SetAuthorizedKeysUserContext) error
-	SetDefaultShell(*SetDefaultShellUserContext) error
+	AddAuthorizedKeys(*AddAuthorizedKeysUserForAPIContext) error
+	GetConfig(*GetConfigUserForAPIContext) error
+	GetDefaultShell(*GetDefaultShellUserForAPIContext) error
+	ListAuthorizedKeys(*ListAuthorizedKeysUserForAPIContext) error
+	RemoveAuthorizedKeys(*RemoveAuthorizedKeysUserForAPIContext) error
+	SetAuthorizedKeys(*SetAuthorizedKeysUserForAPIContext) error
+	SetDefaultShell(*SetDefaultShellUserForAPIContext) error
 }
 
-// MountUserController "mounts" a User resource controller on the given service.
-func MountUserController(service *goa.Service, ctrl UserController) {
+// MountUserForAPIController "mounts" a UserForAPI resource controller on the given service.
+func MountUserForAPIController(service *goa.Service, ctrl UserForAPIController) {
 	initService(service)
 	var h goa.Handler
 
@@ -381,7 +670,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewAddAuthorizedKeysUserContext(ctx, req, service)
+		rctx, err := NewAddAuthorizedKeysUserForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -394,8 +683,8 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 		return ctrl.AddAuthorizedKeys(rctx)
 	}
 	h = handleSecurity("jwt", h)
-	service.Mux.Handle("PUT", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("addAuthorizedKeys", h, unmarshalAddAuthorizedKeysUserPayload))
-	service.LogInfo("mount", "ctrl", "User", "action", "AddAuthorizedKeys", "route", "PUT /api/v2/user/config/authorizedKeys", "security", "jwt")
+	service.Mux.Handle("PUT", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("addAuthorizedKeys", h, unmarshalAddAuthorizedKeysUserForAPIPayload))
+	service.LogInfo("mount", "ctrl", "UserForAPI", "action", "AddAuthorizedKeys", "route", "PUT /api/v2/user/config/authorizedKeys", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -403,7 +692,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewGetConfigUserContext(ctx, req, service)
+		rctx, err := NewGetConfigUserForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -411,7 +700,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/user/config", ctrl.MuxHandler("getConfig", h, nil))
-	service.LogInfo("mount", "ctrl", "User", "action", "GetConfig", "route", "GET /api/v2/user/config", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "UserForAPI", "action", "GetConfig", "route", "GET /api/v2/user/config", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -419,7 +708,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewGetDefaultShellUserContext(ctx, req, service)
+		rctx, err := NewGetDefaultShellUserForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -427,7 +716,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/user/config/defaultShell", ctrl.MuxHandler("getDefaultShell", h, nil))
-	service.LogInfo("mount", "ctrl", "User", "action", "GetDefaultShell", "route", "GET /api/v2/user/config/defaultShell", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "UserForAPI", "action", "GetDefaultShell", "route", "GET /api/v2/user/config/defaultShell", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -435,7 +724,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewListAuthorizedKeysUserContext(ctx, req, service)
+		rctx, err := NewListAuthorizedKeysUserForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -443,7 +732,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("GET", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("listAuthorizedKeys", h, nil))
-	service.LogInfo("mount", "ctrl", "User", "action", "ListAuthorizedKeys", "route", "GET /api/v2/user/config/authorizedKeys", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "UserForAPI", "action", "ListAuthorizedKeys", "route", "GET /api/v2/user/config/authorizedKeys", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -451,7 +740,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewRemoveAuthorizedKeysUserContext(ctx, req, service)
+		rctx, err := NewRemoveAuthorizedKeysUserForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -459,7 +748,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("DELETE", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("removeAuthorizedKeys", h, nil))
-	service.LogInfo("mount", "ctrl", "User", "action", "RemoveAuthorizedKeys", "route", "DELETE /api/v2/user/config/authorizedKeys", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "UserForAPI", "action", "RemoveAuthorizedKeys", "route", "DELETE /api/v2/user/config/authorizedKeys", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -467,21 +756,21 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewSetAuthorizedKeysUserContext(ctx, req, service)
+		rctx, err := NewSetAuthorizedKeysUserForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
 		// Build the payload
 		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
-			rctx.Payload = rawPayload.(SetAuthorizedKeysUserPayload)
+			rctx.Payload = rawPayload.(SetAuthorizedKeysUserForAPIPayload)
 		} else {
 			return goa.MissingPayloadError()
 		}
 		return ctrl.SetAuthorizedKeys(rctx)
 	}
 	h = handleSecurity("jwt", h)
-	service.Mux.Handle("POST", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("setAuthorizedKeys", h, unmarshalSetAuthorizedKeysUserPayload))
-	service.LogInfo("mount", "ctrl", "User", "action", "SetAuthorizedKeys", "route", "POST /api/v2/user/config/authorizedKeys", "security", "jwt")
+	service.Mux.Handle("POST", "/api/v2/user/config/authorizedKeys", ctrl.MuxHandler("setAuthorizedKeys", h, unmarshalSetAuthorizedKeysUserForAPIPayload))
+	service.LogInfo("mount", "ctrl", "UserForAPI", "action", "SetAuthorizedKeys", "route", "POST /api/v2/user/config/authorizedKeys", "security", "jwt")
 
 	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
 		// Check if there was an error loading the request
@@ -489,7 +778,7 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 			return err
 		}
 		// Build the context
-		rctx, err := NewSetDefaultShellUserContext(ctx, req, service)
+		rctx, err := NewSetDefaultShellUserForAPIContext(ctx, req, service)
 		if err != nil {
 			return err
 		}
@@ -497,11 +786,11 @@ func MountUserController(service *goa.Service, ctrl UserController) {
 	}
 	h = handleSecurity("jwt", h)
 	service.Mux.Handle("POST", "/api/v2/user/config/defaultShell", ctrl.MuxHandler("setDefaultShell", h, nil))
-	service.LogInfo("mount", "ctrl", "User", "action", "SetDefaultShell", "route", "POST /api/v2/user/config/defaultShell", "security", "jwt")
+	service.LogInfo("mount", "ctrl", "UserForAPI", "action", "SetDefaultShell", "route", "POST /api/v2/user/config/defaultShell", "security", "jwt")
 }
 
-// unmarshalAddAuthorizedKeysUserPayload unmarshals the request body into the context request data Payload field.
-func unmarshalAddAuthorizedKeysUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+// unmarshalAddAuthorizedKeysUserForAPIPayload unmarshals the request body into the context request data Payload field.
+func unmarshalAddAuthorizedKeysUserForAPIPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &userAuthorizedKey{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
@@ -515,9 +804,215 @@ func unmarshalAddAuthorizedKeysUserPayload(ctx context.Context, service *goa.Ser
 	return nil
 }
 
-// unmarshalSetAuthorizedKeysUserPayload unmarshals the request body into the context request data Payload field.
-func unmarshalSetAuthorizedKeysUserPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
-	var payload SetAuthorizedKeysUserPayload
+// unmarshalSetAuthorizedKeysUserForAPIPayload unmarshals the request body into the context request data Payload field.
+func unmarshalSetAuthorizedKeysUserForAPIPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	var payload SetAuthorizedKeysUserForAPIPayload
+	if err := service.DecodeRequest(req, &payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload
+	return nil
+}
+
+// UserForFrontendController is the controller interface for the UserForFrontend actions.
+type UserForFrontendController interface {
+	goa.Muxer
+	AddAuthorizedKeys(*AddAuthorizedKeysUserForFrontendContext) error
+	GetAPIKey(*GetAPIKeyUserForFrontendContext) error
+	GetConfig(*GetConfigUserForFrontendContext) error
+	GetDefaultShell(*GetDefaultShellUserForFrontendContext) error
+	ListAuthorizedKeys(*ListAuthorizedKeysUserForFrontendContext) error
+	ReissueAPIKey(*ReissueAPIKeyUserForFrontendContext) error
+	RemoveAuthorizedKeys(*RemoveAuthorizedKeysUserForFrontendContext) error
+	SetAuthorizedKeys(*SetAuthorizedKeysUserForFrontendContext) error
+	SetDefaultShell(*SetDefaultShellUserForFrontendContext) error
+}
+
+// MountUserForFrontendController "mounts" a UserForFrontend resource controller on the given service.
+func MountUserForFrontendController(service *goa.Service, ctrl UserForFrontendController) {
+	initService(service)
+	var h goa.Handler
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewAddAuthorizedKeysUserForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*UserAuthorizedKey)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.AddAuthorizedKeys(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("PUT", "/frontend/v2/user/config/authorizedKeys", ctrl.MuxHandler("addAuthorizedKeys", h, unmarshalAddAuthorizedKeysUserForFrontendPayload))
+	service.LogInfo("mount", "ctrl", "UserForFrontend", "action", "AddAuthorizedKeys", "route", "PUT /frontend/v2/user/config/authorizedKeys", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetAPIKeyUserForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetAPIKey(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/user/apiKey", ctrl.MuxHandler("getAPIKey", h, nil))
+	service.LogInfo("mount", "ctrl", "UserForFrontend", "action", "GetAPIKey", "route", "GET /frontend/v2/user/apiKey", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetConfigUserForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetConfig(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/user/config", ctrl.MuxHandler("getConfig", h, nil))
+	service.LogInfo("mount", "ctrl", "UserForFrontend", "action", "GetConfig", "route", "GET /frontend/v2/user/config", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewGetDefaultShellUserForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.GetDefaultShell(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/user/config/defaultShell", ctrl.MuxHandler("getDefaultShell", h, nil))
+	service.LogInfo("mount", "ctrl", "UserForFrontend", "action", "GetDefaultShell", "route", "GET /frontend/v2/user/config/defaultShell", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewListAuthorizedKeysUserForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ListAuthorizedKeys(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("GET", "/frontend/v2/user/config/authorizedKeys", ctrl.MuxHandler("listAuthorizedKeys", h, nil))
+	service.LogInfo("mount", "ctrl", "UserForFrontend", "action", "ListAuthorizedKeys", "route", "GET /frontend/v2/user/config/authorizedKeys", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewReissueAPIKeyUserForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.ReissueAPIKey(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("POST", "/frontend/v2/user/apiKey", ctrl.MuxHandler("reissueAPIKey", h, nil))
+	service.LogInfo("mount", "ctrl", "UserForFrontend", "action", "ReissueAPIKey", "route", "POST /frontend/v2/user/apiKey", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewRemoveAuthorizedKeysUserForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.RemoveAuthorizedKeys(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("DELETE", "/frontend/v2/user/config/authorizedKeys", ctrl.MuxHandler("removeAuthorizedKeys", h, nil))
+	service.LogInfo("mount", "ctrl", "UserForFrontend", "action", "RemoveAuthorizedKeys", "route", "DELETE /frontend/v2/user/config/authorizedKeys", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewSetAuthorizedKeysUserForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		// Build the payload
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(SetAuthorizedKeysUserForFrontendPayload)
+		} else {
+			return goa.MissingPayloadError()
+		}
+		return ctrl.SetAuthorizedKeys(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("POST", "/frontend/v2/user/config/authorizedKeys", ctrl.MuxHandler("setAuthorizedKeys", h, unmarshalSetAuthorizedKeysUserForFrontendPayload))
+	service.LogInfo("mount", "ctrl", "UserForFrontend", "action", "SetAuthorizedKeys", "route", "POST /frontend/v2/user/config/authorizedKeys", "security", "jwt")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		// Check if there was an error loading the request
+		if err := goa.ContextError(ctx); err != nil {
+			return err
+		}
+		// Build the context
+		rctx, err := NewSetDefaultShellUserForFrontendContext(ctx, req, service)
+		if err != nil {
+			return err
+		}
+		return ctrl.SetDefaultShell(rctx)
+	}
+	h = handleSecurity("jwt", h)
+	service.Mux.Handle("POST", "/frontend/v2/user/config/defaultShell", ctrl.MuxHandler("setDefaultShell", h, nil))
+	service.LogInfo("mount", "ctrl", "UserForFrontend", "action", "SetDefaultShell", "route", "POST /frontend/v2/user/config/defaultShell", "security", "jwt")
+}
+
+// unmarshalAddAuthorizedKeysUserForFrontendPayload unmarshals the request body into the context request data Payload field.
+func unmarshalAddAuthorizedKeysUserForFrontendPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &userAuthorizedKey{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		// Initialize payload with private data structure so it can be logged
+		goa.ContextRequest(ctx).Payload = payload
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalSetAuthorizedKeysUserForFrontendPayload unmarshals the request body into the context request data Payload field.
+func unmarshalSetAuthorizedKeysUserForFrontendPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	var payload SetAuthorizedKeysUserForFrontendPayload
 	if err := service.DecodeRequest(req, &payload); err != nil {
 		return err
 	}

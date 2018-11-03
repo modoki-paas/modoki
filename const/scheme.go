@@ -1,21 +1,4 @@
-package main
-
-const (
-	jwtKeyUID           = "sub"
-	traefikFrontendName = "modoki"
-	traefikBackendName  = "modoki_backend"
-
-	frontendFormat = "modokif_%d"
-	backendFormat  = "modokib_%d"
-	serverName     = "main"
-
-	dockerLabelModokiID   = "com.cs3238.modoki.id"
-	dockerLabelModokiUID  = "com.cs3238.modoki.uid"
-	dockerLabelModokiName = "com.cs3238.modoki.name"
-
-	// user.go
-	defaultShellKVFormat = "modoki/users/%s/defaultShell" // TODO: encode for security
-)
+package constants
 
 const containerSchema = `
 CREATE TABLE IF NOT EXISTS containers (

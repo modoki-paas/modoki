@@ -19,8 +19,8 @@ import (
 	"unicode/utf8"
 )
 
-// CreateContainerContext provides the container create action context.
-type CreateContainerContext struct {
+// CreateContainerForAPIContext provides the containerForApi create action context.
+type CreateContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
@@ -34,15 +34,15 @@ type CreateContainerContext struct {
 	WorkingDir  *string
 }
 
-// NewCreateContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller create action.
-func NewCreateContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateContainerContext, error) {
+// NewCreateContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller create action.
+func NewCreateContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := CreateContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := CreateContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramCommand := req.Params["command"]
 	if len(paramCommand) > 0 {
 		params := paramCommand
@@ -106,7 +106,7 @@ func NewCreateContainerContext(ctx context.Context, r *http.Request, service *go
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *CreateContainerContext) OK(r *GoaContainerCreateResults) error {
+func (ctx *CreateContainerForAPIContext) OK(r *GoaContainerCreateResults) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "vnd.application/goa.container.create.results+json")
 	}
@@ -114,7 +114,7 @@ func (ctx *CreateContainerContext) OK(r *GoaContainerCreateResults) error {
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *CreateContainerContext) BadRequest(r error) error {
+func (ctx *CreateContainerForAPIContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -122,7 +122,7 @@ func (ctx *CreateContainerContext) BadRequest(r error) error {
 }
 
 // Conflict sends a HTTP response with status code 409.
-func (ctx *CreateContainerContext) Conflict(r error) error {
+func (ctx *CreateContainerForAPIContext) Conflict(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -130,15 +130,15 @@ func (ctx *CreateContainerContext) Conflict(r error) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *CreateContainerContext) InternalServerError(r error) error {
+func (ctx *CreateContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// DownloadContainerContext provides the container download action context.
-type DownloadContainerContext struct {
+// DownloadContainerForAPIContext provides the containerForApi download action context.
+type DownloadContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
@@ -146,15 +146,15 @@ type DownloadContainerContext struct {
 	InternalPath string
 }
 
-// NewDownloadContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller download action.
-func NewDownloadContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*DownloadContainerContext, error) {
+// NewDownloadContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller download action.
+func NewDownloadContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*DownloadContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := DownloadContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := DownloadContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -171,7 +171,7 @@ func NewDownloadContainerContext(ctx context.Context, r *http.Request, service *
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *DownloadContainerContext) OK(resp []byte) error {
+func (ctx *DownloadContainerForAPIContext) OK(resp []byte) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/octet-stream")
 	}
@@ -181,7 +181,7 @@ func (ctx *DownloadContainerContext) OK(resp []byte) error {
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *DownloadContainerContext) NotFound(r error) error {
+func (ctx *DownloadContainerForAPIContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -189,15 +189,15 @@ func (ctx *DownloadContainerContext) NotFound(r error) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *DownloadContainerContext) InternalServerError(r error) error {
+func (ctx *DownloadContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// ExecContainerContext provides the container exec action context.
-type ExecContainerContext struct {
+// ExecContainerForAPIContext provides the containerForApi exec action context.
+type ExecContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
@@ -206,15 +206,15 @@ type ExecContainerContext struct {
 	Tty     *bool
 }
 
-// NewExecContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller exec action.
-func NewExecContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*ExecContainerContext, error) {
+// NewExecContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller exec action.
+func NewExecContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*ExecContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := ExecContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := ExecContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramCommand := req.Params["command"]
 	if len(paramCommand) > 0 {
 		params := paramCommand
@@ -239,7 +239,7 @@ func NewExecContainerContext(ctx context.Context, r *http.Request, service *goa.
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *ExecContainerContext) NotFound(r error) error {
+func (ctx *ExecContainerForAPIContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -247,30 +247,30 @@ func (ctx *ExecContainerContext) NotFound(r error) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *ExecContainerContext) InternalServerError(r error) error {
+func (ctx *ExecContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// GetConfigContainerContext provides the container getConfig action context.
-type GetConfigContainerContext struct {
+// GetConfigContainerForAPIContext provides the containerForApi getConfig action context.
+type GetConfigContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	ID string
 }
 
-// NewGetConfigContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller getConfig action.
-func NewGetConfigContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetConfigContainerContext, error) {
+// NewGetConfigContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller getConfig action.
+func NewGetConfigContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetConfigContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := GetConfigContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := GetConfigContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -280,7 +280,7 @@ func NewGetConfigContainerContext(ctx context.Context, r *http.Request, service 
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *GetConfigContainerContext) OK(r *GoaContainerConfig) error {
+func (ctx *GetConfigContainerForAPIContext) OK(r *GoaContainerConfig) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.config+json")
 	}
@@ -288,36 +288,36 @@ func (ctx *GetConfigContainerContext) OK(r *GoaContainerConfig) error {
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *GetConfigContainerContext) NotFound() error {
+func (ctx *GetConfigContainerForAPIContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *GetConfigContainerContext) InternalServerError(r error) error {
+func (ctx *GetConfigContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// InspectContainerContext provides the container inspect action context.
-type InspectContainerContext struct {
+// InspectContainerForAPIContext provides the containerForApi inspect action context.
+type InspectContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	ID string
 }
 
-// NewInspectContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller inspect action.
-func NewInspectContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*InspectContainerContext, error) {
+// NewInspectContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller inspect action.
+func NewInspectContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*InspectContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := InspectContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := InspectContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -327,7 +327,7 @@ func NewInspectContainerContext(ctx context.Context, r *http.Request, service *g
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *InspectContainerContext) OK(r *GoaContainerInspect) error {
+func (ctx *InspectContainerForAPIContext) OK(r *GoaContainerInspect) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.inspect+json")
 	}
@@ -335,40 +335,40 @@ func (ctx *InspectContainerContext) OK(r *GoaContainerInspect) error {
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *InspectContainerContext) NotFound() error {
+func (ctx *InspectContainerForAPIContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *InspectContainerContext) InternalServerError(r error) error {
+func (ctx *InspectContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// ListContainerContext provides the container list action context.
-type ListContainerContext struct {
+// ListContainerForAPIContext provides the containerForApi list action context.
+type ListContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 }
 
-// NewListContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller list action.
-func NewListContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListContainerContext, error) {
+// NewListContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller list action.
+func NewListContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := ListContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := ListContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListContainerContext) OK(r GoaContainerListEachCollection) error {
+func (ctx *ListContainerForAPIContext) OK(r GoaContainerListEachCollection) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.list.each+json; type=collection")
 	}
@@ -379,15 +379,15 @@ func (ctx *ListContainerContext) OK(r GoaContainerListEachCollection) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *ListContainerContext) InternalServerError(r error) error {
+func (ctx *ListContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// LogsContainerContext provides the container logs action context.
-type LogsContainerContext struct {
+// LogsContainerForAPIContext provides the containerForApi logs action context.
+type LogsContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
@@ -401,15 +401,15 @@ type LogsContainerContext struct {
 	Until      *time.Time
 }
 
-// NewLogsContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller logs action.
-func NewLogsContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*LogsContainerContext, error) {
+// NewLogsContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller logs action.
+func NewLogsContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*LogsContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := LogsContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := LogsContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramFollow := req.Params["follow"]
 	if len(paramFollow) == 0 {
 		rctx.Follow = false
@@ -490,7 +490,7 @@ func NewLogsContainerContext(ctx context.Context, r *http.Request, service *goa.
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *LogsContainerContext) NotFound(r error) error {
+func (ctx *LogsContainerForAPIContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -498,15 +498,15 @@ func (ctx *LogsContainerContext) NotFound(r error) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *LogsContainerContext) InternalServerError(r error) error {
+func (ctx *LogsContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// RemoveContainerContext provides the container remove action context.
-type RemoveContainerContext struct {
+// RemoveContainerForAPIContext provides the containerForApi remove action context.
+type RemoveContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
@@ -514,15 +514,15 @@ type RemoveContainerContext struct {
 	ID    string
 }
 
-// NewRemoveContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller remove action.
-func NewRemoveContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*RemoveContainerContext, error) {
+// NewRemoveContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller remove action.
+func NewRemoveContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*RemoveContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := RemoveContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := RemoveContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramForce := req.Params["force"]
 	if len(paramForce) == 0 {
 		rctx.Force = false
@@ -543,33 +543,33 @@ func NewRemoveContainerContext(ctx context.Context, r *http.Request, service *go
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *RemoveContainerContext) NoContent() error {
+func (ctx *RemoveContainerForAPIContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *RemoveContainerContext) NotFound() error {
+func (ctx *RemoveContainerForAPIContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
 	return nil
 }
 
 // RunningContainer sends a HTTP response with status code 409.
-func (ctx *RemoveContainerContext) RunningContainer() error {
+func (ctx *RemoveContainerForAPIContext) RunningContainer() error {
 	ctx.ResponseData.WriteHeader(409)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *RemoveContainerContext) InternalServerError(r error) error {
+func (ctx *RemoveContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// SetConfigContainerContext provides the container setConfig action context.
-type SetConfigContainerContext struct {
+// SetConfigContainerForAPIContext provides the containerForApi setConfig action context.
+type SetConfigContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
@@ -577,15 +577,15 @@ type SetConfigContainerContext struct {
 	Payload *ContainerConfig
 }
 
-// NewSetConfigContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller setConfig action.
-func NewSetConfigContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetConfigContainerContext, error) {
+// NewSetConfigContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller setConfig action.
+func NewSetConfigContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetConfigContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := SetConfigContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := SetConfigContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -595,42 +595,42 @@ func NewSetConfigContainerContext(ctx context.Context, r *http.Request, service 
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *SetConfigContainerContext) NoContent() error {
+func (ctx *SetConfigContainerForAPIContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *SetConfigContainerContext) NotFound() error {
+func (ctx *SetConfigContainerForAPIContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *SetConfigContainerContext) InternalServerError(r error) error {
+func (ctx *SetConfigContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// StartContainerContext provides the container start action context.
-type StartContainerContext struct {
+// StartContainerForAPIContext provides the containerForApi start action context.
+type StartContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	ID string
 }
 
-// NewStartContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller start action.
-func NewStartContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*StartContainerContext, error) {
+// NewStartContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller start action.
+func NewStartContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*StartContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := StartContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := StartContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -640,42 +640,42 @@ func NewStartContainerContext(ctx context.Context, r *http.Request, service *goa
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *StartContainerContext) NoContent() error {
+func (ctx *StartContainerForAPIContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *StartContainerContext) NotFound() error {
+func (ctx *StartContainerForAPIContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *StartContainerContext) InternalServerError(r error) error {
+func (ctx *StartContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// StopContainerContext provides the container stop action context.
-type StopContainerContext struct {
+// StopContainerForAPIContext provides the containerForApi stop action context.
+type StopContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	ID string
 }
 
-// NewStopContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller stop action.
-func NewStopContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*StopContainerContext, error) {
+// NewStopContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller stop action.
+func NewStopContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*StopContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := StopContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := StopContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -685,27 +685,27 @@ func NewStopContainerContext(ctx context.Context, r *http.Request, service *goa.
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *StopContainerContext) NoContent() error {
+func (ctx *StopContainerForAPIContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *StopContainerContext) NotFound() error {
+func (ctx *StopContainerForAPIContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *StopContainerContext) InternalServerError(r error) error {
+func (ctx *StopContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// UploadContainerContext provides the container upload action context.
-type UploadContainerContext struct {
+// UploadContainerForAPIContext provides the containerForApi upload action context.
+type UploadContainerForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
@@ -713,15 +713,15 @@ type UploadContainerContext struct {
 	Payload *UploadPayload
 }
 
-// NewUploadContainerContext parses the incoming request URL and body, performs validations and creates the
-// context used by the container controller upload action.
-func NewUploadContainerContext(ctx context.Context, r *http.Request, service *goa.Service) (*UploadContainerContext, error) {
+// NewUploadContainerForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForApi controller upload action.
+func NewUploadContainerForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*UploadContainerForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := UploadContainerContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := UploadContainerForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramID := req.Params["id"]
 	if len(paramID) > 0 {
 		rawID := paramID[0]
@@ -731,13 +731,13 @@ func NewUploadContainerContext(ctx context.Context, r *http.Request, service *go
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *UploadContainerContext) NoContent() error {
+func (ctx *UploadContainerForAPIContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *UploadContainerContext) BadRequest(r error) error {
+func (ctx *UploadContainerForAPIContext) BadRequest(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -745,7 +745,7 @@ func (ctx *UploadContainerContext) BadRequest(r error) error {
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *UploadContainerContext) NotFound(r error) error {
+func (ctx *UploadContainerForAPIContext) NotFound(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
@@ -753,80 +753,827 @@ func (ctx *UploadContainerContext) NotFound(r error) error {
 }
 
 // RequestEntityTooLarge sends a HTTP response with status code 413.
-func (ctx *UploadContainerContext) RequestEntityTooLarge() error {
+func (ctx *UploadContainerForAPIContext) RequestEntityTooLarge() error {
 	ctx.ResponseData.WriteHeader(413)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *UploadContainerContext) InternalServerError(r error) error {
+func (ctx *UploadContainerForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// AddAuthorizedKeysUserContext provides the user addAuthorizedKeys action context.
-type AddAuthorizedKeysUserContext struct {
+// CreateContainerForFrontendContext provides the containerForFrontend create action context.
+type CreateContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Command     []string
+	Entrypoint  []string
+	Env         []string
+	Image       string
+	Name        string
+	SslRedirect bool
+	Volumes     []string
+	WorkingDir  *string
+}
+
+// NewCreateContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller create action.
+func NewCreateContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*CreateContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := CreateContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramCommand := req.Params["command"]
+	if len(paramCommand) > 0 {
+		params := paramCommand
+		rctx.Command = params
+	}
+	paramEntrypoint := req.Params["entrypoint"]
+	if len(paramEntrypoint) > 0 {
+		params := paramEntrypoint
+		rctx.Entrypoint = params
+	}
+	paramEnv := req.Params["env"]
+	if len(paramEnv) > 0 {
+		params := paramEnv
+		rctx.Env = params
+	}
+	paramImage := req.Params["image"]
+	if len(paramImage) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("image"))
+	} else {
+		rawImage := paramImage[0]
+		rctx.Image = rawImage
+	}
+	paramName := req.Params["name"]
+	if len(paramName) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("name"))
+	} else {
+		rawName := paramName[0]
+		rctx.Name = rawName
+		if ok := goa.ValidatePattern(`^[a-zA-Z0-9_]+$`, rctx.Name); !ok {
+			err = goa.MergeErrors(err, goa.InvalidPatternError(`name`, rctx.Name, `^[a-zA-Z0-9_]+$`))
+		}
+		if utf8.RuneCountInString(rctx.Name) < 1 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`name`, rctx.Name, utf8.RuneCountInString(rctx.Name), 1, true))
+		}
+		if utf8.RuneCountInString(rctx.Name) > 64 {
+			err = goa.MergeErrors(err, goa.InvalidLengthError(`name`, rctx.Name, utf8.RuneCountInString(rctx.Name), 64, false))
+		}
+	}
+	paramSslRedirect := req.Params["sslRedirect"]
+	if len(paramSslRedirect) == 0 {
+		rctx.SslRedirect = true
+	} else {
+		rawSslRedirect := paramSslRedirect[0]
+		if sslRedirect, err2 := strconv.ParseBool(rawSslRedirect); err2 == nil {
+			rctx.SslRedirect = sslRedirect
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("sslRedirect", rawSslRedirect, "boolean"))
+		}
+	}
+	paramVolumes := req.Params["volumes"]
+	if len(paramVolumes) > 0 {
+		params := paramVolumes
+		rctx.Volumes = params
+	}
+	paramWorkingDir := req.Params["workingDir"]
+	if len(paramWorkingDir) > 0 {
+		rawWorkingDir := paramWorkingDir[0]
+		rctx.WorkingDir = &rawWorkingDir
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *CreateContainerForFrontendContext) OK(r *GoaContainerCreateResults) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vnd.application/goa.container.create.results+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *CreateContainerForFrontendContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// Conflict sends a HTTP response with status code 409.
+func (ctx *CreateContainerForFrontendContext) Conflict(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 409, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *CreateContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// DownloadContainerForFrontendContext provides the containerForFrontend download action context.
+type DownloadContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID           string
+	InternalPath string
+}
+
+// NewDownloadContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller download action.
+func NewDownloadContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*DownloadContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := DownloadContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramInternalPath := req.Params["internalPath"]
+	if len(paramInternalPath) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("internalPath"))
+	} else {
+		rawInternalPath := paramInternalPath[0]
+		rctx.InternalPath = rawInternalPath
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *DownloadContainerForFrontendContext) OK(resp []byte) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/octet-stream")
+	}
+	ctx.ResponseData.WriteHeader(200)
+	_, err := ctx.ResponseData.Write(resp)
+	return err
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *DownloadContainerForFrontendContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *DownloadContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ExecContainerForFrontendContext provides the containerForFrontend exec action context.
+type ExecContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Command []string
+	ID      string
+	Tty     *bool
+}
+
+// NewExecContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller exec action.
+func NewExecContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*ExecContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ExecContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramCommand := req.Params["command"]
+	if len(paramCommand) > 0 {
+		params := paramCommand
+		rctx.Command = params
+	}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramTty := req.Params["tty"]
+	if len(paramTty) > 0 {
+		rawTty := paramTty[0]
+		if tty, err2 := strconv.ParseBool(rawTty); err2 == nil {
+			tmp11 := &tty
+			rctx.Tty = tmp11
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("tty", rawTty, "boolean"))
+		}
+	}
+	return &rctx, err
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ExecContainerForFrontendContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ExecContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// GetConfigContainerForFrontendContext provides the containerForFrontend getConfig action context.
+type GetConfigContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewGetConfigContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller getConfig action.
+func NewGetConfigContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetConfigContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetConfigContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetConfigContainerForFrontendContext) OK(r *GoaContainerConfig) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.config+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *GetConfigContainerForFrontendContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetConfigContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// InspectContainerForFrontendContext provides the containerForFrontend inspect action context.
+type InspectContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewInspectContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller inspect action.
+func NewInspectContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*InspectContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := InspectContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *InspectContainerForFrontendContext) OK(r *GoaContainerInspect) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.inspect+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *InspectContainerForFrontendContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *InspectContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ListContainerForFrontendContext provides the containerForFrontend list action context.
+type ListContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewListContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller list action.
+func NewListContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ListContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ListContainerForFrontendContext) OK(r GoaContainerListEachCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.container.list.each+json; type=collection")
+	}
+	if r == nil {
+		r = GoaContainerListEachCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ListContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// LogsContainerForFrontendContext provides the containerForFrontend logs action context.
+type LogsContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Follow     bool
+	ID         string
+	Since      *time.Time
+	Stderr     bool
+	Stdout     bool
+	Tail       string
+	Timestamps bool
+	Until      *time.Time
+}
+
+// NewLogsContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller logs action.
+func NewLogsContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*LogsContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := LogsContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramFollow := req.Params["follow"]
+	if len(paramFollow) == 0 {
+		rctx.Follow = false
+	} else {
+		rawFollow := paramFollow[0]
+		if follow, err2 := strconv.ParseBool(rawFollow); err2 == nil {
+			rctx.Follow = follow
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("follow", rawFollow, "boolean"))
+		}
+	}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	paramSince := req.Params["since"]
+	if len(paramSince) > 0 {
+		rawSince := paramSince[0]
+		if since, err2 := time.Parse(time.RFC3339, rawSince); err2 == nil {
+			tmp13 := &since
+			rctx.Since = tmp13
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("since", rawSince, "datetime"))
+		}
+	}
+	paramStderr := req.Params["stderr"]
+	if len(paramStderr) == 0 {
+		rctx.Stderr = false
+	} else {
+		rawStderr := paramStderr[0]
+		if stderr, err2 := strconv.ParseBool(rawStderr); err2 == nil {
+			rctx.Stderr = stderr
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("stderr", rawStderr, "boolean"))
+		}
+	}
+	paramStdout := req.Params["stdout"]
+	if len(paramStdout) == 0 {
+		rctx.Stdout = false
+	} else {
+		rawStdout := paramStdout[0]
+		if stdout, err2 := strconv.ParseBool(rawStdout); err2 == nil {
+			rctx.Stdout = stdout
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("stdout", rawStdout, "boolean"))
+		}
+	}
+	paramTail := req.Params["tail"]
+	if len(paramTail) == 0 {
+		rctx.Tail = "all"
+	} else {
+		rawTail := paramTail[0]
+		rctx.Tail = rawTail
+	}
+	paramTimestamps := req.Params["timestamps"]
+	if len(paramTimestamps) == 0 {
+		rctx.Timestamps = false
+	} else {
+		rawTimestamps := paramTimestamps[0]
+		if timestamps, err2 := strconv.ParseBool(rawTimestamps); err2 == nil {
+			rctx.Timestamps = timestamps
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("timestamps", rawTimestamps, "boolean"))
+		}
+	}
+	paramUntil := req.Params["until"]
+	if len(paramUntil) > 0 {
+		rawUntil := paramUntil[0]
+		if until, err2 := time.Parse(time.RFC3339, rawUntil); err2 == nil {
+			tmp17 := &until
+			rctx.Until = tmp17
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("until", rawUntil, "datetime"))
+		}
+	}
+	return &rctx, err
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *LogsContainerForFrontendContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *LogsContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// RemoveContainerForFrontendContext provides the containerForFrontend remove action context.
+type RemoveContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Force bool
+	ID    string
+}
+
+// NewRemoveContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller remove action.
+func NewRemoveContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*RemoveContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := RemoveContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramForce := req.Params["force"]
+	if len(paramForce) == 0 {
+		rctx.Force = false
+	} else {
+		rawForce := paramForce[0]
+		if force, err2 := strconv.ParseBool(rawForce); err2 == nil {
+			rctx.Force = force
+		} else {
+			err = goa.MergeErrors(err, goa.InvalidParamTypeError("force", rawForce, "boolean"))
+		}
+	}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *RemoveContainerForFrontendContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *RemoveContainerForFrontendContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// RunningContainer sends a HTTP response with status code 409.
+func (ctx *RemoveContainerForFrontendContext) RunningContainer() error {
+	ctx.ResponseData.WriteHeader(409)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *RemoveContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// SetConfigContainerForFrontendContext provides the containerForFrontend setConfig action context.
+type SetConfigContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID      string
+	Payload *ContainerConfig
+}
+
+// NewSetConfigContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller setConfig action.
+func NewSetConfigContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetConfigContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := SetConfigContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *SetConfigContainerForFrontendContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *SetConfigContainerForFrontendContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *SetConfigContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// StartContainerForFrontendContext provides the containerForFrontend start action context.
+type StartContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewStartContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller start action.
+func NewStartContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*StartContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := StartContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *StartContainerForFrontendContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *StartContainerForFrontendContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *StartContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// StopContainerForFrontendContext provides the containerForFrontend stop action context.
+type StopContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID string
+}
+
+// NewStopContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller stop action.
+func NewStopContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*StopContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := StopContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *StopContainerForFrontendContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *StopContainerForFrontendContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *StopContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// UploadContainerForFrontendContext provides the containerForFrontend upload action context.
+type UploadContainerForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	ID      string
+	Payload *UploadPayload
+}
+
+// NewUploadContainerForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the containerForFrontend controller upload action.
+func NewUploadContainerForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*UploadContainerForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := UploadContainerForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramID := req.Params["id"]
+	if len(paramID) > 0 {
+		rawID := paramID[0]
+		rctx.ID = rawID
+	}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *UploadContainerForFrontendContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *UploadContainerForFrontendContext) BadRequest(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 400, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *UploadContainerForFrontendContext) NotFound(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 404, r)
+}
+
+// RequestEntityTooLarge sends a HTTP response with status code 413.
+func (ctx *UploadContainerForFrontendContext) RequestEntityTooLarge() error {
+	ctx.ResponseData.WriteHeader(413)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *UploadContainerForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// AddAuthorizedKeysUserForAPIContext provides the userForApi addAuthorizedKeys action context.
+type AddAuthorizedKeysUserForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	Payload *UserAuthorizedKey
 }
 
-// NewAddAuthorizedKeysUserContext parses the incoming request URL and body, performs validations and creates the
-// context used by the user controller addAuthorizedKeys action.
-func NewAddAuthorizedKeysUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*AddAuthorizedKeysUserContext, error) {
+// NewAddAuthorizedKeysUserForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForApi controller addAuthorizedKeys action.
+func NewAddAuthorizedKeysUserForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*AddAuthorizedKeysUserForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := AddAuthorizedKeysUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := AddAuthorizedKeysUserForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *AddAuthorizedKeysUserContext) NoContent() error {
+func (ctx *AddAuthorizedKeysUserForAPIContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // BadRequest sends a HTTP response with status code 400.
-func (ctx *AddAuthorizedKeysUserContext) BadRequest() error {
+func (ctx *AddAuthorizedKeysUserForAPIContext) BadRequest() error {
 	ctx.ResponseData.WriteHeader(400)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *AddAuthorizedKeysUserContext) InternalServerError(r error) error {
+func (ctx *AddAuthorizedKeysUserForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// GetConfigUserContext provides the user getConfig action context.
-type GetConfigUserContext struct {
+// GetConfigUserForAPIContext provides the userForApi getConfig action context.
+type GetConfigUserForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 }
 
-// NewGetConfigUserContext parses the incoming request URL and body, performs validations and creates the
-// context used by the user controller getConfig action.
-func NewGetConfigUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetConfigUserContext, error) {
+// NewGetConfigUserForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForApi controller getConfig action.
+func NewGetConfigUserForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetConfigUserForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := GetConfigUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := GetConfigUserForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *GetConfigUserContext) OK(r *GoaUserConfig) error {
+func (ctx *GetConfigUserForAPIContext) OK(r *GoaUserConfig) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.config+json")
 	}
@@ -834,34 +1581,34 @@ func (ctx *GetConfigUserContext) OK(r *GoaUserConfig) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *GetConfigUserContext) InternalServerError(r error) error {
+func (ctx *GetConfigUserForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// GetDefaultShellUserContext provides the user getDefaultShell action context.
-type GetDefaultShellUserContext struct {
+// GetDefaultShellUserForAPIContext provides the userForApi getDefaultShell action context.
+type GetDefaultShellUserForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 }
 
-// NewGetDefaultShellUserContext parses the incoming request URL and body, performs validations and creates the
-// context used by the user controller getDefaultShell action.
-func NewGetDefaultShellUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetDefaultShellUserContext, error) {
+// NewGetDefaultShellUserForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForApi controller getDefaultShell action.
+func NewGetDefaultShellUserForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetDefaultShellUserForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := GetDefaultShellUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := GetDefaultShellUserForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *GetDefaultShellUserContext) OK(r *GoaUserDefaultshell) error {
+func (ctx *GetDefaultShellUserForAPIContext) OK(r *GoaUserDefaultshell) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.defaultshell+json")
 	}
@@ -869,34 +1616,34 @@ func (ctx *GetDefaultShellUserContext) OK(r *GoaUserDefaultshell) error {
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *GetDefaultShellUserContext) InternalServerError(r error) error {
+func (ctx *GetDefaultShellUserForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// ListAuthorizedKeysUserContext provides the user listAuthorizedKeys action context.
-type ListAuthorizedKeysUserContext struct {
+// ListAuthorizedKeysUserForAPIContext provides the userForApi listAuthorizedKeys action context.
+type ListAuthorizedKeysUserForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 }
 
-// NewListAuthorizedKeysUserContext parses the incoming request URL and body, performs validations and creates the
-// context used by the user controller listAuthorizedKeys action.
-func NewListAuthorizedKeysUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListAuthorizedKeysUserContext, error) {
+// NewListAuthorizedKeysUserForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForApi controller listAuthorizedKeys action.
+func NewListAuthorizedKeysUserForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListAuthorizedKeysUserForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := ListAuthorizedKeysUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := ListAuthorizedKeysUserForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
 // OK sends a HTTP response with status code 200.
-func (ctx *ListAuthorizedKeysUserContext) OK(r GoaUserAuthorizedkeyCollection) error {
+func (ctx *ListAuthorizedKeysUserForAPIContext) OK(r GoaUserAuthorizedkeyCollection) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.authorizedkey+json; type=collection")
 	}
@@ -907,36 +1654,36 @@ func (ctx *ListAuthorizedKeysUserContext) OK(r GoaUserAuthorizedkeyCollection) e
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *ListAuthorizedKeysUserContext) NotFound() error {
+func (ctx *ListAuthorizedKeysUserForAPIContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *ListAuthorizedKeysUserContext) InternalServerError(r error) error {
+func (ctx *ListAuthorizedKeysUserForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// RemoveAuthorizedKeysUserContext provides the user removeAuthorizedKeys action context.
-type RemoveAuthorizedKeysUserContext struct {
+// RemoveAuthorizedKeysUserForAPIContext provides the userForApi removeAuthorizedKeys action context.
+type RemoveAuthorizedKeysUserForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	Label string
 }
 
-// NewRemoveAuthorizedKeysUserContext parses the incoming request URL and body, performs validations and creates the
-// context used by the user controller removeAuthorizedKeys action.
-func NewRemoveAuthorizedKeysUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*RemoveAuthorizedKeysUserContext, error) {
+// NewRemoveAuthorizedKeysUserForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForApi controller removeAuthorizedKeys action.
+func NewRemoveAuthorizedKeysUserForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*RemoveAuthorizedKeysUserForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := RemoveAuthorizedKeysUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := RemoveAuthorizedKeysUserForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramLabel := req.Params["label"]
 	if len(paramLabel) == 0 {
 		err = goa.MergeErrors(err, goa.MissingParamError("label"))
@@ -948,50 +1695,50 @@ func NewRemoveAuthorizedKeysUserContext(ctx context.Context, r *http.Request, se
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *RemoveAuthorizedKeysUserContext) NoContent() error {
+func (ctx *RemoveAuthorizedKeysUserForAPIContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // NotFound sends a HTTP response with status code 404.
-func (ctx *RemoveAuthorizedKeysUserContext) NotFound() error {
+func (ctx *RemoveAuthorizedKeysUserForAPIContext) NotFound() error {
 	ctx.ResponseData.WriteHeader(404)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *RemoveAuthorizedKeysUserContext) InternalServerError(r error) error {
+func (ctx *RemoveAuthorizedKeysUserForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// SetAuthorizedKeysUserContext provides the user setAuthorizedKeys action context.
-type SetAuthorizedKeysUserContext struct {
+// SetAuthorizedKeysUserForAPIContext provides the userForApi setAuthorizedKeys action context.
+type SetAuthorizedKeysUserForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
-	Payload SetAuthorizedKeysUserPayload
+	Payload SetAuthorizedKeysUserForAPIPayload
 }
 
-// NewSetAuthorizedKeysUserContext parses the incoming request URL and body, performs validations and creates the
-// context used by the user controller setAuthorizedKeys action.
-func NewSetAuthorizedKeysUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetAuthorizedKeysUserContext, error) {
+// NewSetAuthorizedKeysUserForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForApi controller setAuthorizedKeys action.
+func NewSetAuthorizedKeysUserForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetAuthorizedKeysUserForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := SetAuthorizedKeysUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := SetAuthorizedKeysUserForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	return &rctx, err
 }
 
-// SetAuthorizedKeysUserPayload is the user setAuthorizedKeys action payload.
-type SetAuthorizedKeysUserPayload []*UserAuthorizedKey
+// SetAuthorizedKeysUserForAPIPayload is the userForApi setAuthorizedKeys action payload.
+type SetAuthorizedKeysUserForAPIPayload []*UserAuthorizedKey
 
 // Validate runs the validation rules defined in the design.
-func (payload SetAuthorizedKeysUserPayload) Validate() (err error) {
+func (payload SetAuthorizedKeysUserForAPIPayload) Validate() (err error) {
 	for _, e := range payload {
 		if e != nil {
 			if err2 := e.Validate(); err2 != nil {
@@ -1003,36 +1750,36 @@ func (payload SetAuthorizedKeysUserPayload) Validate() (err error) {
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *SetAuthorizedKeysUserContext) NoContent() error {
+func (ctx *SetAuthorizedKeysUserForAPIContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *SetAuthorizedKeysUserContext) InternalServerError(r error) error {
+func (ctx *SetAuthorizedKeysUserForAPIContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}
 	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
 }
 
-// SetDefaultShellUserContext provides the user setDefaultShell action context.
-type SetDefaultShellUserContext struct {
+// SetDefaultShellUserForAPIContext provides the userForApi setDefaultShell action context.
+type SetDefaultShellUserForAPIContext struct {
 	context.Context
 	*goa.ResponseData
 	*goa.RequestData
 	DefaultShell string
 }
 
-// NewSetDefaultShellUserContext parses the incoming request URL and body, performs validations and creates the
-// context used by the user controller setDefaultShell action.
-func NewSetDefaultShellUserContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetDefaultShellUserContext, error) {
+// NewSetDefaultShellUserForAPIContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForApi controller setDefaultShell action.
+func NewSetDefaultShellUserForAPIContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetDefaultShellUserForAPIContext, error) {
 	var err error
 	resp := goa.ContextResponse(ctx)
 	resp.Service = service
 	req := goa.ContextRequest(ctx)
 	req.Request = r
-	rctx := SetDefaultShellUserContext{Context: ctx, ResponseData: resp, RequestData: req}
+	rctx := SetDefaultShellUserForAPIContext{Context: ctx, ResponseData: resp, RequestData: req}
 	paramDefaultShell := req.Params["defaultShell"]
 	if len(paramDefaultShell) == 0 {
 		err = goa.MergeErrors(err, goa.MissingParamError("defaultShell"))
@@ -1044,13 +1791,374 @@ func NewSetDefaultShellUserContext(ctx context.Context, r *http.Request, service
 }
 
 // NoContent sends a HTTP response with status code 204.
-func (ctx *SetDefaultShellUserContext) NoContent() error {
+func (ctx *SetDefaultShellUserForAPIContext) NoContent() error {
 	ctx.ResponseData.WriteHeader(204)
 	return nil
 }
 
 // InternalServerError sends a HTTP response with status code 500.
-func (ctx *SetDefaultShellUserContext) InternalServerError(r error) error {
+func (ctx *SetDefaultShellUserForAPIContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// AddAuthorizedKeysUserForFrontendContext provides the userForFrontend addAuthorizedKeys action context.
+type AddAuthorizedKeysUserForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload *UserAuthorizedKey
+}
+
+// NewAddAuthorizedKeysUserForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForFrontend controller addAuthorizedKeys action.
+func NewAddAuthorizedKeysUserForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*AddAuthorizedKeysUserForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := AddAuthorizedKeysUserForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *AddAuthorizedKeysUserForFrontendContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// BadRequest sends a HTTP response with status code 400.
+func (ctx *AddAuthorizedKeysUserForFrontendContext) BadRequest() error {
+	ctx.ResponseData.WriteHeader(400)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *AddAuthorizedKeysUserForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// GetAPIKeyUserForFrontendContext provides the userForFrontend getAPIKey action context.
+type GetAPIKeyUserForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewGetAPIKeyUserForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForFrontend controller getAPIKey action.
+func NewGetAPIKeyUserForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetAPIKeyUserForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetAPIKeyUserForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetAPIKeyUserForFrontendContext) OK(r *GoaUserApikey) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.apikey")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetAPIKeyUserForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// GetConfigUserForFrontendContext provides the userForFrontend getConfig action context.
+type GetConfigUserForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewGetConfigUserForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForFrontend controller getConfig action.
+func NewGetConfigUserForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetConfigUserForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetConfigUserForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetConfigUserForFrontendContext) OK(r *GoaUserConfig) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.config+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetConfigUserForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// GetDefaultShellUserForFrontendContext provides the userForFrontend getDefaultShell action context.
+type GetDefaultShellUserForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewGetDefaultShellUserForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForFrontend controller getDefaultShell action.
+func NewGetDefaultShellUserForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*GetDefaultShellUserForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := GetDefaultShellUserForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *GetDefaultShellUserForFrontendContext) OK(r *GoaUserDefaultshell) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.defaultshell+json")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *GetDefaultShellUserForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ListAuthorizedKeysUserForFrontendContext provides the userForFrontend listAuthorizedKeys action context.
+type ListAuthorizedKeysUserForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewListAuthorizedKeysUserForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForFrontend controller listAuthorizedKeys action.
+func NewListAuthorizedKeysUserForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*ListAuthorizedKeysUserForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ListAuthorizedKeysUserForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ListAuthorizedKeysUserForFrontendContext) OK(r GoaUserAuthorizedkeyCollection) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.authorizedkey+json; type=collection")
+	}
+	if r == nil {
+		r = GoaUserAuthorizedkeyCollection{}
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *ListAuthorizedKeysUserForFrontendContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ListAuthorizedKeysUserForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// ReissueAPIKeyUserForFrontendContext provides the userForFrontend reissueAPIKey action context.
+type ReissueAPIKeyUserForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+}
+
+// NewReissueAPIKeyUserForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForFrontend controller reissueAPIKey action.
+func NewReissueAPIKeyUserForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*ReissueAPIKeyUserForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := ReissueAPIKeyUserForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// OK sends a HTTP response with status code 200.
+func (ctx *ReissueAPIKeyUserForFrontendContext) OK(r *GoaUserApikey) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "vpn.application/goa.user.apikey")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 200, r)
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *ReissueAPIKeyUserForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// RemoveAuthorizedKeysUserForFrontendContext provides the userForFrontend removeAuthorizedKeys action context.
+type RemoveAuthorizedKeysUserForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Label string
+}
+
+// NewRemoveAuthorizedKeysUserForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForFrontend controller removeAuthorizedKeys action.
+func NewRemoveAuthorizedKeysUserForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*RemoveAuthorizedKeysUserForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := RemoveAuthorizedKeysUserForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramLabel := req.Params["label"]
+	if len(paramLabel) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("label"))
+	} else {
+		rawLabel := paramLabel[0]
+		rctx.Label = rawLabel
+	}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *RemoveAuthorizedKeysUserForFrontendContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// NotFound sends a HTTP response with status code 404.
+func (ctx *RemoveAuthorizedKeysUserForFrontendContext) NotFound() error {
+	ctx.ResponseData.WriteHeader(404)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *RemoveAuthorizedKeysUserForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// SetAuthorizedKeysUserForFrontendContext provides the userForFrontend setAuthorizedKeys action context.
+type SetAuthorizedKeysUserForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	Payload SetAuthorizedKeysUserForFrontendPayload
+}
+
+// NewSetAuthorizedKeysUserForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForFrontend controller setAuthorizedKeys action.
+func NewSetAuthorizedKeysUserForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetAuthorizedKeysUserForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := SetAuthorizedKeysUserForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	return &rctx, err
+}
+
+// SetAuthorizedKeysUserForFrontendPayload is the userForFrontend setAuthorizedKeys action payload.
+type SetAuthorizedKeysUserForFrontendPayload []*UserAuthorizedKey
+
+// Validate runs the validation rules defined in the design.
+func (payload SetAuthorizedKeysUserForFrontendPayload) Validate() (err error) {
+	for _, e := range payload {
+		if e != nil {
+			if err2 := e.Validate(); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *SetAuthorizedKeysUserForFrontendContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *SetAuthorizedKeysUserForFrontendContext) InternalServerError(r error) error {
+	if ctx.ResponseData.Header().Get("Content-Type") == "" {
+		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
+	}
+	return ctx.ResponseData.Service.Send(ctx.Context, 500, r)
+}
+
+// SetDefaultShellUserForFrontendContext provides the userForFrontend setDefaultShell action context.
+type SetDefaultShellUserForFrontendContext struct {
+	context.Context
+	*goa.ResponseData
+	*goa.RequestData
+	DefaultShell string
+}
+
+// NewSetDefaultShellUserForFrontendContext parses the incoming request URL and body, performs validations and creates the
+// context used by the userForFrontend controller setDefaultShell action.
+func NewSetDefaultShellUserForFrontendContext(ctx context.Context, r *http.Request, service *goa.Service) (*SetDefaultShellUserForFrontendContext, error) {
+	var err error
+	resp := goa.ContextResponse(ctx)
+	resp.Service = service
+	req := goa.ContextRequest(ctx)
+	req.Request = r
+	rctx := SetDefaultShellUserForFrontendContext{Context: ctx, ResponseData: resp, RequestData: req}
+	paramDefaultShell := req.Params["defaultShell"]
+	if len(paramDefaultShell) == 0 {
+		err = goa.MergeErrors(err, goa.MissingParamError("defaultShell"))
+	} else {
+		rawDefaultShell := paramDefaultShell[0]
+		rctx.DefaultShell = rawDefaultShell
+	}
+	return &rctx, err
+}
+
+// NoContent sends a HTTP response with status code 204.
+func (ctx *SetDefaultShellUserForFrontendContext) NoContent() error {
+	ctx.ResponseData.WriteHeader(204)
+	return nil
+}
+
+// InternalServerError sends a HTTP response with status code 500.
+func (ctx *SetDefaultShellUserForFrontendContext) InternalServerError(r error) error {
 	if ctx.ResponseData.Header().Get("Content-Type") == "" {
 		ctx.ResponseData.Header().Set("Content-Type", "application/vnd.goa.error")
 	}

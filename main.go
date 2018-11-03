@@ -3,17 +3,18 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"log"
 
-	"github.com/modoki-paas/modoki/app"
-	"github.com/modoki-paas/modoki/consul_traefik"
+	"github.com/modoki-paas/modoki/controller"
+
 	"github.com/docker/docker/client"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/goadesign/goa"
 	"github.com/goadesign/goa/middleware"
 	"github.com/jmoiron/sqlx"
+	"github.com/modoki-paas/modoki/app"
+	"github.com/modoki-paas/modoki/consul_traefik"
 )
 
 var (
@@ -52,6 +53,25 @@ func main() {
 
 	defer finalize(consul)
 
+	dockerClient, err := client.NewClient(*docker, *dockerAPIVersion, nil, nil)
+
+	if err != nil {
+		log.Fatal("Docker client initialization error", err)
+	}
+
+	containerUtil := &controller.ContainerControllerUtil{
+		DockerClient: dockerClient,
+		DB:           db,
+		Consul:       consul,
+	}
+	userUtil := &controller.UserControllerUtil{
+		DockerClient: dockerClient,
+		DB:           db,
+		Consul:       consul,
+	}
+	// TODO: Stop running in goroutine(export to another service)
+	//go containerUtil.run(context.Background())
+
 	// Create service
 	service := goa.New("Modoki API")
 
@@ -62,42 +82,35 @@ func main() {
 	service.Use(middleware.ErrorHandler(service, true))
 	service.Use(middleware.Recover())
 
-	dockerClient, err := client.NewClient(*docker, *dockerAPIVersion, nil, nil)
+	// Mount controllers
 
-	if err != nil {
-		log.Fatal("Docker client initialization error", err)
+	userControllerImpl := &controller.UserControllerImpl{
+		userUtil,
 	}
 
-	containerUtil := &ContainerControllerUtil{
-		DockerClient: dockerClient,
-		DB:           db,
-		Consul:       consul,
+	containerControllerImpl := &controller.ContainerControllerImpl{
+		containerUtil,
 	}
-	userUtil := &UserControllerUtil{
-		DockerClient: dockerClient,
-		DB:           db,
-		Consul:       consul,
+
+	containerForAPIController := &ContainerForAPIController{
+		controllerImpl: containerControllerImpl,
 	}
-	go containerUtil.run(context.Background())
+	containerForFrontendController := &ContainerForFrontendController{
+		controllerImpl: containerControllerImpl,
+	}
 
-	// Mount "container" controller
-	c := NewContainerController(service)
+	userForAPIController := &UserForAPIController{
+		controllerImpl: userControllerImpl,
+	}
+	userForFrontendController := &UserForFrontendController{
+		controllerImpl: userControllerImpl,
+	}
 
-	c.ContainerControllerUtil = containerUtil
+	app.MountContainerForAPIController(service, containerForAPIController)
+	app.MountContainerForFrontendController(service, containerForFrontendController)
 
-	app.MountContainerController(service, c)
-
-	// Mount "user" controller
-	c2 := NewUserController(service)
-
-	c2.UserControllerUtil = userUtil
-
-	app.MountUserController(service, c2)
-
-	// Mount "swagger" controller
-	c3 := NewSwaggerController(service)
-
-	app.MountSwaggerController(service, c3)
+	app.MountUserForAPIController(service, userForAPIController)
+	app.MountUserForFrontendController(service, userForFrontendController)
 
 	// Start service
 
@@ -119,6 +132,10 @@ func dbInit() *sqlx.DB {
 
 	if _, err := db.Exec(authorizedKeysSchema); err != nil {
 		log.Fatal("error: Failed to create authorizedKeys schema: ", err)
+	}
+
+	if _, err := db.Exec(apiKeysSchema); err != nil {
+		log.Fatal("error: Failed to create apiKeys schema: ", err)
 	}
 
 	return db
