@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"net/http"
 
 	"github.com/goadesign/goa"
 	"github.com/modoki-paas/modoki/app"
@@ -23,10 +24,34 @@ func NewContainerForFrontendController(service *goa.Service) *ContainerForFronte
 // Create runs the create action.
 func (c *ContainerForFrontendController) Create(ctx *app.CreateContainerForFrontendContext) error {
 	// ContainerForFrontendController_Create: start_implement
+	h := newErrorHandler(ctx).handleBadRequestWithError().handleConflict().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	res := &app.GoaContainerCreateResults{}
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+	payload := controller.ContainerCreatePayload{
+		Name:        ctx.Name,
+		Image:       ctx.Image,
+		Command:     ctx.Command,
+		Entrypoint:  ctx.Entrypoint,
+		Env:         ctx.Env,
+		Volumes:     ctx.Volumes,
+		WorkingDir:  ctx.WorkingDir,
+		SSLRedirect: ctx.SslRedirect,
+	}
+
+	res, status, err := c.controllerImpl.CreateWithContext(ctx, uid, payload)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
 	return ctx.OK(res)
 	// ContainerForFrontendController_Create: end_implement
 }
@@ -34,8 +59,35 @@ func (c *ContainerForFrontendController) Create(ctx *app.CreateContainerForFront
 // Download runs the download action.
 func (c *ContainerForFrontendController) Download(ctx *app.DownloadContainerForFrontendContext) error {
 	// ContainerForFrontendController_Download: start_implement
+	h := newErrorHandler(ctx).handleNotFoundWithError().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	headerOnly := ctx.Method == "HEAD"
+
+	res, status, err := c.controllerImpl.DownloadWithContext(ctx, uid, ctx.ID, ctx.InternalPath, headerOnly)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	defer res.Reader.Close()
+
+	ctx.ResponseWriter.Header().Set("X-Docker-Container-Path-Stat", res.PathStatJSON)
+	ctx.ResponseWriter.Header().Set("Content-Type", "application/octet-stream")
+	ctx.ResponseWriter.WriteHeader(http.StatusOK)
+
+	if _, err := io.Copy(ctx.ResponseWriter, res.Reader); err != nil {
+		return ctx.InternalServerError(err)
+	}
 
 	return nil
 	// ContainerForFrontendController_Download: end_implement
@@ -43,29 +95,52 @@ func (c *ContainerForFrontendController) Download(ctx *app.DownloadContainerForF
 
 // Exec runs the exec action.
 func (c *ContainerForFrontendController) Exec(ctx *app.ExecContainerForFrontendContext) error {
-	c.ExecWSHandler(ctx).ServeHTTP(ctx.ResponseWriter, ctx.Request)
+	h := newErrorHandler(ctx).handleNotFoundWithError().handleInternalServerError()
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	handler, status, err := c.controllerImpl.ExecWithContext(ctx, uid, ctx.ID, &controller.ExecParameters{
+		Command: ctx.Command,
+		Tty:     ctx.Tty,
+	})
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	handler.ServeHTTP(ctx.ResponseWriter, ctx.Request)
 	return nil
 }
 
-// ExecWSHandler establishes a websocket connection to run the exec action.
-func (c *ContainerForFrontendController) ExecWSHandler(ctx *app.ExecContainerForFrontendContext) websocket.Handler {
-	return func(ws *websocket.Conn) {
-		// ContainerForFrontendController_Exec: start_implement
-
-		// Put your logic here
-
-		ws.Write([]byte("exec containerForFrontend"))
-		// Dummy echo websocket server
-		io.Copy(ws, ws)
-		// ContainerForFrontendController_Exec: end_implement
-	}
-} // GetConfig runs the getConfig action.
+// GetConfig runs the getConfig action.
 func (c *ContainerForFrontendController) GetConfig(ctx *app.GetConfigContainerForFrontendContext) error {
 	// ContainerForFrontendController_GetConfig: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	res := &app.GoaContainerConfig{}
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	res, status, err := c.controllerImpl.GetConfig(uid, ctx.ID)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
 	return ctx.OK(res)
 	// ContainerForFrontendController_GetConfig: end_implement
 }
@@ -73,10 +148,24 @@ func (c *ContainerForFrontendController) GetConfig(ctx *app.GetConfigContainerFo
 // Inspect runs the inspect action.
 func (c *ContainerForFrontendController) Inspect(ctx *app.InspectContainerForFrontendContext) error {
 	// ContainerForFrontendController_Inspect: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	res := &app.GoaContainerInspect{}
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	res, status, err := c.controllerImpl.InspectWithContext(ctx, uid, ctx.ID)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
 	return ctx.OK(res)
 	// ContainerForFrontendController_Inspect: end_implement
 }
@@ -84,78 +173,193 @@ func (c *ContainerForFrontendController) Inspect(ctx *app.InspectContainerForFro
 // List runs the list action.
 func (c *ContainerForFrontendController) List(ctx *app.ListContainerForFrontendContext) error {
 	// ContainerForFrontendController_List: start_implement
+	h := newErrorHandler(ctx).handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	res := app.GoaContainerListEachCollection{}
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	res, status, err := c.controllerImpl.ListWithContext(ctx, uid)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
 	return ctx.OK(res)
 	// ContainerForFrontendController_List: end_implement
 }
 
 // Logs runs the logs action.
 func (c *ContainerForFrontendController) Logs(ctx *app.LogsContainerForFrontendContext) error {
-	c.LogsWSHandler(ctx).ServeHTTP(ctx.ResponseWriter, ctx.Request)
+	h := newErrorHandler(ctx).handleInternalServerError()
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	payload := controller.LogsPayload{
+		Stdout:     ctx.Stdout,
+		Stderr:     ctx.Stderr,
+		Timestamps: ctx.Timestamps,
+		Follow:     ctx.Follow,
+		Tail:       ctx.Tail,
+		Since:      ctx.Since,
+		Until:      ctx.Until,
+	}
+
+	rc, status, err := c.controllerImpl.LogsWithContext(ctx, uid, ctx.ID, payload)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+	c.LogsWSHandler(ctx, rc).ServeHTTP(ctx.ResponseWriter, ctx.Request)
+
 	return nil
 }
 
 // LogsWSHandler establishes a websocket connection to run the logs action.
-func (c *ContainerForFrontendController) LogsWSHandler(ctx *app.LogsContainerForFrontendContext) websocket.Handler {
+func (c *ContainerForFrontendController) LogsWSHandler(ctx *app.LogsContainerForFrontendContext, rc io.ReadCloser) websocket.Handler {
 	return func(ws *websocket.Conn) {
 		// ContainerForFrontendController_Logs: start_implement
 
-		// Put your logic here
+		defer rc.Close()
+		io.Copy(ws, rc)
 
-		ws.Write([]byte("logs containerForFrontend"))
-		// Dummy echo websocket server
-		io.Copy(ws, ws)
 		// ContainerForFrontendController_Logs: end_implement
 	}
 } // Remove runs the remove action.
 func (c *ContainerForFrontendController) Remove(ctx *app.RemoveContainerForFrontendContext) error {
 	// ContainerForFrontendController_Remove: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleRunningContainer().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.Remove(uid, ctx.ID, ctx.Force)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForFrontendController_Remove: end_implement
 }
 
 // SetConfig runs the setConfig action.
 func (c *ContainerForFrontendController) SetConfig(ctx *app.SetConfigContainerForFrontendContext) error {
 	// ContainerForFrontendController_SetConfig: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.SetConfig(uid, ctx.ID, ctx.Payload)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForFrontendController_SetConfig: end_implement
 }
 
 // Start runs the start action.
 func (c *ContainerForFrontendController) Start(ctx *app.StartContainerForFrontendContext) error {
 	// ContainerForFrontendController_Start: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.Start(uid, ctx.ID)
+
+	if err != nil {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForFrontendController_Start: end_implement
 }
 
 // Stop runs the stop action.
 func (c *ContainerForFrontendController) Stop(ctx *app.StopContainerForFrontendContext) error {
 	// ContainerForFrontendController_Stop: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.Stop(uid, ctx.ID)
+
+	if err != nil {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForFrontendController_Stop: end_implement
 }
 
 // Upload runs the upload action.
 func (c *ContainerForFrontendController) Upload(ctx *app.UploadContainerForFrontendContext) error {
 	// ContainerForFrontendController_Upload: start_implement
+	h := newErrorHandler(ctx).handleNotFoundWithError().handleBadRequestWithError().handleRequestEntityTooLarge().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.UploadWithContext(ctx, uid, ctx.ID, ctx.Payload)
+
+	if err != nil {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForFrontendController_Upload: end_implement
 }

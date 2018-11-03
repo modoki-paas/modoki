@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"net/http"
 
 	"github.com/goadesign/goa"
 	"github.com/modoki-paas/modoki/app"
@@ -23,10 +24,34 @@ func NewContainerForAPIController(service *goa.Service) *ContainerForAPIControll
 // Create runs the create action.
 func (c *ContainerForAPIController) Create(ctx *app.CreateContainerForAPIContext) error {
 	// ContainerForAPIController_Create: start_implement
+	h := newErrorHandler(ctx).handleBadRequestWithError().handleConflict().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	res := &app.GoaContainerCreateResults{}
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+	payload := controller.ContainerCreatePayload{
+		Name:        ctx.Name,
+		Image:       ctx.Image,
+		Command:     ctx.Command,
+		Entrypoint:  ctx.Entrypoint,
+		Env:         ctx.Env,
+		Volumes:     ctx.Volumes,
+		WorkingDir:  ctx.WorkingDir,
+		SSLRedirect: ctx.SslRedirect,
+	}
+
+	res, status, err := c.controllerImpl.CreateWithContext(ctx, uid, payload)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
 	return ctx.OK(res)
 	// ContainerForAPIController_Create: end_implement
 }
@@ -34,8 +59,35 @@ func (c *ContainerForAPIController) Create(ctx *app.CreateContainerForAPIContext
 // Download runs the download action.
 func (c *ContainerForAPIController) Download(ctx *app.DownloadContainerForAPIContext) error {
 	// ContainerForAPIController_Download: start_implement
+	h := newErrorHandler(ctx).handleNotFoundWithError().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	headerOnly := ctx.Method == "HEAD"
+
+	res, status, err := c.controllerImpl.DownloadWithContext(ctx, uid, ctx.ID, ctx.InternalPath, headerOnly)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	defer res.Reader.Close()
+
+	ctx.ResponseWriter.Header().Set("X-Docker-Container-Path-Stat", res.PathStatJSON)
+	ctx.ResponseWriter.Header().Set("Content-Type", "application/octet-stream")
+	ctx.ResponseWriter.WriteHeader(http.StatusOK)
+
+	if _, err := io.Copy(ctx.ResponseWriter, res.Reader); err != nil {
+		return ctx.InternalServerError(err)
+	}
 
 	return nil
 	// ContainerForAPIController_Download: end_implement
@@ -43,29 +95,52 @@ func (c *ContainerForAPIController) Download(ctx *app.DownloadContainerForAPICon
 
 // Exec runs the exec action.
 func (c *ContainerForAPIController) Exec(ctx *app.ExecContainerForAPIContext) error {
-	c.ExecWSHandler(ctx).ServeHTTP(ctx.ResponseWriter, ctx.Request)
+	h := newErrorHandler(ctx).handleNotFoundWithError().handleInternalServerError()
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	handler, status, err := c.controllerImpl.ExecWithContext(ctx, uid, ctx.ID, &controller.ExecParameters{
+		Command: ctx.Command,
+		Tty:     ctx.Tty,
+	})
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	handler.ServeHTTP(ctx.ResponseWriter, ctx.Request)
 	return nil
 }
 
-// ExecWSHandler establishes a websocket connection to run the exec action.
-func (c *ContainerForAPIController) ExecWSHandler(ctx *app.ExecContainerForAPIContext) websocket.Handler {
-	return func(ws *websocket.Conn) {
-		// ContainerForAPIController_Exec: start_implement
-
-		// Put your logic here
-
-		ws.Write([]byte("exec containerForApi"))
-		// Dummy echo websocket server
-		io.Copy(ws, ws)
-		// ContainerForAPIController_Exec: end_implement
-	}
-} // GetConfig runs the getConfig action.
+// GetConfig runs the getConfig action.
 func (c *ContainerForAPIController) GetConfig(ctx *app.GetConfigContainerForAPIContext) error {
 	// ContainerForAPIController_GetConfig: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	res := &app.GoaContainerConfig{}
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	res, status, err := c.controllerImpl.GetConfig(uid, ctx.ID)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
 	return ctx.OK(res)
 	// ContainerForAPIController_GetConfig: end_implement
 }
@@ -73,10 +148,24 @@ func (c *ContainerForAPIController) GetConfig(ctx *app.GetConfigContainerForAPIC
 // Inspect runs the inspect action.
 func (c *ContainerForAPIController) Inspect(ctx *app.InspectContainerForAPIContext) error {
 	// ContainerForAPIController_Inspect: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	res := &app.GoaContainerInspect{}
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	res, status, err := c.controllerImpl.InspectWithContext(ctx, uid, ctx.ID)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
 	return ctx.OK(res)
 	// ContainerForAPIController_Inspect: end_implement
 }
@@ -84,78 +173,195 @@ func (c *ContainerForAPIController) Inspect(ctx *app.InspectContainerForAPIConte
 // List runs the list action.
 func (c *ContainerForAPIController) List(ctx *app.ListContainerForAPIContext) error {
 	// ContainerForAPIController_List: start_implement
+	h := newErrorHandler(ctx).handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	res := app.GoaContainerListEachCollection{}
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	res, status, err := c.controllerImpl.ListWithContext(ctx, uid)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
 	return ctx.OK(res)
 	// ContainerForAPIController_List: end_implement
 }
 
 // Logs runs the logs action.
 func (c *ContainerForAPIController) Logs(ctx *app.LogsContainerForAPIContext) error {
-	c.LogsWSHandler(ctx).ServeHTTP(ctx.ResponseWriter, ctx.Request)
+	h := newErrorHandler(ctx).handleInternalServerError()
+
+	uid, err := GetUIDFromJWT(ctx)
+
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	payload := controller.LogsPayload{
+		Stdout:     ctx.Stdout,
+		Stderr:     ctx.Stderr,
+		Timestamps: ctx.Timestamps,
+		Follow:     ctx.Follow,
+		Tail:       ctx.Tail,
+		Since:      ctx.Since,
+		Until:      ctx.Until,
+	}
+
+	rc, status, err := c.controllerImpl.LogsWithContext(ctx, uid, ctx.ID, payload)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+	c.LogsWSHandler(ctx, rc).ServeHTTP(ctx.ResponseWriter, ctx.Request)
+
 	return nil
 }
 
 // LogsWSHandler establishes a websocket connection to run the logs action.
-func (c *ContainerForAPIController) LogsWSHandler(ctx *app.LogsContainerForAPIContext) websocket.Handler {
+func (c *ContainerForAPIController) LogsWSHandler(ctx *app.LogsContainerForAPIContext, rc io.ReadCloser) websocket.Handler {
 	return func(ws *websocket.Conn) {
 		// ContainerForAPIController_Logs: start_implement
 
-		// Put your logic here
+		defer rc.Close()
+		io.Copy(ws, rc)
 
-		ws.Write([]byte("logs containerForApi"))
-		// Dummy echo websocket server
-		io.Copy(ws, ws)
 		// ContainerForAPIController_Logs: end_implement
 	}
-} // Remove runs the remove action.
+}
+
+// Remove runs the remove action.
 func (c *ContainerForAPIController) Remove(ctx *app.RemoveContainerForAPIContext) error {
 	// ContainerForAPIController_Remove: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleRunningContainer().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.Remove(uid, ctx.ID, ctx.Force)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForAPIController_Remove: end_implement
 }
 
 // SetConfig runs the setConfig action.
 func (c *ContainerForAPIController) SetConfig(ctx *app.SetConfigContainerForAPIContext) error {
 	// ContainerForAPIController_SetConfig: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.SetConfig(uid, ctx.ID, ctx.Payload)
+
+	if isError(status) {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForAPIController_SetConfig: end_implement
 }
 
 // Start runs the start action.
 func (c *ContainerForAPIController) Start(ctx *app.StartContainerForAPIContext) error {
 	// ContainerForAPIController_Start: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.Start(uid, ctx.ID)
+
+	if err != nil {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForAPIController_Start: end_implement
 }
 
 // Stop runs the stop action.
 func (c *ContainerForAPIController) Stop(ctx *app.StopContainerForAPIContext) error {
 	// ContainerForAPIController_Stop: start_implement
+	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.Stop(uid, ctx.ID)
+
+	if err != nil {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForAPIController_Stop: end_implement
 }
 
 // Upload runs the upload action.
 func (c *ContainerForAPIController) Upload(ctx *app.UploadContainerForAPIContext) error {
 	// ContainerForAPIController_Upload: start_implement
+	h := newErrorHandler(ctx).handleNotFoundWithError().handleBadRequestWithError().handleRequestEntityTooLarge().handleInternalServerError()
 
-	// Put your logic here
+	uid, err := GetUIDFromJWT(ctx)
 
-	return nil
+	if err != nil {
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	status, err := c.controllerImpl.UploadWithContext(ctx, uid, ctx.ID, ctx.Payload)
+
+	if err != nil {
+		if err := h.Call(status, err); err != nil {
+			return err
+		}
+
+		return ctx.InternalServerError(goa.ErrInternal(err))
+	}
+
+	return ctx.NoContent()
 	// ContainerForAPIController_Upload: end_implement
 }

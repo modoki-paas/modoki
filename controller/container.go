@@ -806,7 +806,7 @@ func (c *ContainerControllerImpl) ExecWithContext(ctx context.Context, uid, idOr
 		payload.Command = []string{"sh"}
 	}
 
-	return c.ExecWSHandler(cid, payload.Command, tty), http.StatusOK, nil
+	return c.execWSHandler(cid, payload.Command, tty), http.StatusOK, nil
 }
 
 func createExecOutgointData(encoder *json.Encoder, kind string, data ...string) error {
@@ -833,8 +833,8 @@ func parseExecIncoming(decoder *json.Decoder) (string, []string, error) {
 	return arr[0], arr[1:], nil
 }
 
-// ExecWSHandler establishes a websocket connection to run the exec action.
-func (c *ContainerControllerImpl) ExecWSHandler(cid string, command []string, tty bool) websocket.Handler {
+// execWSHandler establishes a websocket connection to run the exec action.
+func (c *ContainerControllerImpl) execWSHandler(cid string, command []string, tty bool) websocket.Handler {
 	return func(ws *websocket.Conn) {
 		execConfig := types.ExecConfig{
 			AttachStdin:  true,

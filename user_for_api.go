@@ -71,7 +71,6 @@ func (c *UserForAPIController) GetConfig(ctx *app.GetConfigUserForAPIContext) er
 // GetDefaultShell runs the getDefaultShell action.
 func (c *UserForAPIController) GetDefaultShell(ctx *app.GetDefaultShellUserForAPIContext) error {
 	// UserForAPIController_GetDefaultShell: start_implement
-
 	h := newErrorHandler(ctx).handleInternalServerError()
 
 	uid, err := GetUIDFromJWT(ctx)
