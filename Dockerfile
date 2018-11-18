@@ -1,12 +1,12 @@
-FROM golang:1.10-alpine as build
+FROM golang:1.11-alpine as build
 
+ENV GO111MODULE on
 RUN apk add --no-cache git
-RUN go get -v github.com/modoki-paas/modoki
+RUN mkdir -p /go/src/github.com/modoki-paas/modoki
 
 WORKDIR /go/src/github.com/modoki-paas/modoki
 
 COPY . /go/src/github.com/modoki-paas/modoki
-RUN go get -v .
 RUN CGO_ENABLED=0 go build -o /bin/modoki
 
 FROM scratch

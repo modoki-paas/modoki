@@ -1,0 +1,12 @@
+FROM alpine:latest as certs
+RUN apk --update add ca-certificates
+
+FROM scratch
+COPY --from=certs /etc/ssl/certs/ /etc/ssl/certs/
+
+COPY ./modoki /bin/modoki
+COPY ./swagger /swagger
+
+WORKDIR /
+ENTRYPOINT ["/bin/modoki"]
+CMD ["--help"]
