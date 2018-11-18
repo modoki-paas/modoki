@@ -1,5 +1,6 @@
 BINARY_NAME = modoki
 DOCKER_IMAGE_NAME = modokipaas/modoki
+GO111MODULE = on
 
 SRCS = $(wildcard *.go)
 
