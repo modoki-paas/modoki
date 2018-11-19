@@ -13,7 +13,7 @@ jobs:
           version: 18.05.0-ce
       - run:
           name: Build
-          command: go build
+          command: CGO_ENABLED=0 go build
       - run:
           name: Build Docker image
           command: docker build -f ./Dockerfile-circleci -t modokipaas/modoki:$CIRCLE_BRANCH .
