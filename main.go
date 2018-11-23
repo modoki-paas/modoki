@@ -112,6 +112,10 @@ func main() {
 	app.MountUserForAPIController(service, userForAPIController)
 	app.MountUserForFrontendController(service, userForFrontendController)
 
+	swaggerController := NewSwaggerController(service)
+
+	app.MountSwaggerController(service, swaggerController)
+
 	// Start service
 
 	if err := service.ListenAndServe(":80"); err != nil {
