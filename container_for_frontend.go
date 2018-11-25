@@ -26,7 +26,7 @@ func (c *ContainerForFrontendController) Create(ctx *app.CreateContainerForFront
 	// ContainerForFrontendController_Create: start_implement
 	h := newErrorHandler(ctx).handleBadRequestWithError().handleConflict().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -61,7 +61,7 @@ func (c *ContainerForFrontendController) Download(ctx *app.DownloadContainerForF
 	// ContainerForFrontendController_Download: start_implement
 	h := newErrorHandler(ctx).handleNotFoundWithError().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -97,7 +97,7 @@ func (c *ContainerForFrontendController) Download(ctx *app.DownloadContainerForF
 func (c *ContainerForFrontendController) Exec(ctx *app.ExecContainerForFrontendContext) error {
 	h := newErrorHandler(ctx).handleNotFoundWithError().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -125,7 +125,7 @@ func (c *ContainerForFrontendController) GetConfig(ctx *app.GetConfigContainerFo
 	// ContainerForFrontendController_GetConfig: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -150,7 +150,7 @@ func (c *ContainerForFrontendController) Inspect(ctx *app.InspectContainerForFro
 	// ContainerForFrontendController_Inspect: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -175,7 +175,7 @@ func (c *ContainerForFrontendController) List(ctx *app.ListContainerForFrontendC
 	// ContainerForFrontendController_List: start_implement
 	h := newErrorHandler(ctx).handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -199,7 +199,7 @@ func (c *ContainerForFrontendController) List(ctx *app.ListContainerForFrontendC
 func (c *ContainerForFrontendController) Logs(ctx *app.LogsContainerForFrontendContext) error {
 	h := newErrorHandler(ctx).handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -244,7 +244,7 @@ func (c *ContainerForFrontendController) Remove(ctx *app.RemoveContainerForFront
 	// ContainerForFrontendController_Remove: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleRunningContainer().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -269,7 +269,7 @@ func (c *ContainerForFrontendController) SetConfig(ctx *app.SetConfigContainerFo
 	// ContainerForFrontendController_SetConfig: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -294,7 +294,7 @@ func (c *ContainerForFrontendController) Start(ctx *app.StartContainerForFronten
 	// ContainerForFrontendController_Start: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -319,7 +319,7 @@ func (c *ContainerForFrontendController) Stop(ctx *app.StopContainerForFrontendC
 	// ContainerForFrontendController_Stop: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -344,7 +344,7 @@ func (c *ContainerForFrontendController) Upload(ctx *app.UploadContainerForFront
 	// ContainerForFrontendController_Upload: start_implement
 	h := newErrorHandler(ctx).handleNotFoundWithError().handleBadRequestWithError().handleRequestEntityTooLarge().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))

@@ -26,7 +26,7 @@ func (c *ContainerForAPIController) Create(ctx *app.CreateContainerForAPIContext
 	// ContainerForAPIController_Create: start_implement
 	h := newErrorHandler(ctx).handleBadRequestWithError().handleConflict().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -61,7 +61,7 @@ func (c *ContainerForAPIController) Download(ctx *app.DownloadContainerForAPICon
 	// ContainerForAPIController_Download: start_implement
 	h := newErrorHandler(ctx).handleNotFoundWithError().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -97,7 +97,7 @@ func (c *ContainerForAPIController) Download(ctx *app.DownloadContainerForAPICon
 func (c *ContainerForAPIController) Exec(ctx *app.ExecContainerForAPIContext) error {
 	h := newErrorHandler(ctx).handleNotFoundWithError().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -125,7 +125,7 @@ func (c *ContainerForAPIController) GetConfig(ctx *app.GetConfigContainerForAPIC
 	// ContainerForAPIController_GetConfig: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -150,7 +150,7 @@ func (c *ContainerForAPIController) Inspect(ctx *app.InspectContainerForAPIConte
 	// ContainerForAPIController_Inspect: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -175,7 +175,7 @@ func (c *ContainerForAPIController) List(ctx *app.ListContainerForAPIContext) er
 	// ContainerForAPIController_List: start_implement
 	h := newErrorHandler(ctx).handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -199,7 +199,7 @@ func (c *ContainerForAPIController) List(ctx *app.ListContainerForAPIContext) er
 func (c *ContainerForAPIController) Logs(ctx *app.LogsContainerForAPIContext) error {
 	h := newErrorHandler(ctx).handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -246,7 +246,7 @@ func (c *ContainerForAPIController) Remove(ctx *app.RemoveContainerForAPIContext
 	// ContainerForAPIController_Remove: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleRunningContainer().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -271,7 +271,7 @@ func (c *ContainerForAPIController) SetConfig(ctx *app.SetConfigContainerForAPIC
 	// ContainerForAPIController_SetConfig: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -296,7 +296,7 @@ func (c *ContainerForAPIController) Start(ctx *app.StartContainerForAPIContext) 
 	// ContainerForAPIController_Start: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -321,7 +321,7 @@ func (c *ContainerForAPIController) Stop(ctx *app.StopContainerForAPIContext) er
 	// ContainerForAPIController_Stop: start_implement
 	h := newErrorHandler(ctx).handleNotFound().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -346,7 +346,7 @@ func (c *ContainerForAPIController) Upload(ctx *app.UploadContainerForAPIContext
 	// ContainerForAPIController_Upload: start_implement
 	h := newErrorHandler(ctx).handleNotFoundWithError().handleBadRequestWithError().handleRequestEntityTooLarge().handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))

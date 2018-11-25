@@ -1,23 +1,6 @@
-package main
+package constants
 
-const (
-	jwtKeyUID           = "sub"
-	traefikFrontendName = "modoki"
-	traefikBackendName  = "modoki_backend"
-
-	frontendFormat = "modokif_%d"
-	backendFormat  = "modokib_%d"
-	serverName     = "main"
-
-	dockerLabelModokiID   = "com.cs3238.modoki.id"
-	dockerLabelModokiUID  = "com.cs3238.modoki.uid"
-	dockerLabelModokiName = "com.cs3238.modoki.name"
-
-	// user.go
-	defaultShellKVFormat = "modoki/users/%s/defaultShell" // TODO: encode for security
-)
-
-const containerSchema = `
+const ContainerSchema = `
 CREATE TABLE IF NOT EXISTS containers (
 	id INT NOT NULL AUTO_INCREMENT,
 	cid VARCHAR(128) UNIQUE,
@@ -30,7 +13,7 @@ CREATE TABLE IF NOT EXISTS containers (
 	INDEX(cid, name, uid)
 );`
 
-const authorizedKeysSchema = `
+const AuthorizedKeysSchema = `
 CREATE TABLE IF NOT EXISTS authorizedKeys (
 	id INT NOT NULL AUTO_INCREMENT,
 	uid VARCHAR(128) NOT NULL,
@@ -40,7 +23,7 @@ CREATE TABLE IF NOT EXISTS authorizedKeys (
 	INDEX(uid, label)
 );`
 
-const apiKeysSchema = `
+const APIKeysSchema = `
 CREATE TABLE IF NOT EXISTS apiKeys (
 	id INT NOT NULL AUTO_INCREMENT,
 	uid VARCHAR(128) NOT NULL UNIQUE,

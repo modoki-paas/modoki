@@ -2,21 +2,24 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	jwtgo "github.com/dgrijalva/jwt-go"
 	"github.com/goadesign/goa/middleware/security/jwt"
+	"github.com/modoki-paas/modoki/const"
 )
 
-func GetUIDFromJWT(ctx context.Context) (string, error) {
-	token := jwt.ContextJWT(ctx)
-	if token == nil {
-		return "", fmt.Errorf("JWT token is missing from context") // internal error
+func GetUIDFromContext(ctx context.Context) (string, error) {
+	if token := jwt.ContextJWT(ctx); token != nil {
+		claims := token.Claims.(jwtgo.MapClaims)
+
+		uid := claims[constants.JWTKeyUID].(string)
+
+		return uid, nil
 	}
 
-	claims := token.Claims.(jwtgo.MapClaims)
+	if uid, ok := ctx.Value(constants.UIDContextKeyForAPIKey).(string); ok {
+		return uid, nil
+	}
 
-	uidStr := claims[jwtKeyUID].(string)
-
-	return uidStr, nil
+	return "", errUnauthorized
 }

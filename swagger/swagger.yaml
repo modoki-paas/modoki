@@ -500,7 +500,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: getConfig containerForApi
       tags:
       - containerForApi
@@ -533,7 +533,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: setConfig containerForApi
       tags:
       - containerForApi
@@ -570,7 +570,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: download containerForApi
       tags:
       - containerForApi
@@ -580,8 +580,7 @@ paths:
         for xterm.js, using a protocol for terminado)
       operationId: containerForApi#exec
       parameters:
-      - collectionFormat: multi
-        description: The path to the executable file
+      - description: The path to the executable file
         in: query
         items:
           type: string
@@ -614,7 +613,7 @@ paths:
       schemes:
       - ws
       security:
-      - jwt: []
+      - api_key: []
       summary: exec containerForApi
       tags:
       - containerForApi
@@ -646,7 +645,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: inspect containerForApi
       tags:
       - containerForApi
@@ -709,7 +708,7 @@ paths:
       schemes:
       - ws
       security:
-      - jwt: []
+      - api_key: []
       summary: logs containerForApi
       tags:
       - containerForApi
@@ -746,7 +745,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: remove containerForApi
       tags:
       - containerForApi
@@ -775,7 +774,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: start containerForApi
       tags:
       - containerForApi
@@ -804,7 +803,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: stop containerForApi
       tags:
       - containerForApi
@@ -865,7 +864,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: upload containerForApi
       tags:
       - containerForApi
@@ -874,16 +873,14 @@ paths:
       description: create a new container
       operationId: containerForApi#create
       parameters:
-      - collectionFormat: multi
-        description: Command to run specified as a string or an array of strings.
+      - description: Command to run specified as a string or an array of strings.
         in: query
         items:
           type: string
         name: command
         required: false
         type: array
-      - collectionFormat: multi
-        description: The entry point for the container as a string or an array of
+      - description: The entry point for the container as a string or an array of
           strings
         in: query
         items:
@@ -891,8 +888,7 @@ paths:
         name: entrypoint
         required: false
         type: array
-      - collectionFormat: multi
-        description: Environment variables
+      - description: Environment variables
         in: query
         items:
           type: string
@@ -918,8 +914,7 @@ paths:
         name: sslRedirect
         required: false
         type: boolean
-      - collectionFormat: multi
-        description: Path to volumes in a container
+      - description: Path to volumes in a container
         in: query
         items:
           type: string
@@ -955,7 +950,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: create containerForApi
       tags:
       - containerForApi
@@ -992,7 +987,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: download containerForApi
       tags:
       - containerForApi
@@ -1016,7 +1011,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: list containerForApi
       tags:
       - containerForApi
@@ -1063,7 +1058,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: getConfig userForApi
       tags:
       - userForApi
@@ -1090,7 +1085,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: removeAuthorizedKeys userForApi
       tags:
       - userForApi
@@ -1114,7 +1109,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: listAuthorizedKeys userForApi
       tags:
       - userForApi
@@ -1139,7 +1134,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: setAuthorizedKeys userForApi
       tags:
       - userForApi
@@ -1166,7 +1161,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: addAuthorizedKeys userForApi
       tags:
       - userForApi
@@ -1189,7 +1184,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: getDefaultShell userForApi
       tags:
       - userForApi
@@ -1213,7 +1208,7 @@ paths:
       - http
       - https
       security:
-      - jwt: []
+      - api_key: []
       summary: setDefaultShell userForApi
       tags:
       - userForApi
@@ -1325,8 +1320,7 @@ paths:
         for xterm.js, using a protocol for terminado)
       operationId: containerForFrontend#exec
       parameters:
-      - collectionFormat: multi
-        description: The path to the executable file
+      - description: The path to the executable file
         in: query
         items:
           type: string
@@ -1619,16 +1613,14 @@ paths:
       description: create a new container
       operationId: containerForFrontend#create
       parameters:
-      - collectionFormat: multi
-        description: Command to run specified as a string or an array of strings.
+      - description: Command to run specified as a string or an array of strings.
         in: query
         items:
           type: string
         name: command
         required: false
         type: array
-      - collectionFormat: multi
-        description: The entry point for the container as a string or an array of
+      - description: The entry point for the container as a string or an array of
           strings
         in: query
         items:
@@ -1636,8 +1628,7 @@ paths:
         name: entrypoint
         required: false
         type: array
-      - collectionFormat: multi
-        description: Environment variables
+      - description: Environment variables
         in: query
         items:
           type: string
@@ -1663,8 +1654,7 @@ paths:
         name: sslRedirect
         required: false
         type: boolean
-      - collectionFormat: multi
-        description: Path to volumes in a container
+      - description: Path to volumes in a container
         in: query
         items:
           type: string
@@ -2027,6 +2017,10 @@ schemes:
 - http
 - https
 securityDefinitions:
+  api_key:
+    in: header
+    name: X-Shared-Secret
+    type: apiKey
   jwt:
     description: |2-
 

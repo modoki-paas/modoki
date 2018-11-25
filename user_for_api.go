@@ -22,7 +22,7 @@ func (c *UserForAPIController) AddAuthorizedKeys(ctx *app.AddAuthorizedKeysUserF
 	// UserForAPIController_AddAuthorizedKeys: start_implement
 	h := newErrorHandler(ctx).handleNoContent().handleInternalServerError().handleBadRequest()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -48,7 +48,7 @@ func (c *UserForAPIController) GetConfig(ctx *app.GetConfigUserForAPIContext) er
 	// UserForAPIController_GetConfig: start_implement
 	h := newErrorHandler(ctx).handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -73,7 +73,7 @@ func (c *UserForAPIController) GetDefaultShell(ctx *app.GetDefaultShellUserForAP
 	// UserForAPIController_GetDefaultShell: start_implement
 	h := newErrorHandler(ctx).handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -98,7 +98,7 @@ func (c *UserForAPIController) ListAuthorizedKeys(ctx *app.ListAuthorizedKeysUse
 	// UserForAPIController_ListAuthorizedKeys: start_implement
 	h := newErrorHandler(ctx).handleInternalServerError().handleNotFound()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -123,7 +123,7 @@ func (c *UserForAPIController) RemoveAuthorizedKeys(ctx *app.RemoveAuthorizedKey
 	// UserForAPIController_RemoveAuthorizedKeys: start_implement
 	h := newErrorHandler(ctx).handleInternalServerError().handleNotFound()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -148,7 +148,7 @@ func (c *UserForAPIController) SetAuthorizedKeys(ctx *app.SetAuthorizedKeysUserF
 	// UserForAPIController_SetAuthorizedKeys: start_implement
 	h := newErrorHandler(ctx).handleInternalServerError().handleNotFound()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
@@ -182,7 +182,7 @@ func (c *UserForAPIController) SetDefaultShell(ctx *app.SetDefaultShellUserForAP
 	// UserForAPIController_SetDefaultShell: start_implement
 	h := newErrorHandler(ctx).handleInternalServerError()
 
-	uid, err := GetUIDFromJWT(ctx)
+	uid, err := GetUIDFromContext(ctx)
 
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))

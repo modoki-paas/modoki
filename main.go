@@ -14,6 +14,7 @@ import (
 	"github.com/goadesign/goa/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/modoki-paas/modoki/app"
+	"github.com/modoki-paas/modoki/const"
 	"github.com/modoki-paas/modoki/consul_traefik"
 )
 
@@ -75,6 +76,7 @@ func main() {
 	// Create service
 	service := goa.New("Modoki API")
 
+	app.UseAPIKeyMiddleware(service, newAPIKeyMiddleware(db))
 	app.UseJWTMiddleware(service, jwtMiddleware)
 
 	service.Use(middleware.RequestID())
@@ -130,15 +132,15 @@ func dbInit() *sqlx.DB {
 		log.Fatal("error: Connecting to SQL server error: ", err)
 	}
 
-	if _, err := db.Exec(containerSchema); err != nil {
+	if _, err := db.Exec(constants.ContainerSchema); err != nil {
 		log.Fatal("error: Failed to create containers table: ", err)
 	}
 
-	if _, err := db.Exec(authorizedKeysSchema); err != nil {
+	if _, err := db.Exec(constants.AuthorizedKeysSchema); err != nil {
 		log.Fatal("error: Failed to create authorizedKeys schema: ", err)
 	}
 
-	if _, err := db.Exec(apiKeysSchema); err != nil {
+	if _, err := db.Exec(constants.APIKeysSchema); err != nil {
 		log.Fatal("error: Failed to create apiKeys schema: ", err)
 	}
 
@@ -152,33 +154,33 @@ func consulInit() *consulTraefik.Client {
 		log.Fatal("error: Connecting to consul server error", err)
 	}
 
-	if ok, err := consul.HasFrontend(traefikFrontendName); err != nil {
+	if ok, err := consul.HasFrontend(constants.TraefikFrontendName); err != nil {
 		log.Fatal("error: consul.HasFrontend error", err)
 	} else if !ok {
 
 		if err := consul.AddValueForFrontend(
-			traefikFrontendName,
-			"routes", "host", "rule", "Host:"+*publicAddr+";PathPrefix:/api/",
+			constants.TraefikFrontendName,
+			"routes", "host", "rule", "Host:"+*publicAddr+";PathPrefix:/api/,/frontend/",
 		); err != nil {
 			log.Fatal("error: consul.NewFrontend error", err)
 		}
 
-		if err := consul.AddValueForFrontend(traefikFrontendName, "passHostHeader", true); err != nil {
+		if err := consul.AddValueForFrontend(constants.TraefikFrontendName, "passHostHeader", true); err != nil {
 			log.Fatal("error: consul.AddValueForFrontend error", err)
 		}
 
 		if *https {
-			if err := consul.AddValueForFrontend(traefikFrontendName, "headers", "sslredirect", true); err != nil {
+			if err := consul.AddValueForFrontend(constants.TraefikFrontendName, "headers", "sslredirect", true); err != nil {
 				log.Fatal("error: consul.AddValueForFrontend error", err)
 			}
 		}
 
-		if err := consul.AddValueForFrontend(traefikFrontendName, "backend", traefikBackendName); err != nil {
+		if err := consul.AddValueForFrontend(constants.TraefikFrontendName, "backend", constants.TraefikBackendName); err != nil {
 			log.Fatal("error: consul.AddValueForFrontend error", err)
 		}
 	}
 
-	if err := consul.NewBackend(traefikBackendName, serverName, *traefikAddr); err != nil {
+	if err := consul.NewBackend(constants.TraefikBackendName, constants.ServerName, *traefikAddr); err != nil {
 		log.Fatal("error: consul.NewBackend error", err)
 	}
 
@@ -186,5 +188,5 @@ func consulInit() *consulTraefik.Client {
 }
 
 func finalize(consul *consulTraefik.Client) {
-	consul.DeleteBackend(traefikBackendName)
+	consul.DeleteBackend(constants.TraefikBackendName)
 }
