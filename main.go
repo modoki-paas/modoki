@@ -94,19 +94,18 @@ func main() {
 		containerUtil,
 	}
 
-	containerForAPIController := &ContainerForAPIController{
-		controllerImpl: containerControllerImpl,
-	}
-	containerForFrontendController := &ContainerForFrontendController{
-		controllerImpl: containerControllerImpl,
-	}
+	containerForAPIController := NewContainerForAPIController(service)
+	containerForAPIController.controllerImpl = containerControllerImpl
 
-	userForAPIController := &UserForAPIController{
-		controllerImpl: userControllerImpl,
-	}
-	userForFrontendController := &UserForFrontendController{
-		controllerImpl: userControllerImpl,
-	}
+	containerForFrontendController := NewContainerForFrontendController(service)
+
+	containerForFrontendController.controllerImpl = containerControllerImpl
+
+	userForAPIController := NewUserForAPIController(service)
+	userForAPIController.controllerImpl = userControllerImpl
+
+	userForFrontendController := NewUserForFrontendController(service)
+	userForFrontendController.controllerImpl = userControllerImpl
 
 	app.MountContainerForAPIController(service, containerForAPIController)
 	app.MountContainerForFrontendController(service, containerForFrontendController)
