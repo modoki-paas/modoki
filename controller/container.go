@@ -352,8 +352,8 @@ func (c *ContainerControllerImpl) Remove(uid, idOrName string, force bool) (int,
 }
 
 // Start runs the start action.
-func (c *ContainerControllerImpl) Start(uid, irOrName string) (int, error) {
-	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, irOrName)
+func (c *ContainerControllerImpl) Start(uid, idOrName string) (int, error) {
+	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, idOrName, idOrName)
 
 	if err != nil {
 		return http.StatusInternalServerError, errors.Wrap(err, "Database Error")
