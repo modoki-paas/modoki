@@ -11,9 +11,7 @@ var _ = Resource("swagger", func() { // Defines the Operands resource
 	})
 	NoSecurity()
 
-	Files("/api/v2/swagger/swagger.json", "./swagger/swagger.json")
-	Files("/api/v2/swagger/swagger.yaml", "./swagger/swagger.yaml")
+	Files("/swagger/swagger.json", "./swagger/swagger.json")
+	Files("/swagger/swagger.yaml", "./swagger/swagger.yaml")
 
-	Files("/frontend/v2/swagger/swagger.json", "./swagger/swagger.json")
-	Files("/frontend/v2/swagger/swagger.yaml", "./swagger/swagger.yaml")
 })

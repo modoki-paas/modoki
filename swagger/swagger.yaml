@@ -580,7 +580,8 @@ paths:
         for xterm.js, using a protocol for terminado)
       operationId: containerForApi#exec
       parameters:
-      - description: The path to the executable file
+      - collectionFormat: multi
+        description: The path to the executable file
         in: query
         items:
           type: string
@@ -873,14 +874,16 @@ paths:
       description: create a new container
       operationId: containerForApi#create
       parameters:
-      - description: Command to run specified as a string or an array of strings.
+      - collectionFormat: multi
+        description: Command to run specified as a string or an array of strings.
         in: query
         items:
           type: string
         name: command
         required: false
         type: array
-      - description: The entry point for the container as a string or an array of
+      - collectionFormat: multi
+        description: The entry point for the container as a string or an array of
           strings
         in: query
         items:
@@ -888,7 +891,8 @@ paths:
         name: entrypoint
         required: false
         type: array
-      - description: Environment variables
+      - collectionFormat: multi
+        description: Environment variables
         in: query
         items:
           type: string
@@ -914,7 +918,8 @@ paths:
         name: sslRedirect
         required: false
         type: boolean
-      - description: Path to volumes in a container
+      - collectionFormat: multi
+        description: Path to volumes in a container
         in: query
         items:
           type: string
@@ -1015,30 +1020,6 @@ paths:
       summary: list containerForApi
       tags:
       - containerForApi
-  /api/v2/swagger/swagger.json:
-    get:
-      operationId: swagger#/api/v2/swagger/swagger.json
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-      schemes:
-      - http
-      - https
-      summary: Download ./swagger/swagger.json
-  /api/v2/swagger/swagger.yaml:
-    get:
-      operationId: swagger#/api/v2/swagger/swagger.yaml
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-      schemes:
-      - http
-      - https
-      summary: Download ./swagger/swagger.yaml
   /api/v2/user/config:
     get:
       operationId: userForApi#getConfig
@@ -1320,7 +1301,8 @@ paths:
         for xterm.js, using a protocol for terminado)
       operationId: containerForFrontend#exec
       parameters:
-      - description: The path to the executable file
+      - collectionFormat: multi
+        description: The path to the executable file
         in: query
         items:
           type: string
@@ -1613,14 +1595,16 @@ paths:
       description: create a new container
       operationId: containerForFrontend#create
       parameters:
-      - description: Command to run specified as a string or an array of strings.
+      - collectionFormat: multi
+        description: Command to run specified as a string or an array of strings.
         in: query
         items:
           type: string
         name: command
         required: false
         type: array
-      - description: The entry point for the container as a string or an array of
+      - collectionFormat: multi
+        description: The entry point for the container as a string or an array of
           strings
         in: query
         items:
@@ -1628,7 +1612,8 @@ paths:
         name: entrypoint
         required: false
         type: array
-      - description: Environment variables
+      - collectionFormat: multi
+        description: Environment variables
         in: query
         items:
           type: string
@@ -1654,7 +1639,8 @@ paths:
         name: sslRedirect
         required: false
         type: boolean
-      - description: Path to volumes in a container
+      - collectionFormat: multi
+        description: Path to volumes in a container
         in: query
         items:
           type: string
@@ -1755,30 +1741,6 @@ paths:
       summary: list containerForFrontend
       tags:
       - containerForFrontend
-  /frontend/v2/swagger/swagger.json:
-    get:
-      operationId: swagger#/frontend/v2/swagger/swagger.json
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-      schemes:
-      - http
-      - https
-      summary: Download ./swagger/swagger.json
-  /frontend/v2/swagger/swagger.yaml:
-    get:
-      operationId: swagger#/frontend/v2/swagger/swagger.yaml
-      responses:
-        "200":
-          description: File downloaded
-          schema:
-            type: file
-      schemes:
-      - http
-      - https
-      summary: Download ./swagger/swagger.yaml
   /frontend/v2/user/apiKey:
     get:
       operationId: userForFrontend#getAPIKey
@@ -1997,6 +1959,30 @@ paths:
       summary: setDefaultShell userForFrontend
       tags:
       - userForFrontend
+  /swagger/swagger.json:
+    get:
+      operationId: swagger#/swagger/swagger.json
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      - https
+      summary: Download ./swagger/swagger.json
+  /swagger/swagger.yaml:
+    get:
+      operationId: swagger#/swagger/swagger.yaml
+      responses:
+        "200":
+          description: File downloaded
+          schema:
+            type: file
+      schemes:
+      - http
+      - https
+      summary: Download ./swagger/swagger.yaml
 produces:
 - application/json
 - application/xml
