@@ -64,9 +64,9 @@ func (c *ContainerControllerUtil) updateContainerStatus(ctx context.Context, cid
 	n := "bridge"
 	// TODO: change network
 
-	/*if networkName != nil { // command arguments
-		n = *networkName
-	}*/
+	if c.NetworkName != nil { // command arguments
+		n = *c.NetworkName
+	}
 
 	addr := j.NetworkSettings.Networks[n].IPAddress
 
