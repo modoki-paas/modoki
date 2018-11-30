@@ -65,8 +65,8 @@ func main() {
 		DB:               db,
 		Consul:           consul,
 		PublicAddr:       *publicAddr,
-		HTTPS:            https,
-		DockerAPIVersion: dockerAPIVersion,
+		HTTPS:            *https,
+		DockerAPIVersion: *dockerAPIVersion,
 		NetworkName:      networkName,
 	}
 	userUtil := &controller.UserControllerUtil{
