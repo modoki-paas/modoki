@@ -824,7 +824,7 @@ paths:
         description: Allow for a existing directory to be replaced by a file
         in: formData
         name: allowOverwrite
-        required: false
+        required: true
         type: boolean
       - default: false
         description: Copy all uid/gid information
@@ -1545,7 +1545,7 @@ paths:
         description: Allow for a existing directory to be replaced by a file
         in: formData
         name: allowOverwrite
-        required: false
+        required: true
         type: boolean
       - default: false
         description: Copy all uid/gid information

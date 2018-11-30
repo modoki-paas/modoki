@@ -66,6 +66,9 @@ func (ut *uploadPayload) Validate() (err error) {
 	if ut.Data == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "data"))
 	}
+	if ut.AllowOverwrite == nil {
+		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "allowOverwrite"))
+	}
 	if ut.CopyUIDGID == nil {
 		err = goa.MergeErrors(err, goa.MissingAttributeError(`request`, "copyUIDGID"))
 	}

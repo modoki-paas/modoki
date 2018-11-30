@@ -503,7 +503,7 @@ func (c *Client) NewUploadContainerForAPIRequest(ctx context.Context, path strin
 		if err != nil {
 			return nil, err
 		}
-		tmp_AllowOverwrite := *payload.AllowOverwrite
+		tmp_AllowOverwrite := payload.AllowOverwrite
 		s := strconv.FormatBool(tmp_AllowOverwrite)
 		if _, err := fw.Write([]byte(s)); err != nil {
 			return nil, err

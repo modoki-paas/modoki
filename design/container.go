@@ -385,5 +385,5 @@ var UploadPayload = Type("UploadPayload", func() {
 		Default(false)
 	})
 
-	Required("path", "data", "copyUIDGID")
+	Required("path", "data", "allowOverwrite", "copyUIDGID")
 })
