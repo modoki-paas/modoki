@@ -61,9 +61,13 @@ func main() {
 	}
 
 	containerUtil := &controller.ContainerControllerUtil{
-		DockerClient: dockerClient,
-		DB:           db,
-		Consul:       consul,
+		DockerClient:     dockerClient,
+		DB:               db,
+		Consul:           consul,
+		PublicAddr:       *publicAddr,
+		HTTPS:            https,
+		DockerAPIVersion: dockerAPIVersion,
+		NetworkName:      networkName,
 	}
 	userUtil := &controller.UserControllerUtil{
 		DockerClient: dockerClient,
