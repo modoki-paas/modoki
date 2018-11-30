@@ -98,7 +98,8 @@ func (c *ContainerControllerUtil) updateContainerStatus(ctx context.Context, cid
 	return nil
 }
 
-func (c *ContainerControllerUtil) run(ctx context.Context) {
+// Run runs event watcher in background TODO: exported as microservice
+func (c *ContainerControllerUtil) Run(ctx context.Context) {
 	var fn func()
 
 	fn = func() {

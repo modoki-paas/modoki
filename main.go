@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
@@ -75,7 +76,7 @@ func main() {
 		Consul:       consul,
 	}
 	// TODO: Stop running in goroutine(export to another service)
-	//go containerUtil.run(context.Background())
+	go containerUtil.Run(context.Background())
 
 	// Create service
 	service := goa.New("Modoki API")
