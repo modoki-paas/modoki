@@ -12,6 +12,7 @@ const (
 	DockerLabelModokiID   = "com.cs3238.modoki.id"
 	DockerLabelModokiUID  = "com.cs3238.modoki.uid"
 	DockerLabelModokiName = "com.cs3238.modoki.name"
+	DockerLabelNICName    = "com.cs3238.modoki.nic"
 
 	// user.go
 	DefaultShellKVFormat = "modoki/users/%s/defaultShell" // TODO: encode for security

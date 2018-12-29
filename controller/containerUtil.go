@@ -25,10 +25,11 @@ type ContainerControllerUtil struct {
 	DockerClient *client.Client
 	Consul       *consulTraefik.Client
 
-	PublicAddr       string
-	HTTPS            bool
-	DockerAPIVersion string
-	NetworkName      *string
+	PublicAddr           string
+	HTTPS                bool
+	DockerAPIVersion     string
+	NetworkName          *string
+	NetworkPerUserPrefix string
 }
 
 func (c *ContainerControllerUtil) updateStatus(ctx context.Context, status, msg string, id int) error {

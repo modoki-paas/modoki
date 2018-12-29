@@ -20,17 +20,18 @@ import (
 )
 
 var (
-	sqlDriver        = flag.String("driver", "mysql", "SQL Driver")
-	authConfigPath   = flag.String("auth", "/usr/local/modoki/authconfig.json", "Path to auth config")
-	docker           = flag.String("docker", "unix:///var/run/docker.sock", "Docker path")
-	dockerAPIVersion = flag.String("docker-api", "v1.37", "Docker API version")
-	sqlHost          = flag.String("db", "root:password@tcp(localhost:3306)/modoki?charset=utf8mb4&parseTime=True", "SQL")
-	consulHost       = flag.String("consul", "localhost:8500", "Consul(KV)")
-	traefikAddr      = flag.String("traefikAddr", "http://modoki", "Address to register on traefik")
-	publicAddr       = flag.String("addr", "modoki.example.com", "API ep: modoki.example.com Service ep: *.modoki.example.com")
-	networkName      = flag.String("net", "", "network for containers to join")
-	https            = flag.Bool("https", true, "Enable HTTPS")
-	help             = flag.Bool("help", false, "Show this")
+	sqlDriver            = flag.String("driver", "mysql", "SQL Driver")
+	authConfigPath       = flag.String("auth", "/usr/local/modoki/authconfig.json", "Path to auth config")
+	docker               = flag.String("docker", "unix:///var/run/docker.sock", "Docker path")
+	dockerAPIVersion     = flag.String("docker-api", "v1.37", "Docker API version")
+	sqlHost              = flag.String("db", "root:password@tcp(localhost:3306)/modoki?charset=utf8mb4&parseTime=True", "SQL")
+	consulHost           = flag.String("consul", "localhost:8500", "Consul(KV)")
+	traefikAddr          = flag.String("traefikAddr", "http://modoki", "Address to register on traefik")
+	publicAddr           = flag.String("addr", "modoki.example.com", "API ep: modoki.example.com Service ep: *.modoki.example.com")
+	networkName          = flag.String("net", "", "network for containers to join")
+	networkPerUserPrefix = flag.String("net-prefix", "modokiNet", "prefix of network interface created per user")
+	https                = flag.Bool("https", true, "Enable HTTPS")
+	help                 = flag.Bool("help", false, "Show this")
 )
 
 // TODO: SQL retry実装
@@ -62,13 +63,14 @@ func main() {
 	}
 
 	containerUtil := &controller.ContainerControllerUtil{
-		DockerClient:     dockerClient,
-		DB:               db,
-		Consul:           consul,
-		PublicAddr:       *publicAddr,
-		HTTPS:            *https,
-		DockerAPIVersion: *dockerAPIVersion,
-		NetworkName:      networkName,
+		DockerClient:         dockerClient,
+		DB:                   db,
+		Consul:               consul,
+		PublicAddr:           *publicAddr,
+		HTTPS:                *https,
+		DockerAPIVersion:     *dockerAPIVersion,
+		NetworkName:          networkName,
+		NetworkPerUserPrefix: *networkPerUserPrefix,
 	}
 	userUtil := &controller.UserControllerUtil{
 		DockerClient: dockerClient,

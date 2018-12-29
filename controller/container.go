@@ -37,6 +37,18 @@ func (c *ContainerControllerImpl) must(err error) {
 	}
 }
 
+func (c *ContainerControllerImpl) createNetworkInterfacePerUser(ctx context.Context, uid string) (string, error) {
+	list, err := c.DockerClient.NetworkList(ctx, types.NetworkListOptions{Filters: filters.NewArgs(filters.Arg("label", ""))})
+
+	if err != nil {
+		return "", err
+	}
+
+	for i := range list {
+
+	}
+}
+
 // CreateWithContext runs the create action with context.
 func (c *ContainerControllerImpl) CreateWithContext(ctx context.Context, uid string, payload ContainerCreatePayload) (*app.GoaContainerCreateResults, int, error) {
 	res, err := c.DB.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (?, ?, "Waiting")`, payload.Name, uid)
