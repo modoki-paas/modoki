@@ -1,0 +1,202 @@
+syntax = "proto3";
+
+package modapi.container;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+
+message CreateRequest {
+  string name = 1;
+  string image = 2;
+  repeated string commdn = 3;
+  repeated string entrypoint = 4;
+  repeated string env = 5;
+  repeated string volumes = 6;
+  string working_dir = 7;
+  enum SSLRedirectPolicy {
+    Always = 0;
+    Never = 1;
+  };
+  SSLRedirectPolicy ssl_redirect = 8;
+
+  map<string, google.protobuf.Any> options = 9;
+}
+
+message CreateResponse {
+  map<string, google.protobuf.Any> attributes = 3;
+}
+
+message StartStopRequest {
+  oneof id_or_name {
+    string id = 1;
+    string name = 2;
+  }
+
+  map<string, google.protobuf.Any> options = 3;
+}
+
+message StartStopResponse {
+  map<string, google.protobuf.Any> attributes = 3;
+}
+
+message RemoveRequest {
+  oneof id_or_name {
+    string id = 1;
+    string name = 2;
+  }
+  bool force = 3;
+
+  map<string, google.protobuf.Any> options = 4;
+}
+
+message RemoveResponse {
+  map<string, google.protobuf.Any> attributes = 3;
+}
+
+message InspectRequest {
+  oneof id_or_name {
+    string id = 1;
+    string name = 2;
+  }
+  map<string, google.protobuf.Any> options = 3;
+}
+
+message InspectResponse {
+  string name = 1;
+  string id = 2;
+  string image = 3;
+  string image_id = 4;
+  string path = 5;
+  repeated string args = 6;
+  google.protobuf.Timestamp created_at = 7;
+  repeated string volumes = 8;
+
+  enum Status {
+    ImageDownloading = 0;
+    Created = 1;
+    Running = 2;
+    Stopped = 3;
+    Error = 4;
+  }
+  Status status = 9;
+
+  map<string, google.protobuf.Any> attributes = 10;
+}
+
+message ListRequest {
+  map<string, google.protobuf.Any> options = 1;
+}
+
+message ListResponse {
+  message ListResponseElement {
+    string name = 1;
+    string id = 2;
+    string image = 3;
+    string image_id = 4;
+    string command = 5;
+    google.protobuf.Timestamp created_at = 6;
+    repeated string volumes = 7;
+    enum Status {
+      Creating = 0;
+      Created = 1;
+      Running = 2;
+      Stopped = 3;
+      Error = 4;
+    }
+    Status status = 8;
+
+    map<string, google.protobuf.Any> attributes = 9;
+  }
+
+  repeated ListResponseElement values = 2;
+}
+
+message ConatinerLogsRequest {
+  oneof id_or_name {
+    string id = 1;
+    string name = 2;
+  }
+  bool follow = 3;
+  bool stdout = 4;
+  bool stderr = 5;
+  google.protobuf.Timestamp since = 6;
+  google.protobuf.Timestamp until = 7;
+  bool timestamps = 8;
+  int32 tail = 9; // 負の値の場合はall
+
+  map<string, google.protobuf.Any> options = 10;
+}
+
+message LogsResponse {
+  bytes chunk = 1;
+
+  map<string, google.protobuf.Any> attributes = 2;
+}
+
+message GetConfigRequest {
+  oneof id_or_name {
+    string id = 1;
+    string name = 2;
+  }
+  
+  map<string, google.protobuf.Any> options = 3;
+}
+
+message GetConfigResponse {
+  string default_shell = 1;
+
+  map<string, google.protobuf.Any> attributes = 2;
+}
+
+message SetConfigRequest {
+  oneof id_or_name {
+    string id = 1;
+    string name = 2;
+  }
+
+  string default_shell = 3;
+
+  map<string, google.protobuf.Any> options = 4;
+}
+
+message SetConfigResponse {
+  map<string, google.protobuf.Any> attributes = 1;
+}
+
+message ExecPayload {
+  message Parameters {
+    oneof id_or_name {
+      string id = 1;
+      string name = 2;
+    }
+
+    repeated string command = 3;
+    bool tty = 4;
+
+    map<string, google.protobuf.Any> options = 5;
+  }
+  
+  oneof payload {
+    Parameters parameter_at_first = 1;
+    bytes chunk = 2;
+  }
+}
+
+message ExecResponse {
+  bytes chunk = 1;
+
+  map<string, google.protobuf.Any> attributes = 2;
+}
+
+service Service {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Start(StartStopRequest) returns (StartStopResponse);
+  rpc Stop(StartStopRequest) returns (StartStopResponse);
+  rpc Remove(RemoveRequest) returns (RemoveResponse);
+  rpc Inspect(InspectRequest) returns (InspectResponse);
+  rpc List(ListRequest) returns (ListResponse);
+  rpc Logs(ConatinerLogsRequest) returns (LogsResponse);
+  rpc GetConfig (GetConfigRequest) returns (GetConfigResponse);
+  rpc SetConfig (SetConfigRequest) returns (SetConfigResponse);
+  rpc Exec (stream ExecPayload) returns (stream ExecResponse);
+}

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/modoki-paas/modoki/const"
-	"github.com/modoki-paas/modoki/consul_traefik"
+	constants "github.com/modoki-paas/modoki/const"
+	consulTraefik "github.com/modoki-paas/modoki/consul_traefik"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -136,7 +136,7 @@ func (c *ContainerControllerUtil) Run(ctx context.Context) {
 
 // TODO: change from payload to parameters
 
-type ContainerCreatePayload struct {
+type ContainerCreateParameters struct {
 	Name        string
 	Image       string
 	Command     []string
@@ -147,7 +147,12 @@ type ContainerCreatePayload struct {
 	SSLRedirect bool
 }
 
-type LogsPayload struct {
+type ContainerCreateResult struct {
+	Endpoints []string
+	ID        int
+}
+
+type LogsParameters struct {
 	Stderr     bool
 	Stdout     bool
 	Timestamps bool
@@ -162,9 +167,59 @@ type ExecParameters struct {
 	Tty     *bool
 }
 
+type ContainerInspectRawState struct {
+	Dead       bool
+	ExitCode   int
+	FinishedAt time.Time
+	OomKilled  bool
+	Paused     bool
+	Pid        int
+	Restarting bool
+	Running    bool
+	StartedAt  time.Time
+	Status     string
+}
+
+type ContainerInspectResult struct {
+	Args     []string
+	Created  time.Time
+	ID       int
+	Image    string
+	ImageID  string
+	Name     string
+	Path     string
+	RawState *ContainerInspectRawState
+	Status   string
+	Volumes  []string
+}
+
+type ContainerListResult []ContainerListResultElement
+
+type ContainerListResultElement struct {
+	Command string
+	Created time.Time
+	ID      int
+	Image   string
+	ImageID string
+	Name    string
+	Status  string
+	Volumes []string
+}
+
 type DownloadResult struct {
 	PathStatJSON string
 	Reader       io.ReadCloser
+}
+
+type ContainerConfig struct {
+	DefaultShell *string
+}
+
+type UploadParameters struct {
+	AllowOverwrite bool
+	CopyUIDGID     bool
+	Data           io.Reader
+	Path           string
 }
 
 const (

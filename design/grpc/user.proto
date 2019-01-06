@@ -1,0 +1,69 @@
+syntax = "proto3";
+
+package modapi.user;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/any.proto";
+
+message AuthorizedKeyType {
+  string key = 1;
+  string label = 2;
+}
+
+message ListAuthorizedKeysRequest {
+}
+
+message ListAuthorizedKeysResponse {
+  repeated AuthorizedKeyType keys = 1;
+}
+
+message RemoveAuthorizedKeyRequest {
+  string label = 1;
+}
+
+message RemoveAuthorizedKeyResponse {
+}
+
+message AddAuthorizedKeyRequest {
+  AuthorizedKeyType key = 1;
+}
+
+message AddAuthorizedKeyResponse {
+}
+
+service AuthorizedKey {
+  rpc List (ListAuthorizedKeysRequest) returns (ListAuthorizedKeysResponse);
+  rpc Remove (RemoveAuthorizedKeyRequest) returns (RemoveAuthorizedKeyResponse);
+  rpc Add (AddAuthorizedKeyRequest) returns (AddAuthorizedKeyResponse);
+}
+
+message SetDefaultShellRequest {
+  string default_shell = 1;
+}
+
+message SetDefaultShellResponse {
+}
+
+message GetDefaultShellRequest {
+}
+
+message GetDefaultShellResponse {
+  string default_shell = 1;
+}
+
+service DefaultShell {
+  rpc Set (SetDefaultShellRequest) returns (SetDefaultShellResponse);
+  rpc Get (GetDefaultShellRequest) returns (GetDefaultShellResponse);
+}
+
+message ReissueAPIKeyRequest {
+}
+
+message ReissueAPIKeyResponse {
+  string api_key = 1;
+}
+
+service APIKey {
+  rpc Reissue (ReissueAPIKeyRequest) returns (ReissueAPIKeyResponse);
+}

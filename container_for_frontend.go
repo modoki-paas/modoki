@@ -31,7 +31,8 @@ func (c *ContainerForFrontendController) Create(ctx *app.CreateContainerForFront
 	if err != nil {
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
-	payload := controller.ContainerCreatePayload{
+
+	payload := controller.ContainerCreateParameters{
 		Name:        ctx.Name,
 		Image:       ctx.Image,
 		Command:     ctx.Command,
@@ -52,7 +53,12 @@ func (c *ContainerForFrontendController) Create(ctx *app.CreateContainerForFront
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	return ctx.OK(res)
+	resp := &app.GoaContainerCreateResults{
+		Endpoints: res.Endpoints,
+		ID:        res.ID,
+	}
+
+	return ctx.OK(resp)
 	// ContainerForFrontendController_Create: end_implement
 }
 
@@ -141,7 +147,11 @@ func (c *ContainerForFrontendController) GetConfig(ctx *app.GetConfigContainerFo
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	return ctx.OK(res)
+	resp := &app.GoaContainerConfig{
+		DefaultShell: res.DefaultShell,
+	}
+
+	return ctx.OK(resp)
 	// ContainerForFrontendController_GetConfig: end_implement
 }
 
@@ -166,7 +176,31 @@ func (c *ContainerForFrontendController) Inspect(ctx *app.InspectContainerForFro
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	return ctx.OK(res)
+	resp := &app.GoaContainerInspect{
+		Args:    res.Args,
+		Created: res.Created,
+		ID:      res.ID,
+		Image:   res.Image,
+		ImageID: res.ImageID,
+		Name:    res.Name,
+		Path:    res.Path,
+		RawState: &app.GoaContainerInspectRawState{
+			Dead:       res.RawState.Dead,
+			ExitCode:   res.RawState.ExitCode,
+			FinishedAt: res.RawState.FinishedAt,
+			OomKilled:  res.RawState.OomKilled,
+			Paused:     res.RawState.Paused,
+			Pid:        res.RawState.Pid,
+			Restarting: res.RawState.Restarting,
+			Running:    res.RawState.Running,
+			StartedAt:  res.RawState.StartedAt,
+			Status:     res.RawState.Status,
+		},
+		Status:  res.Status,
+		Volumes: res.Volumes,
+	}
+
+	return ctx.OK(resp)
 	// ContainerForFrontendController_Inspect: end_implement
 }
 
@@ -191,7 +225,22 @@ func (c *ContainerForFrontendController) List(ctx *app.ListContainerForFrontendC
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	return ctx.OK(res)
+	resp := make(app.GoaContainerListEachCollection, 0, len(res))
+
+	for i := range res {
+		resp = append(resp, &app.GoaContainerListEach{
+			Command: res[i].Command,
+			Created: res[i].Created,
+			ID:      res[i].ID,
+			Image:   res[i].Image,
+			ImageID: res[i].ImageID,
+			Name:    res[i].Name,
+			Status:  res[i].Status,
+			Volumes: res[i].Volumes,
+		})
+	}
+
+	return ctx.OK(resp)
 	// ContainerForFrontendController_List: end_implement
 }
 
@@ -205,7 +254,7 @@ func (c *ContainerForFrontendController) Logs(ctx *app.LogsContainerForFrontendC
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	payload := controller.LogsPayload{
+	payload := controller.LogsParameters{
 		Stdout:     ctx.Stdout,
 		Stderr:     ctx.Stderr,
 		Timestamps: ctx.Timestamps,
@@ -275,7 +324,11 @@ func (c *ContainerForFrontendController) SetConfig(ctx *app.SetConfigContainerFo
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	status, err := c.controllerImpl.SetConfig(uid, ctx.ID, ctx.Payload)
+	config := &controller.ContainerConfig{
+		DefaultShell: ctx.Payload.DefaultShell,
+	}
+
+	status, err := c.controllerImpl.SetConfig(uid, ctx.ID, config)
 
 	if isError(status) {
 		if err := h.Call(status, err); err != nil {
@@ -350,7 +403,21 @@ func (c *ContainerForFrontendController) Upload(ctx *app.UploadContainerForFront
 		return ctx.InternalServerError(goa.ErrInternal(err))
 	}
 
-	status, err := c.controllerImpl.UploadWithContext(ctx, uid, ctx.ID, ctx.Payload)
+	file, err := ctx.Payload.Data.Open()
+
+	if err != nil {
+		return ctx.InternalServerError(err)
+	}
+	defer file.Close()
+
+	param := &controller.UploadParameters{
+		AllowOverwrite: ctx.Payload.AllowOverwrite,
+		CopyUIDGID:     ctx.Payload.CopyUIDGID,
+		Data:           file,
+		Path:           ctx.Payload.Path,
+	}
+
+	status, err := c.controllerImpl.UploadWithContext(ctx, uid, ctx.ID, param)
 
 	if err != nil {
 		if err := h.Call(status, err); err != nil {

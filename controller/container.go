@@ -21,8 +21,7 @@ import (
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/docker/libkv/store"
-	"github.com/modoki-paas/modoki/app"
-	"github.com/modoki-paas/modoki/const"
+	constants "github.com/modoki-paas/modoki/const"
 	"github.com/pkg/errors"
 	"golang.org/x/net/websocket"
 )
@@ -38,7 +37,7 @@ func (c *ContainerControllerImpl) must(err error) {
 }
 
 // CreateWithContext runs the create action with context.
-func (c *ContainerControllerImpl) CreateWithContext(ctx context.Context, uid string, payload ContainerCreatePayload) (*app.GoaContainerCreateResults, int, error) {
+func (c *ContainerControllerImpl) CreateWithContext(ctx context.Context, uid string, payload ContainerCreateParameters) (*ContainerCreateResult, int, error) {
 	res, err := c.DB.ExecContext(ctx, `INSERT INTO containers (name, uid, status) VALUES (?, ?, "Waiting")`, payload.Name, uid)
 
 	if err != nil {
@@ -229,7 +228,7 @@ func (c *ContainerControllerImpl) CreateWithContext(ctx context.Context, uid str
 		}
 	}
 
-	cres := &app.GoaContainerCreateResults{
+	cres := &ContainerCreateResult{
 		ID:        id,
 		Endpoints: eps,
 	}
@@ -444,7 +443,7 @@ func (c *ContainerControllerImpl) Stop(uid, irOrName string) (int, error) {
 }
 
 // InspectWithContext runs the inspect action.
-func (c *ContainerControllerImpl) InspectWithContext(ctx context.Context, uid, idOrName string) (*app.GoaContainerInspect, int, error) {
+func (c *ContainerControllerImpl) InspectWithContext(ctx context.Context, uid, idOrName string) (*ContainerInspectResult, int, error) {
 	rows, err := c.DB.Query("SELECT id, cid, name, status FROM containers WHERE uid=? AND (id=? OR name=?)", uid, idOrName, idOrName)
 
 	if err != nil {
@@ -463,7 +462,7 @@ func (c *ContainerControllerImpl) InspectWithContext(ctx context.Context, uid, i
 	rows.Close()
 
 	if status == "Error" || status == "Creating" {
-		insp := &app.GoaContainerInspect{
+		insp := &ContainerInspectResult{
 			ID:     id,
 			Name:   name,
 			Status: status,
@@ -489,7 +488,7 @@ func (c *ContainerControllerImpl) InspectWithContext(ctx context.Context, uid, i
 		vols = append(vols, k)
 	}
 
-	insp := &app.GoaContainerInspect{
+	insp := &ContainerInspectResult{
 		Args:    j.Args,
 		Created: t,
 		ID:      id,
@@ -514,7 +513,7 @@ func (c *ContainerControllerImpl) InspectWithContext(ctx context.Context, uid, i
 	s, _ := time.Parse(time.RFC3339Nano, rawState.StartedAt)
 	f, _ := time.Parse(time.RFC3339Nano, rawState.FinishedAt)
 
-	insp.RawState = &app.GoaContainerInspectRawState{
+	insp.RawState = &ContainerInspectRawState{
 		Dead:       rawState.Dead,
 		ExitCode:   rawState.ExitCode,
 		FinishedAt: f,
@@ -531,7 +530,7 @@ func (c *ContainerControllerImpl) InspectWithContext(ctx context.Context, uid, i
 }
 
 // ListWithContext runs the list action.
-func (c *ContainerControllerImpl) ListWithContext(ctx context.Context, uid string) (app.GoaContainerListEachCollection, int, error) {
+func (c *ContainerControllerImpl) ListWithContext(ctx context.Context, uid string) (ContainerListResult, int, error) {
 	filter := filters.NewArgs()
 
 	filter.Add("label", constants.DockerLabelModokiUID+"="+uid)
@@ -544,7 +543,7 @@ func (c *ContainerControllerImpl) ListWithContext(ctx context.Context, uid strin
 	if err != nil {
 		return nil, http.StatusInternalServerError, errors.Wrap(err, "Docker API Error")
 	}
-	res := make(app.GoaContainerListEachCollection, 0, len(list)+10)
+	res := make(ContainerListResult, 0, len(list)+10)
 
 	rows, err := c.DB.Query(`SELECT id, name, message, status FROM containers WHERE status="Error" OR status="Creating"`)
 
@@ -562,7 +561,7 @@ func (c *ContainerControllerImpl) ListWithContext(ctx context.Context, uid strin
 			return nil, http.StatusInternalServerError, errors.Wrap(err, "Database Error")
 		}
 
-		res = append(res, &app.GoaContainerListEach{
+		res = append(res, ContainerListResultElement{
 			ID:      id,
 			Name:    name,
 			Command: msg,
@@ -594,7 +593,7 @@ func (c *ContainerControllerImpl) ListWithContext(ctx context.Context, uid strin
 			state = "Stopped"
 		}
 
-		each := &app.GoaContainerListEach{
+		each := ContainerListResultElement{
 			Command: j.Command,
 			Created: t,
 			ID:      id,
@@ -612,7 +611,7 @@ func (c *ContainerControllerImpl) ListWithContext(ctx context.Context, uid strin
 }
 
 // UploadWithContext runs the upload action.
-func (c *ContainerControllerImpl) UploadWithContext(ctx context.Context, uid, idOrName string, payload *app.UploadPayload) (int, error) {
+func (c *ContainerControllerImpl) UploadWithContext(ctx context.Context, uid, idOrName string, payload *UploadParameters) (int, error) {
 	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, idOrName, idOrName)
 
 	if err != nil {
@@ -633,12 +632,11 @@ func (c *ContainerControllerImpl) UploadWithContext(ctx context.Context, uid, id
 		return http.StatusNotFound, errors.New("No container found")
 	}
 
-	reader, err := payload.Data.Open()
+	reader := payload.Data
 
 	if err != nil {
 		return http.StatusBadRequest, errors.Wrap(err, "Opening the form error")
 	}
-	defer reader.Close()
 
 	if err := c.DockerClient.CopyToContainer(ctx, cid.String, payload.Path, reader, types.CopyToContainerOptions{
 		AllowOverwriteDirWithFile: payload.AllowOverwrite,
@@ -655,7 +653,7 @@ func (c *ContainerControllerImpl) UploadWithContext(ctx context.Context, uid, id
 }
 
 // LogsWithContext runs the logs action.
-func (c *ContainerControllerImpl) LogsWithContext(ctx context.Context, uid, idOrName string, payload LogsPayload) (io.ReadCloser, int, error) {
+func (c *ContainerControllerImpl) LogsWithContext(ctx context.Context, uid, idOrName string, payload LogsParameters) (io.ReadCloser, int, error) {
 	rows, err := c.DB.Query("SELECT id, cid FROM containers WHERE uid=? AND (id=? OR name=?)", uid, idOrName, idOrName)
 
 	if err != nil {
@@ -700,7 +698,7 @@ func (c *ContainerControllerImpl) LogsWithContext(ctx context.Context, uid, idOr
 }
 
 // SetConfig runs the setConfig action.
-func (c *ContainerControllerImpl) SetConfig(uid, idOrName string, payload *app.ContainerConfig) (int, error) {
+func (c *ContainerControllerImpl) SetConfig(uid, idOrName string, payload *ContainerConfig) (int, error) {
 	var setQuery []string
 	var placeholders []interface{}
 
@@ -748,7 +746,7 @@ func (c *ContainerControllerImpl) SetConfig(uid, idOrName string, payload *app.C
 }
 
 // GetConfig runs the getConfig action.
-func (c *ContainerControllerImpl) GetConfig(uid, idOrName string) (*app.GoaContainerConfig, int, error) {
+func (c *ContainerControllerImpl) GetConfig(uid, idOrName string) (*ContainerConfig, int, error) {
 	var configs []sql.NullString
 	err := c.DB.Select(&configs, "SELECT defaultShell FROM containers WHERE uid=? AND (id=? OR name=?)", uid, idOrName, idOrName)
 
@@ -761,10 +759,12 @@ func (c *ContainerControllerImpl) GetConfig(uid, idOrName string) (*app.GoaConta
 	}
 
 	if !configs[0].Valid {
-		return &app.GoaContainerConfig{nil}, http.StatusOK, nil
+		return nil, http.StatusOK, nil
 	}
 
-	return &app.GoaContainerConfig{&configs[0].String}, http.StatusOK, nil
+	return &ContainerConfig{
+		DefaultShell: &configs[0].String,
+	}, http.StatusOK, nil
 }
 
 // ExecWithContext runs the exec action.
